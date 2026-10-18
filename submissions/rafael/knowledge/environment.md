@@ -6,3 +6,4 @@
 - Kaggle: `~/.kaggle/kaggle.json` (chmod 600); download via API com curl.
 - Root `.gitignore` ignora `submissions/` e não pode ser alterado → sempre `git add -f submissions/rafael/<arquivo>` (o `.gitignore` local ainda vale para não usar `-f` em dados).
 - `git add -f <pasta>` também adiciona arquivos ignorados (`__pycache__`, dados) → adicionar arquivo por arquivo ou conferir `git status` antes do commit.
+- Background/timeout: `pkill -f <padrão>` pode matar o próprio shell da ferramenta (o padrão casa com o comando) → usar `kill <pid>`. `RidgeCV` em TF-IDF esparso de 52K linhas trava (GCV denso) → Ridge com `solver="sparse_cg"` + `max_features`.
