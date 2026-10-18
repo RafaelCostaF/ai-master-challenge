@@ -1,4 +1,6 @@
 *.csv
 data/raw/
+.ipynb_checkpoints/
 __pycache__/
+.pytest_cache/
 .venv/
