@@ -7,3 +7,4 @@
 | 2026-10-18 | Tratar dataset como **sintético** até prova em contrário | Descrição do Kaggle declara geração aleatória (Poisson) | Assumir dados reais e extrair "insights" do ruído |
 | 2026-10-18 | `git add -f` para arquivos da submissão | `.gitignore` raiz ignora `submissions/`; alterar arquivo fora da pasta é proibido | Editar `.gitignore` raiz |
 | 2026-10-18 | **Dataset é ruído puro (confirmado)** → entrega foca em provar isso, em um método/ferramenta validados com efeito injetado e em decisões que não dependem de engajamento | Todas as features com p > 0,2; métricas Poisson independentes; seguidores sem efeito | Reportar diferenças de 0,0001 como insights (o que o baseline de LLM faz) |
+| 2026-10-18 | EDA em notebook executado (`solution/notebooks/01_eda.ipynb`) antes de definir a estratégia | Usuário quer entender colunas, valores e relações por conta própria antes de decidir a direção | Pular direto para a estratégia "dados = ruído" |

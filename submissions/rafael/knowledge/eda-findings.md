@@ -15,3 +15,11 @@ Qualquer "insight" de engajamento extraído deste dataset é **ruído**. As resp
 1. Provar isso de forma executiva e rigorosa (testes, tamanho de efeito, poder estatístico).
 2. Entregar o **método + ferramenta** que funciona quando entrarem dados reais (ou mostrar que o pipeline detecta efeitos quando eles existem: injetar efeito sintético e recuperá-lo).
 3. Recomendações para o que *pode* ser decidido: custo (patrocínio com o mesmo resultado = desperdício), instrumentação de dados, experimentos A/B.
+
+## Entidades e chaves (notebook 01_eda, seção 7)
+- Arquivo único (flat): post + creator + patrocinador + audiência.
+- `content_id` = chave confiável. `content_url` se repete (28K distintas).
+- `creator_id` **não** é estável: ~10 nomes, ~10 follower_counts, 5 plataformas e 3 categorias por id → só dá para analisar "tamanho do creator" no nível do post.
+- `sponsor_name`: 18K distintos em 22K posts (nomes Faker); o mesmo nome aparece em até 6 categorias.
+- Patrocínio consistente: `is_sponsored=False` ⇔ disclosure `none` ⇔ sponsor "Not sponsors".
+- Categóricas independentes entre si (V de Cramér ≈ 0).
