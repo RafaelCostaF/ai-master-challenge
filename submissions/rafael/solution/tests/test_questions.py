@@ -21,6 +21,7 @@ def make_posts(seed: int = 0) -> pd.DataFrame:
         "content_length": rng.integers(10, 600, N), "hashtags": rng.choice(["", "a", "a,b", "a,b,c"], N), "comments_text": "nice",
         "content_description": rng.choice(["short caption", "a much longer caption here"], N), "is_sponsored": sponsored,
         "disclosure_type": np.where(sponsored, rng.choice(["explicit", "implicit"], N), "none"),
+        "disclosure_location": np.where(sponsored, rng.choice(["caption", "video"], N), "none"),
         "sponsor_category": np.where(sponsored, rng.choice(["food", "gaming"], N), "Not sponsors"),
         "audience_gender_distribution": rng.choice(["female", "male"], N),
         "audience_age_distribution": rng.choice(["19-25", "26-35"], N), "audience_location": rng.choice(["USA", "Brazil"], N),

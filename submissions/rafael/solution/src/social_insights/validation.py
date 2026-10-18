@@ -16,3 +16,11 @@ def inject_uplift(df: pd.DataFrame, mask: pd.Series, metric: str, uplift: float,
     out = df.copy()
     out.loc[mask, metric] = rng.poisson(out.loc[mask, metric] * (1 + uplift))
     return out
+
+
+def inject_engagement_uplift(df: pd.DataFrame, mask: pd.Series, uplift: float, seed: int = SEED) -> pd.DataFrame:
+    """Copy of df where likes on masked rows get +uplift (Poisson redraw) and engagement columns are recomputed."""
+    out = inject_uplift(df, mask, "likes", uplift, seed)
+    out["interactions"] = out[["likes", "shares", "comments_count"]].sum(axis=1)
+    out["eng_rate_views"] = out["interactions"] / out["views"]
+    return out
