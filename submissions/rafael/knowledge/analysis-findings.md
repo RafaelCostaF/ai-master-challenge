@@ -20,3 +20,11 @@ Código: `solution/src/social_insights/` · testes: `solution/tests/` · noteboo
 - NLP: sentimento igual entre top e demais (p > 0,77); nenhuma palavra com |z| > 1,96; tópicos sem semântica (texto Faker).
 - Por plataforma: 23.208 regras; 3 passam no FDR por tabela (espanhol+beleza/vídeo → likes TikTok; 4 hashtags+sexta → shares Bilibili) e **0 passam na correção global**.
 - Controle positivo: efeito de 2% detectado (q ≈ 0, R² 0 → 0,08; AUC 0,81 só no TikTok). O método é sensível; a ausência de sinal é real.
+
+## Plano de ação (notebook 04)
+- Qualidade: 0 duplicados, 0 valores impossíveis; nulos só em hashtags (17%). Outliers de Tukey < 1%, no máx. +4,5% (views) / +29% (comentários) da mediana → nada removido.
+- Alvos sem assimetria (skew ≈ 0, CV 1–7%) → log não muda a forma; mantido nos modelos por padronização.
+- Likes/seguidor × seguidores: ρ = −0,999, idêntico com likes embaralhados → artefato de razão. Likes × seguidores: ρ ≈ 0.
+- Pearson/Spearman: 0 de 24 significativas (máx. |ρ| 0,011). Kruskal categóricas: 0 de 39 (ε² máx. 0,00025). Faixas: 1 p < 0,05 em 15 (acaso).
+- RF/XGBoost/CatBoost × pré-publicação/explicativo × 3 alvos: R² validação ≈ 0 (≤ 0). RF R² treino ~0,1 → overfitting.
+- SHAP: importâncias ≤ 0,12% da previsão, mesma magnitude do modelo com alvo embaralhado; interações ~0,01%.

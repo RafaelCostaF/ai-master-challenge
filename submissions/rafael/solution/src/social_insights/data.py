@@ -46,7 +46,19 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     out["n_hashtags"] = out["hashtags"].fillna("").str.split(",").map(lambda tags: sum(bool(t.strip()) for t in tags))
     out["daypart"] = _bin(out["post_date"].dt.hour, DAYPARTS)
     out["weekday"] = out["post_date"].dt.day_name()
+    out["hour"] = out["post_date"].dt.hour
+    out["caption_words"] = out["content_description"].fillna("").str.split().str.len()
     out["comments_text"] = out["comments_text"].fillna("")
+    return out
+
+
+def add_rates(df: pd.DataFrame) -> pd.DataFrame:
+    """Normalized metrics: per view (engagement quality) and per follower (reach efficiency)."""
+    out = df.copy()
+    out["like_rate"] = out["likes"] / out["views"]
+    out["comment_rate"] = out["comments_count"] / out["views"]
+    out["likes_per_follower"] = out["likes"] / out["follower_count"]
+    out["views_per_follower"] = out["views"] / out["follower_count"]
     return out
 
 

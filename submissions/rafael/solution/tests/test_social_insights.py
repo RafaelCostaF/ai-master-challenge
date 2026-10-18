@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 from sklearn.datasets import make_blobs
 
-from social_insights import audience, clustering, data, nlp, top_performers, validation
+from social_insights import audience, cleaning, clustering, data, exploration, modeling, nlp, top_performers, validation
 
 RNG = np.random.default_rng(0)
 N = 4_000
@@ -17,7 +17,7 @@ def raw() -> pd.DataFrame:
         "likes": RNG.poisson(1500, N), "shares": RNG.poisson(300, N), "comments_count": RNG.poisson(200, N),
         "views": RNG.poisson(10_000, N), "follower_count": RNG.integers(1_000, 1_000_000, N),
         "content_length": RNG.integers(10, 600, N), "hashtags": ["a,b", None] * (N // 2),
-        "comments_text": ["great love it", None] * (N // 2),
+        "comments_text": ["great love it", None] * (N // 2), "content_description": ["nice post today"] * N,
         "platform": RNG.choice(["TikTok", "YouTube"], N), "content_type": RNG.choice(["video", "image"], N),
         "content_category": RNG.choice(["tech", "beauty"], N),
     })
@@ -87,3 +87,28 @@ def test_inject_uplift_only_touches_mask(raw):
     out = validation.inject_uplift(raw, mask, "views", 0.05)
     assert out.loc[~mask, "views"].equals(raw.loc[~mask, "views"])
     assert out.loc[mask, "views"].mean() > raw.loc[mask, "views"].mean() * 1.03
+
+
+def test_add_rates_and_spurious_ratio(raw):
+    df = data.add_rates(data.add_features(raw))
+    assert np.allclose(df["like_rate"], df["likes"] / df["views"])
+    demo = exploration.spurious_ratio_demo(df)["Spearman ρ"]
+    assert demo["likes EMBARALHADOS/seguidor × seguidores"] < -0.9 and abs(demo["likes × seguidores"]) < 0.1
+
+
+def test_quality_report_counts_duplicates(raw):
+    df = data.add_features(raw).assign(id=range(N), content_id=[f"c{i}" for i in range(N)])
+    report = cleaning.quality_report(pd.concat([df, df.iloc[:3]]))["valor"]
+    assert report["linhas duplicadas (todas as colunas)"] == 3
+
+
+def test_categorical_tests_detect_group_effect(raw):
+    raw.loc[raw["platform"] == "TikTok", "views"] += 200
+    table = exploration.categorical_tests(raw, ["platform", "content_type"], ["views"]).set_index("variável")
+    assert table.loc["platform", "significativo"] and not table.loc["content_type", "significativo"]
+
+
+def test_explanatory_scenario_adds_other_metrics():
+    cats, nums = modeling.scenario_columns("likes", "explicativo", data.METRICS)
+    assert "views" in nums and "likes" not in nums
+    assert set(modeling.scenario_columns("likes", "pré-publicação", data.METRICS)[1]).isdisjoint(data.METRICS)

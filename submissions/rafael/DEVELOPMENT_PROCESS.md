@@ -14,3 +14,5 @@
 | 2026-10-18 | Nulo por permutação em vez de Hopkins para testar se há clusters | Hopkins deu 0,88–0,94 (falso positivo em nuvem gaussiana) | Estatística de Hopkins |
 | 2026-10-18 | NLP também em legendas/hashtags, não só em comentários | Comentário é consequência; legenda/hashtag é alavanca do time | Só comentários |
 | 2026-10-18 | Controle positivo (+2% views plantado) em todas as frentes | Provar que "sem achados" não é falta de sensibilidade do método | Confiar no resultado nulo sem validação |
+| 2026-10-18 | Adotar o plano de ação do usuário (`knowledge/action-plan.md`) como notebook 04, reaproveitando `social_insights` | Pedido do usuário; o plano acrescenta pré×pós-publicação, taxas por seguidor, RF/XGBoost/CatBoost, SHAP e recomendações | Manter só os notebooks 02/03 |
+| 2026-10-18 | SHAP comparado com modelo de alvo embaralhado; R² de treino mostrado ao lado da validação | Sem esse contraste, rankings de importância e R² de treino (~0,1) seriam lidos como fatores reais | Reportar ranking SHAP/feature importance isolado |
