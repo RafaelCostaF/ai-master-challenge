@@ -1,4 +1,4 @@
-# Respostas — Challenge 004
+# Respostas e estratégia — Challenge 004
 
 ## 1. O que gera engajamento?
 
@@ -154,3 +154,180 @@
 |  2 | YouTube      | image · beauty · mega (500K+)        |    99.74 |    0.7656 | False           |
 |  3 | Bilibili     | video · beauty · mid (50–100K)       |    99.68 |    0.6918 | False           |
 |  4 | RedNote      | mixed · beauty · mega (500K+)        |    99.85 |    0.8414 | False           |
+
+---
+
+## 1. Onde concentrar esforço?
+
+**Decisão:** Plataforma: nenhuma vence (diferenças ≤ 0.01%), então concentre em 1–2 por custo operacional e presença do público-alvo. Formato: text (mesmo engajamento que o melhor e menor custo por resultado, pela premissa de custo de produção). Creators: nano (<10K) (equivalente em engajamento e mais barato). Frequência: postar mais não reduz o desempenho por post em nenhuma plataforma, então o limite é a capacidade de produção.
+
+| platform   |     n |    média |   vs. melhor (%) |   p_value |   q_value | equivalente ao melhor   |   vs. melhor (%) (engajamento) | equivalente ao melhor (engajamento)   |
+|:-----------|------:|---------:|-----------------:|----------:|----------:|:------------------------|-------------------------------:|:--------------------------------------|
+| RedNote    | 10402 | 1.01e+04 |         0        |    1      |         1 | True                    |                       0        | True                                  |
+| TikTok     | 10296 | 1.01e+04 |        -0.001891 |    0.8904 |         1 | True                    |                      -0.01881  | True                                  |
+| Instagram  | 10423 | 1.01e+04 |        -0.004287 |    0.7538 |         1 | True                    |                      -0.05279  | True                                  |
+| Bilibili   | 10598 | 1.01e+04 |        -0.008445 |    0.5363 |         1 | True                    |                      -0.006355 | True                                  |
+| YouTube    | 10495 | 1.01e+04 |        -0.009929 |    0.4677 |         1 | True                    |                      -0.03035  | True                                  |
+
+### Formato (engajamento × custo)
+| content_type   |     n |   média |   vs. melhor (%) |   p_value |   q_value | equivalente ao melhor   |   custo de produção (US$) |
+|:---------------|------:|--------:|-----------------:|----------:|----------:|:------------------------|--------------------------:|
+| text           |  5198 |  0.1992 |         0        |   1       |    1      | True                    |                        50 |
+| mixed          |  5213 |  0.1991 |        -0.005419 |   0.9099  |    1      | True                    |                       150 |
+| image          | 10303 |  0.199  |        -0.056    |   0.1774  |    0.3548 | True                    |                       100 |
+| video          | 31500 |  0.199  |        -0.06089  |   0.09482 |    0.3548 | True                    |                       300 |
+
+### Faixa de creator
+| follower_tier    |     n |   média |   vs. melhor (%) |   p_value |   q_value | equivalente ao melhor   |   custo mediano patrocinado (US$) |
+|:-----------------|------:|--------:|-----------------:|----------:|----------:|:------------------------|----------------------------------:|
+| mid (50–100K)    |  2596 |  0.1991 |          0       |    1      |    1      | True                    |                             763.5 |
+| micro (10–50K)   |  2110 |  0.1991 |         -0.01287 |    0.8599 |    1      | True                    |                             295.5 |
+| macro (100–500K) | 21025 |  0.1991 |         -0.03001 |    0.5556 |    0.9628 | True                    |                            2986   |
+| mega (500K+)     | 26029 |  0.199  |         -0.04272 |    0.3965 |    0.9628 | True                    |                            7508   |
+| nano (<10K)      |   454 |  0.199  |         -0.07201 |    0.5777 |    0.9628 | True                    |                              55.8 |
+
+### Frequência (saturação por plataforma)
+| plataforma   |   posts/dia (mediana) |   ρ volume × resultado |   p_value |   resultado em dias de baixo volume |   resultado em dias de alto volume |   q_value | saturação   |
+|:-------------|----------------------:|-----------------------:|----------:|------------------------------------:|-----------------------------------:|----------:|:------------|
+| Bilibili     |                    14 |              -0.05467  |   0.1398  |                            1.01e+04 |                           1.01e+04 |    0.3494 | False       |
+| Instagram    |                    14 |              -0.04479  |   0.2264  |                            1.01e+04 |                           1.01e+04 |    0.3774 | False       |
+| RedNote      |                    14 |              -0.008784 |   0.8126  |                            1.01e+04 |                           1.01e+04 |    0.8126 | False       |
+| TikTok       |                    14 |              -0.0653   |   0.07766 |                            1.01e+04 |                           1.01e+04 |    0.3494 | False       |
+| YouTube      |                    14 |              -0.01193  |   0.7475  |                            1.01e+04 |                           1.01e+04 |    0.8126 | False       |
+
+**Ações:**
+1. Fixar o mix de produção em text como padrão; formatos mais caros só com hipótese a testar.
+2. Priorizar creators nano (<10K) nas próximas contratações.
+3. Concentrar o time em 1–2 plataformas (critério: onde está o cliente-alvo e o menor custo operacional).
+4. Aumentar a frequência até o limite da capacidade e reavaliar a saturação mensalmente (`frequency_effect`).
+
+---
+
+## 2. Política de patrocínio
+
+**Decisão:** Patrocinar para ganhar desempenho: NÃO. O patrocínio não muda engajamento nem alcance. Nenhuma condição tem efeito. Patrocinar só se o post se pagar como mídia: até ~10,050 seguidores (CPM ≤ US$ 10 e CPE ≤ US$ 0.05, com ~10,100 views e ~2,010 interações por post). Hoje só 1% dos posts patrocinados estão dentro desse limite. Perfil: nano (<10K), em qualquer plataforma ou categoria. O engajamento histórico não serve de critério, porque não diferencia creators.
+
+|                                |   diferença |   IC95 inf |   IC95 sup |   diferença (%) |   p_value |   estratos |   q_value |
+|:-------------------------------|------------:|-----------:|-----------:|----------------:|----------:|-----------:|----------:|
+| eng_rate_views — estratificado |   1.56e-05  | -6.846e-05 |  9.965e-05 |       0.007836  |    0.7161 |        269 |    0.9725 |
+| views — estratificado          |   0.4213    | -1.31      |  2.152     |       0.004171  |    0.6334 |        269 |    0.9725 |
+| likes — estratificado          |   0.01182   | -0.6593    |  0.683     |       0.0007824 |    0.9725 |        269 |    0.9725 |
+| comments_count — estratificado |   0.06128   | -0.1821    |  0.3047    |       0.03064   |    0.6217 |        269 |    0.9725 |
+| eng_rate_views — regressão     |  -1.091e-05 | -9.551e-05 |  7.37e-05  |     nan         |    0.8005 |        nan |    0.9725 |
+
+### Ponto de equilíbrio por tamanho de creator
+|   seguidores |   custo do post (US$) |   CPM esperado (US$) |   CPE esperado (US$) |   views necessárias p/ CPM-alvo |   engajamento necessário p/ CPE-alvo | vale a pena?   |
+|-------------:|----------------------:|---------------------:|---------------------:|--------------------------------:|-------------------------------------:|:---------------|
+|         5000 |                50     |                4.95  |              0.02488 |                      5000       |                              0.09901 | True           |
+|        10000 |               100     |                9.901 |              0.04975 |                         1e+04   |                              0.198   | True           |
+|        25000 |               250     |               24.75  |              0.1244  |                         2.5e+04 |                              0.495   | False          |
+|        50000 |               500     |               49.5   |              0.2488  |                         5e+04   |                              0.9901  | False          |
+|       100000 |              1000     |               99.01  |              0.4975  |                         1e+05   |                              1.98    | False          |
+|       250000 |              2500     |              247.5   |              1.244   |                         2.5e+05 |                              4.95    | False          |
+|       500000 |              5000     |              495     |              2.488   |                         5e+05   |                              9.901   | False          |
+|      1000000 |                 1e+04 |              990.1   |              4.975   |                         1e+06   |                             19.8     | False          |
+
+### Perfil de influenciador (patrocinados)
+| follower_tier    |   posts |   cpm_mediano |   cpe_mediano |   engajamento | dentro do threshold   |
+|:-----------------|--------:|--------------:|--------------:|--------------:|:----------------------|
+| nano (<10K)      |     192 |         5.554 |       0.02794 |        0.1992 | True                  |
+| micro (10–50K)   |     922 |        29.31  |       0.1469  |        0.1991 | False                 |
+| mid (50–100K)    |    1108 |        75.41  |       0.379   |        0.1991 | False                 |
+| macro (100–500K) |    8968 |       296.4   |       1.485   |        0.1991 | False                 |
+| mega (500K+)     |   11124 |       744.3   |       3.738   |        0.199  | False                 |
+
+### Condições testadas
+|    | condição                         |   uplift engajamento (%) |   p_value |   q_value | significativo   |
+|---:|:---------------------------------|-------------------------:|----------:|----------:|:----------------|
+|  6 | follower_tier = micro (10–50K)   |                  0.1606  |   0.1326  |    0.479  | False           |
+|  7 | follower_tier = mid (50–100K)    |                  0.1393  |   0.1382  |    0.479  | False           |
+| 16 | content_category = tech          |                  0.123   |   0.01003 |    0.1705 | False           |
+| 11 | content_type = mixed             |                  0.08652 |   0.2009  |    0.5693 | False           |
+|  1 | platform = Instagram             |                  0.0495  |   0.3157  |    0.5963 | False           |
+|  2 | platform = RedNote               |                  0.04947 |   0.3075  |    0.5963 | False           |
+| 12 | content_type = text              |                  0.04297 |   0.518   |    0.629  | False           |
+| 10 | content_type = image             |                  0.03779 |   0.4384  |    0.629  | False           |
+|  4 | platform = YouTube               |                  0.02765 |   0.5551  |    0.6292 | False           |
+|  8 | follower_tier = macro (100–500K) |                  0.0249  |   0.4649  |    0.629  | False           |
+| 15 | content_category = lifestyle     |                  0.02258 |   0.5115  |    0.629  | False           |
+|  0 | platform = Bilibili              |                 -0.01546 |   0.7468  |    0.7934 | False           |
+
+**Ações:**
+1. Teto de contratação: 10,050 seguidores por post (ou pagamento por desempenho acima disso).
+2. Contratos por CPM/CPE garantido (≤ US$ 10/mil views, ≤ US$ 0.05/interação), não por post fixo.
+3. Disclosure sempre explícito: não reduz o engajamento e elimina o risco regulatório.
+4. Todo novo patrocínio entra com grupo de controle (posts orgânicos comparáveis) para medir o uplift real.
+
+---
+
+## 3. O que parar de fazer
+
+**Decisão:** Parar de pagar por alcance que não vem: 22,122 posts patrocinados acima do threshold geram ~US$ 109,335,722 de excedente sobre o preço justo (98% de todo o gasto implícito com patrocínio). Parar de produzir formatos caros sem ganho (economia potencial ~US$ 8,911,450). Parar rotinas de otimização sem efeito (11 práticas testadas sem efeito).
+
+| investimento                                                   |       posts |   % dos patrocinados |   gasto implícito (US$) |   excedente sobre preço justo (US$) | evidência                                      |
+|:---------------------------------------------------------------|------------:|---------------------:|------------------------:|------------------------------------:|:-----------------------------------------------|
+| Patrocínio acima de 10,050 seguidores                          |   2.212e+04 |                99.14 |               1.115e+08 |                           1.093e+08 | views e engajamento não crescem com seguidores |
+| Formatos mais caros que text sem ganho                         |   4.702e+04 |               nan    |               1.152e+07 |                           8.911e+06 | engajamento equivalente entre formatos         |
+| Otimizar com base em: Mais seguidores → mais alcance           | nan         |               nan    |             nan         |                         nan         | efeito nulo (q ≥ 0,05)                         |
+| Otimizar com base em: Mais seguidores → mais engajamento       | nan         |               nan    |             nan         |                         nan         | efeito nulo (q ≥ 0,05)                         |
+| Otimizar com base em: Mais hashtags → mais alcance             | nan         |               nan    |             nan         |                         nan         | efeito nulo (q ≥ 0,05)                         |
+| Otimizar com base em: Vídeo engaja mais que imagem/texto       | nan         |               nan    |             nan         |                         nan         | efeito nulo (q ≥ 0,05)                         |
+| Otimizar com base em: Conteúdo curto (<60) engaja mais         | nan         |               nan    |             nan         |                         nan         | efeito nulo (q ≥ 0,05)                         |
+| Otimizar com base em: Postar à noite (18–24h) dá mais alcance  | nan         |               nan    |             nan         |                         nan         | efeito nulo (q ≥ 0,05)                         |
+| Otimizar com base em: Fim de semana dá mais alcance            | nan         |               nan    |             nan         |                         nan         | efeito nulo (q ≥ 0,05)                         |
+| Otimizar com base em: Patrocínio aumenta alcance               | nan         |               nan    |             nan         |                         nan         | efeito nulo (q ≥ 0,05)                         |
+| Otimizar com base em: Disclosure explícito derruba engajamento | nan         |               nan    |             nan         |                         nan         | efeito nulo (q ≥ 0,05)                         |
+| Otimizar com base em: Legenda longa engaja mais                | nan         |               nan    |             nan         |                         nan         | efeito nulo (q ≥ 0,05)                         |
+
+### Crenças testadas
+|    | crença de mercado                        | métrica        |     efeito | unidade        |   p_value |   q_value | se sustenta?   |
+|---:|:-----------------------------------------|:---------------|-----------:|:---------------|----------:|----------:|:---------------|
+|  0 | Mais seguidores → mais alcance           | views          |  0.004628  | ρ de Spearman  |    0.2903 |    0.5322 | não            |
+|  1 | Mais seguidores → mais engajamento       | eng_rate_views | -0.002608  | ρ de Spearman  |    0.5513 |    0.8196 | não            |
+|  2 | Mais hashtags → mais alcance             | views          | -0.006172  | ρ de Spearman  |    0.1584 |    0.5322 | não            |
+|  3 | Vídeo engaja mais que imagem/texto       | eng_rate_views | -0.03168   | % de diferença |    0.1478 |    0.5322 | não            |
+|  4 | Conteúdo curto (<60) engaja mais         | eng_rate_views | -0.01399   | % de diferença |    0.6491 |    0.8196 | não            |
+|  5 | Postar à noite (18–24h) dá mais alcance  | views          | -0.01243   | % de diferença |    0.2162 |    0.5322 | não            |
+|  6 | Fim de semana dá mais alcance            | views          |  0.01108   | % de diferença |    0.249  |    0.5322 | não            |
+|  7 | Patrocínio aumenta alcance               | views          |  0.002854  | % de diferença |    0.7451 |    0.8196 | não            |
+|  8 | Disclosure explícito derruba engajamento | eng_rate_views |  0.04454   | % de diferença |    0.1776 |    0.5322 | não            |
+|  9 | Legenda longa engaja mais                | eng_rate_views | -0.0004897 | ρ de Spearman  |    0.9109 |    0.9109 | não            |
+| 10 | Mais views → mais likes                  | likes          |  0.00149   | ρ de Spearman  |    0.7335 |    0.8196 | não            |
+
+**Ações:**
+1. Congelar renovações de creators acima do threshold até renegociar por desempenho.
+2. Migrar a produção padrão para text; formatos caros só com teste A/B aprovado.
+3. Retirar do checklist de publicação: "melhor horário", "número ideal de hashtags" e "legenda longa".
+
+---
+
+## 4. Quick wins (esta semana)
+
+**Decisão:** 6 ações executáveis nesta semana, sem nova contratação nem ferramenta: 3 cortam custo (teto, renegociação, mix de produção), 1 reduz risco (disclosure), 1 libera tempo do time (checklist) e 1 cria a medição contínua (A/B).
+
+|    | ação                                                                            | esforço                 | impacto                                  | dono                        |
+|---:|:--------------------------------------------------------------------------------|:------------------------|:-----------------------------------------|:----------------------------|
+|  0 | Teto de 10,050 seguidores para novos contratos                                  | baixo (regra de compra) | evita ~US$ 109,335,722 de excedente      | Head de Marketing / Compras |
+|  1 | Renegociar contratos ativos acima do teto para CPM/CPE garantido                | médio                   | custo por resultado no nível do mercado  | Parcerias                   |
+|  2 | Disclosure explícito como padrão                                                | baixo                   | compliance sem perda de engajamento      | Social media                |
+|  3 | Mix de produção padrão em text                                                  | baixo                   | economia potencial ~US$ 8,911,450        | Conteúdo                    |
+|  4 | Retirar "melhor horário" e "hashtags ideais" do checklist                       | baixo                   | horas do time liberadas                  | Social media                |
+|  5 | Rodar `answer_questions.py` e o 1º teste A/B (patrocinado vs. orgânico pareado) | médio                   | medir o uplift real com dados da empresa | AI Master / Analytics       |
+
+### Base: onde concentrar
+|    | decisão                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|---:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|  0 | Plataforma: nenhuma vence (diferenças ≤ 0.01%), então concentre em 1–2 por custo operacional e presença do público-alvo. Formato: text (mesmo engajamento que o melhor e menor custo por resultado, pela premissa de custo de produção). Creators: nano (<10K) (equivalente em engajamento e mais barato). Frequência: postar mais não reduz o desempenho por post em nenhuma plataforma, então o limite é a capacidade de produção. |
+
+### Base: política de patrocínio
+|    | decisão                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|---:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|  0 | Patrocinar para ganhar desempenho: NÃO. O patrocínio não muda engajamento nem alcance. Nenhuma condição tem efeito. Patrocinar só se o post se pagar como mídia: até ~10,050 seguidores (CPM ≤ US$ 10 e CPE ≤ US$ 0.05, com ~10,100 views e ~2,010 interações por post). Hoje só 1% dos posts patrocinados estão dentro desse limite. Perfil: nano (<10K), em qualquer plataforma ou categoria. O engajamento histórico não serve de critério, porque não diferencia creators. |
+
+**Ações:**
+1. Teto de 10,050 seguidores para novos contratos
+2. Renegociar contratos ativos acima do teto para CPM/CPE garantido
+3. Disclosure explícito como padrão
+4. Mix de produção padrão em text
+5. Retirar "melhor horário" e "hashtags ideais" do checklist
+6. Rodar `answer_questions.py` e o 1º teste A/B (patrocinado vs. orgânico pareado)
