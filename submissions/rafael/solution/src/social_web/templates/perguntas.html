@@ -11,13 +11,13 @@
 <main class="wrap">
   <section class="page-head">
     <span class="eyebrow">O que o desafio pediu</span>
-    <h1>As 4 perguntas</h1>
+    <h1>As 4 <em>perguntas</em></h1>
     <p class="lede">Primeiro a resposta, depois o que fazer com ela. Gráficos e números ficam em "Ver gráfico e dados".</p>
   </section>
 
   <section id="engajamento">
     <span class="eyebrow">Pergunta 1</span>
-    <h2>O que gera engajamento?</h2>
+    <h2>O que gera <em>engajamento</em>?</h2>
     <p class="answer">
       {% if q1sig %}{{ q1sig | map(attribute='dimensão') | map('label') | join(', ') }} fazem diferença.
       {% else %}<b>Nada do que testamos.</b> Plataforma, formato, tema e tamanho do creator dão o mesmo engajamento (~20%). A maior diferença entre grupos é de {{ q1max | num(2) }}%.{% endif %}</p>
@@ -31,7 +31,7 @@
 
   <section id="patrocinio">
     <span class="eyebrow">Pergunta 2</span>
-    <h2>Vale a pena patrocinar influenciadores?</h2>
+    <h2>Vale a pena <em>patrocinar</em> influenciadores?</h2>
     <p class="answer">
       {% if eng.p_value < 0.05 and eng['diferença (%)'] > 0 %}<b>Sim:</b> o patrocinado engaja {{ eng['diferença (%)'] | num(2) }}% mais.
       {% else %}<b>Não para ganhar desempenho.</b> Patrocinado e orgânico parecidos têm o mesmo engajamento ({{ eng['diferença (%)'] | num(2) }}% de diferença) e as mesmas views. Vale só quando o preço é justo.{% endif %}</p>
@@ -52,7 +52,7 @@
 
   <section id="audiencia">
     <span class="eyebrow">Pergunta 3</span>
-    <h2>Qual público engaja mais?</h2>
+    <h2>Qual público <em>engaja mais</em>?</h2>
     <p class="answer"><b>Nenhum.</b> Homens, mulheres, todas as idades e todos os países engajam igual, em todas as plataformas, formatos e temas (maior diferença: {{ q3max | num(2) }}%).</p>
     <div class="means"><span class="tag">Na prática</span><p>Escolha o público pelo objetivo do negócio (quem compra), não pela expectativa de engajamento.</p></div>
     <details class="more"><summary>Ver dados</summary><div class="more-body">
@@ -72,7 +72,7 @@
 
   <section id="nao-funciona">
     <span class="eyebrow">Pergunta 4</span>
-    <h2>O que não funciona</h2>
+    <h2>O que <em>não funciona</em></h2>
     <p class="answer"><b>{{ myths | length }} de {{ r.q4.crencas | length }} "verdades" de social media não se confirmam</b>, entre elas "mais seguidores = mais alcance", "vídeo engaja mais" e "postar à noite dá mais alcance".</p>
     <div class="means"><span class="tag">Pare de</span><p>pagar mais por creators grandes, otimizar "melhor horário" e "nº ideal de hashtags" sem teste e investir em formatos caros "porque engajam mais".</p></div>
     <details class="more"><summary>Ver todas as crenças testadas</summary><div class="more-body">

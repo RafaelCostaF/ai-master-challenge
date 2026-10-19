@@ -7,7 +7,7 @@
 <main class="wrap">
   <section class="page-head">
     <span class="eyebrow">Além do óbvio</span>
-    <h1>Descobertas: onde o resultado foge do normal</h1>
+    <h1>Onde o resultado <em>foge do normal</em></h1>
     <p class="lede">Grupos de posts que chegam ao top 5% (os que "bombam") com mais ou menos frequência do que o normal.</p>
     <details class="more"><summary>Como ler os selos</summary><div class="more-body">
       <div class="tabs"><span class="chip confirmado">confirmado</span><span class="muted">passou em todas as checagens: pode virar decisão</span></div>
@@ -44,7 +44,7 @@
   {% set icc = cr.variancia | selectattr('métrica', 'equalto', 'views') | first %}
   <section id="creators">
     <span class="chip nada" style="justify-self:start">sem diferença real</span>
-    <h2>Quem posta não muda as views</h2>
+    <h2>Quem posta <em>não muda</em> as views</h2>
     <p class="answer">Os creators "campeões" são sorte. As médias de views variam entre creators <b>exatamente o que o sorteio produziria</b> ({{ cr.dispersao.observado | num(1) }} views contra {{ cr.dispersao.acaso | num(1) }}), e só {{ cr.persistencia['% que continuou'] | num(1) }}% dos 10% melhores do 1º ano continuaram entre os melhores no 2º (o acaso daria 10%).</p>
     <div class="means"><span class="tag">Na prática</span><p>Não pague a mais por um creator por causa do desempenho passado. Contrate por preço e por resultado.</p></div>
     <details class="more"><summary>Ver gráfico e ranking</summary><div class="more-body">
@@ -61,7 +61,7 @@
   </section>
 
   <section>
-    <h2>Padrões por plataforma</h2>
+    <h2>Padrões por <em>plataforma</em></h2>
     <p class="caption">Escolha a plataforma e a métrica. Aparecem primeiro os padrões confirmados e os que se repetiram; as pistas ficam recolhidas.</p>
     <div class="tabs" role="group" aria-label="Plataforma" id="plat-tabs"></div>
     <div class="tabs" role="group" aria-label="Métrica" id="metric-tabs"></div>

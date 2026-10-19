@@ -88,3 +88,15 @@ Cache: `solution/models/web_models.joblib` (modelos) e `site_payload.json` (cont
   - outros formatos, descobertas e "como é calculado" sob demanda.
 - **Honestidade da sugestão:** testar ~75 variações acha algumas por sorte. Por isso cada sugestão traz um selo: **confirmado** (apoiada por descoberta robusta), **se repetiu nos 2 anos** (descoberta replicada) ou **pista** (com o aviso "confirme com um teste").
 - **API:** `POST /api/predict` aceita `objetivo` e devolve `status` por métrica, `melhorias` (trocas únicas) e `sugestao` (`mudancas`, métrica, de → para, faixa e evidência).
+
+## Revisão visual comparada ao g4educacao.com (2026-10-19)
+| Elemento | g4educacao.com | Aplicado no G4 Marketing |
+|---|---|---|
+| Títulos | Manrope leve + palavra-chave em serifada itálica dourada ("O G4 *em números*") | h1/h2 em Manrope 300 + `<em>` em Libre Baskerville itálica dourada (ex.: "As 4 *respostas*", "Simule seu post *antes de publicar*") |
+| Números grandes | serifada (PP Museum), dourada ou azul-marinho | Libre Baskerville nos números de destaque (cartões, chances, KPIs) |
+| Marca | símbolo dourado + "G4" em sans negrito | símbolo + "**G4** *Marketing*" (Marketing em itálico serifado dourado) |
+| Botões | retângulo de 6 px; principal dourado com texto azul-marinho; secundário contornado | idem (menu, abas, chips, "Aplicar sugestão") |
+| Cartões | chapados, borda fina, sem sombra | sombras removidas, borda `--line` |
+| Detalhes | filetes dourados finos; marca-d'água gigante em itálico; links "Explorar →" em negrito | filete dourado nos "+ Ver detalhes"; marca-d'água "dados" na faixa do Resumo; links de seção em negrito |
+| Composição | faixas azul-marinho centralizadas | faixa do Resumo centralizada; ferramentas alinhadas à esquerda (escaneamento) |
+Fontes: Manrope (300–800) + Libre Baskerville (a serifada que o próprio site do G4 carrega; a PP Museum é comercial).

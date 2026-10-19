@@ -6,7 +6,7 @@
 <main class="wrap">
   <section class="page-head">
     <span class="eyebrow">Recomendação</span>
-    <h1>Estratégia recomendada</h1>
+    <h1>Estratégia <em>recomendada</em></h1>
     <p class="lede">Regra de decisão: <b>quando nenhuma opção dá resultado melhor, escolha a mais barata.</b> Abaixo, as ações; o porquê de cada uma fica em "Por quê".</p>
   </section>
 
@@ -24,7 +24,7 @@
   </section>
 
   <section>
-    <h2>Detalhes para quem decide o orçamento</h2>
+    <h2>Detalhes para quem decide o <em>orçamento</em></h2>
     <details class="more"><summary>Até quantos seguidores o patrocínio se paga?</summary><div class="more-body">
       <div class="table-wrap"><table><thead><tr><th>Seguidores</th><th>Custo do post</th><th>Custo por mil views</th><th>Custo por interação</th><th>Vale?</th></tr></thead><tbody>
       {% for b in s.break_even %}<tr><td class="n">{{ b.seguidores | num }}</td><td class="n">US$ {{ b['custo do post (US$)'] | num }}</td><td class="n">US$ {{ b['CPM esperado (US$)'] | num(2) }}</td><td class="n">US$ {{ b['CPE esperado (US$)'] | num(3) }}</td><td>{% if b['vale a pena?'] %}<span class="yes">sim</span>{% else %}<span class="bad">não</span>{% endif %}</td></tr>{% endfor %}
