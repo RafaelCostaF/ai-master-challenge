@@ -26,11 +26,23 @@ fig, ax = plt.subplots(figsize=(11, 5.5))
 counts, xedges, yedges, image = ax.hist2d(videos.content_length, videos.views, bins=[40, 40], cmap="Blues")
 fig.colorbar(image, ax=ax, label="nº de vídeos")
 bins = pd.cut(videos.content_length, np.arange(0, 630, 30))
-med = videos.groupby(bins, observed=True).agg(x=("content_length", "median"), y=("views", "median"))
-ax.plot(med.x, med.y, "o-", color=plots.ORANGE, linewidth=2, markersize=5, label="mediana de views (faixas de 30 s)")
+per_bin = videos.groupby(bins, observed=True).agg(x=("content_length", "median"), mediana=("views", "median"),
+                                                  máximo=("views", "max"), mínimo=("views", "min"), vídeos=("views", "size"))
+ax.plot(per_bin.x, per_bin["máximo"], "^-", color="#6250d6", linewidth=1.5, markersize=5, label="máximo de views (faixa de 30 s)")
+ax.plot(per_bin.x, per_bin["mediana"], "o-", color=plots.ORANGE, linewidth=2, markersize=5, label="mediana de views")
+ax.plot(per_bin.x, per_bin["mínimo"], "v-", color="#1baf7a", linewidth=1.5, markersize=5, label="mínimo de views")
 ax.set_xlabel("duração do vídeo (segundos)"); ax.set_ylabel("views")
-ax.set_title("Duração do vídeo × views (31.500 vídeos)"); ax.legend(loc="upper right", fontsize=8); ax.grid(False)
+ax.set_title("Duração do vídeo × views (31.500 vídeos) — máximo, mediana e mínimo por faixa de 30 s")
+ax.set_ylim(per_bin["mínimo"].min() - 40, per_bin["máximo"].max() + 140)
+ax.legend(loc="upper center", ncol=3, fontsize=8, framealpha=0.95); ax.grid(False)
 fig.tight_layout(); fig.savefig(FIG_DIR / "duracao_x_views_hist2d.png", dpi=150); plt.show()
+""")
+nb.code("""
+# Extremes depend on how many videos fall in each bin: more draws → higher max and lower min.
+per_bin["amplitude (máx − mín)"] = per_bin["máximo"] - per_bin["mínimo"]
+rho_n, p_n = stats.spearmanr(per_bin["vídeos"], per_bin["amplitude (máx − mín)"])
+display(Markdown(f"**Amplitude × nº de vídeos por faixa:** ρ = {rho_n:+.2f} (p = {p_n:.3f})"))
+per_bin.drop(columns="x").rename_axis("faixa (s)")
 """)
 
 nb.md("## 2. Distribuição de views por faixa de duração")
@@ -50,7 +62,7 @@ for edge in [60, 180, 360]:
 axes[1].set_xlabel("duração do vídeo (segundos)"); axes[1].set_ylabel("nº de vídeos"); axes[1].set_title("Histograma de duração (tracejado = faixas)")
 fig.tight_layout(); fig.savefig(FIG_DIR / "views_por_faixa_de_duracao.png", dpi=150); plt.show()
 
-summary = videos.groupby("faixa de duração")["views"].agg(["size", "mean", "median", "std"]).loc[order]
+summary = videos.groupby("faixa de duração")["views"].agg(["size", "min", "mean", "median", "max", "std"]).loc[order]
 summary["vs. média geral (%)"] = (summary["mean"] / videos.views.mean() - 1) * 100
 summary.round(2)
 """)
@@ -69,6 +81,7 @@ nb.md("""
 **Leitura:**
 - **Duração:** não é uniforme. 58% dos vídeos têm entre ~20 e 200 s (≈ 2,9x mais vídeos por segundo de duração que acima de 200 s), e de 200 a 600 s a distribuição é plana. A mesma forma aparece em imagem, texto e misto, o que confirma que `content_length` não é uma duração real por formato.
 - **Histograma 2D:** a mancha mais escura à esquerda é **quantidade de vídeos, não mais views**. Na vertical, a faixa é a mesma em toda duração (~10.000–10.200), e a mediana (laranja) é uma linha reta.
+- **Máximos e mínimos:** oscilam de faixa em faixa sem tendência com a duração. As faixas abaixo de 200 s têm extremos um pouco mais abertos só porque têm ~3x mais vídeos (mais sorteios → extremos mais distantes; ver ρ amplitude × nº de vídeos). O pico e o vale de views são **acaso**, não efeito da duração.
 - **Histogramas por faixa:** as 4 curvas se sobrepõem, com medianas de 10.099 a 10.102. Spearman ρ = 0,001 e Kruskal p = 0,83; abaixo × acima de 200 s, p = 0,79.
 - **Conclusão: a duração do vídeo não muda as views.** Vídeo curto ou longo deve ser escolhido por custo de produção e formato da plataforma, não por alcance esperado.
 """)
