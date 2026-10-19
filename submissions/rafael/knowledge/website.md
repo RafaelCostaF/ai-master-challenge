@@ -57,3 +57,15 @@ Cache: `solution/models/web_models.joblib` (modelos) e `site_payload.json` (cont
   - **Prever** mostra só os campos essenciais (o resto em "Mais opções"); o resultado traz o resumo, as chances, as views e o engajamento, com "outro formato" e "descobertas" sob demanda.
   - As seções abertas pelo usuário continuam abertas quando o resultado é recalculado.
 - **Gráficos em seções fechadas:** `lazyChart` desenha o gráfico ao abrir a seção, e um listener de `toggle` redimensiona gráficos já existentes.
+
+## Painel "Explorar dados" (v2, 2026-10-19): simples e interativo
+- **Métrica em um clique:** abas Views · Likes · Comentários · Engajamento + troca **Média / Chance de bombar** (top 5%). Os cartões de indicador também trocam a métrica.
+- **Filtros:** chips de plataforma, formato e tema no topo; "Mais filtros" (popover) com os demais; período; etiquetas removíveis dos filtros ativos.
+- **6 quadros sempre visíveis:** plataforma, formato, tema, tamanho do creator, uma característica à escolha e mês a mês.
+  - As barras mostram a **diferença em relação à média** (centradas no zero, com o valor escrito).
+  - Cores: dourado = acima de verdade, vermelho = abaixo de verdade, cinza = variação normal.
+  - Cada quadro tem um selo ("sem diferença real" / "N diferenças reais").
+- **Filtro cruzado (estilo Power BI):** clicar numa barra filtra o painel inteiro. O quadro da própria característica ignora o próprio filtro, para continuar mostrando todas as opções (as escolhidas ficam contornadas, as demais esmaecidas).
+- **Frase-resumo automática:** o destaque real mais forte da seleção, ou "nenhum grupo se destaca".
+- **Link compartilhável:** o estado fica no endereço, ex. `/explorar?m=likes&modo=chance&platform=TikTok&content_category=beauty`.
+- **API:** `POST /api/explore` aceita `graficos: [...]` e devolve `graficos` (um breakdown por característica), `resumo` (destaque), `kpis`, `serie`, `matriz` e `top`.

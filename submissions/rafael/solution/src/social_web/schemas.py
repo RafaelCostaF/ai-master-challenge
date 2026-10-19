@@ -46,3 +46,4 @@ class ExploreQuery(BaseModel):
     coluna: str = "content_type"
     de: str | None = None
     ate: str | None = None
+    graficos: list[str] | None = None

@@ -1,152 +1,209 @@
 {% extends "base.html" %}
 {% block body %}
-<main class="wrap wide">
-  <section class="page-head">
-    <span class="eyebrow">Painel interativo</span>
-    <h1>Explorar os dados</h1>
-    <p class="lede">Filtre à esquerda e tudo se atualiza. Clique numa barra para filtrar por ela. Barras <b>douradas</b> são grupos realmente diferentes do resto; as cinzas estão dentro da variação normal.</p>
+<main class="wrap wide bi2" id="bi">
+  <section class="bi-head">
+    <div>
+      <span class="eyebrow">Painel interativo</span>
+      <h1 style="font-size:2.2rem">Explorar dados</h1>
+    </div>
+    <div class="bi-metric">
+      <div class="seg" role="group" aria-label="Métrica" id="metric-tabs"></div>
+      <div class="seg small" role="group" aria-label="Medida" id="mode-tabs"></div>
+    </div>
   </section>
 
-  <div class="bi">
-    <aside class="slicers" aria-label="Filtros">
-      <div style="display:flex;justify-content:space-between;align-items:center"><b>Filtros</b><button class="btn" type="button" id="reset">Limpar</button></div>
-      <div class="grid-2" style="gap:8px">
-        <label class="field" for="de">De<select id="de"></select></label>
-        <label class="field" for="ate">Até<select id="ate"></select></label>
-      </div>
-      <div id="slicer-list"></div>
-    </aside>
-
-    <div class="board" id="board">
+  <section class="bi-filters" aria-label="Filtros">
+    <div class="quick" id="quick-filters"></div>
+    <div class="bi-filter-row">
+      <details class="popover" id="more-filters"><summary>Mais filtros <span class="badge" id="more-count"></span></summary>
+        <div class="popover-body" id="more-body"></div></details>
+      <label class="field inline" for="de">De<select id="de"></select></label>
+      <label class="field inline" for="ate">Até<select id="ate"></select></label>
+      <button class="btn" type="button" id="reset">Limpar filtros</button>
       <div class="active-filters" id="active"></div>
-      <div class="kpi-row" id="kpis"></div>
-
-      <div class="panel">
-        <div class="visual-head"><h3 id="bd-title">Comparar grupos</h3>
-          <div class="controls">
-            <label class="field" for="dim">Agrupar por<select id="dim"></select></label>
-            <label class="field" for="met">Métrica<select id="met"></select></label>
-          </div></div>
-        <div class="chart tall"><canvas id="ch-bd"></canvas></div>
-        <p class="caption" id="bd-caption"></p>
-      </div>
-
-      <details class="more panel"><summary>Ver evolução por mês</summary><div class="more-body">
-        <h3 id="ts-title">Ao longo do tempo</h3><div class="chart"><canvas id="ch-ts"></canvas></div>
-        <p class="caption">Linha = média do mês; faixa = variação provável. O primeiro e o último mês (incompletos) ficam de fora.</p>
-      </div></details>
-
-      <details class="more panel"><summary>Ver matriz (cruzar duas características)</summary><div class="more-body">
-        <div class="visual-head"><h3>Matriz</h3>
-          <div class="controls">
-            <label class="field" for="row">Linhas<select id="row"></select></label>
-            <label class="field" for="col">Colunas<select id="col"></select></label>
-          </div></div>
-        <div class="table-wrap"><table id="matrix"></table></div>
-        <p class="caption">100 = média da seleção. Verde = acima, vermelho = abaixo. Passe o mouse para ver o nº de posts.</p>
-      </div></details>
-
-      <details class="more panel"><summary>Ver os 10 melhores posts da seleção</summary><div class="more-body">
-        <h3 id="top-title">Top 10 posts da seleção</h3><div class="table-wrap"><table id="top"></table></div>
-      </div></details>
-      <p class="caption">Atenção: ao testar muitas combinações de filtros, alguma vai parecer diferente por acaso. Antes de decidir, confira em <a href="/descobertas">Descobertas</a>, onde os padrões foram checados nos dois anos.</p>
     </div>
-  </div>
+  </section>
+
+  <p class="bi-summary" id="summary" aria-live="polite"></p>
+
+  <section class="kpi-row" id="kpis" aria-label="Indicadores"></section>
+
+  <section class="bi-grid" id="grid">
+    {% for dim in ['platform', 'content_type', 'content_category', 'follower_tier'] %}
+    <div class="tile"><div class="tile-head"><h3>{{ dim | label }}</h3><span class="tile-status" id="st-ch-{{ dim }}"></span></div><div class="chart bar-chart"><canvas id="ch-{{ dim }}"></canvas></div></div>
+    {% endfor %}
+    <div class="tile"><div class="tile-head"><label class="field inline" for="free-dim"><span class="sr">Característica</span><select id="free-dim"></select></label><span class="tile-status" id="st-ch-free"></span></div>
+      <div class="chart bar-chart"><canvas id="ch-free"></canvas></div></div>
+    <div class="tile"><div class="tile-head"><h3>Mês a mês</h3></div><div class="chart bar-chart"><canvas id="ch-ts"></canvas></div></div>
+  </section>
+  <p class="caption" id="legend"></p>
+
+  <details class="more panel"><summary>Cruzar duas características (matriz)</summary><div class="more-body">
+    <div class="visual-head"><span></span>
+      <div class="controls">
+        <label class="field" for="row">Linhas<select id="row"></select></label>
+        <label class="field" for="col">Colunas<select id="col"></select></label>
+      </div></div>
+    <div class="table-wrap"><table id="matrix"></table></div>
+    <p class="caption">Diferença em relação à média da seleção. Dourado = acima, vermelho = abaixo. Passe o mouse para ver o nº de posts.</p>
+  </div></details>
+  <details class="more panel"><summary>Ver os 10 melhores posts da seleção</summary><div class="more-body">
+    <div class="table-wrap"><table id="top"></table></div>
+  </div></details>
 </main>
 <script>
-const S = { filtros: {}, dimensao: "platform", metrica: "views", linha: "platform", coluna: "content_type", de: null, ate: null };
+const QUICK = ["platform", "content_type", "content_category"];
+const FIXED = ["platform", "content_type", "content_category", "follower_tier"];
+const BASE_METRICS = { views: "Views", likes: "Likes", comments_count: "Comentários", eng_rate: "Engajamento" };
+const HIT_METRIC = { views: "top5_views", likes: "top5_likes", comments_count: "top5_comments" };
+const S = { filtros: {}, base: "views", modo: "media", livre: "language", linha: "platform", coluna: "content_type", de: null, ate: null };
 let OPT = null, LAST = null, timer = null;
+const CH = {};
+const metric = () => S.modo === "chance" && HIT_METRIC[S.base] ? HIT_METRIC[S.base] : S.base;
 const isPct = m => m === "eng_rate" || m.startsWith("top5");
-const fmtMetric = (m, v) => isPct(m) ? pct(v, 2) : nf(v, m === "views" ? 0 : 1);
+const fmtMetric = (m, v) => isPct(m) ? pct(v, m.startsWith("top5") ? 1 : 2) : nf(v, m === "views" ? 0 : 1);
+const metricName = m => m.startsWith("top5") ? `chance de bombar em ${BASE_METRICS[S.base].toLowerCase()}` : BASE_METRICS[m].toLowerCase();
 
 async function boot() {
   OPT = await (await fetch("/api/options")).json();
-  const sel = (id, entries, value) => { $(id).innerHTML = entries.map(([v, t]) => `<option value="${esc(v)}"${v === value ? " selected" : ""}>${esc(t)}</option>`).join(""); };
-  const dims = OPT.dimensoes.map(d => [d, label(d)]);
-  sel("dim", dims, S.dimensao); sel("row", dims, S.linha); sel("col", dims, S.coluna);
-  sel("met", Object.entries(OPT.metricas), S.metrica);
-  sel("de", OPT.meses.map(m => [m, m]), OPT.meses[0]); sel("ate", OPT.meses.map(m => [m, m]), OPT.meses.at(-1));
-  $("slicer-list").innerHTML = Object.entries(OPT.filtros).map(([f, vals]) => `<details class="slicer"${["platform", "content_type"].includes(f) ? " open" : ""}>
-    <summary>${label(f)} <span class="count" id="cnt-${f}"></span></summary>
-    ${vals.map(v => `<label><input type="checkbox" data-f="${f}" value="${esc(v)}"> ${esc(val(v))}</label>`).join("")}</details>`).join("");
-  $("slicer-list").addEventListener("change", e => { const c = e.target; if (c.dataset.f) toggle(c.dataset.f, c.value, c.checked); });
-  [["dim", "dimensao"], ["met", "metrica"], ["row", "linha"], ["col", "coluna"], ["de", "de"], ["ate", "ate"]].forEach(([id, k]) => $(id).addEventListener("change", e => { S[k] = e.target.value; load(); }));
-  $("reset").onclick = () => { S.filtros = {}; document.querySelectorAll("#slicer-list input").forEach(i => i.checked = false); load(); };
+  readUrl();
+  const opts = (vals, value, lab = v => val(v)) => vals.map(v => `<option value="${esc(v)}"${v === value ? " selected" : ""}>${esc(lab(v))}</option>`).join("");
+  $("de").innerHTML = opts(OPT.meses, OPT.meses[0], v => v); $("ate").innerHTML = opts(OPT.meses, OPT.meses.at(-1), v => v);
+  const free = OPT.dimensoes.filter(d => !FIXED.includes(d));
+  $("free-dim").innerHTML = opts(free, S.livre, label);
+  $("row").innerHTML = opts(OPT.dimensoes, S.linha, label); $("col").innerHTML = opts(OPT.dimensoes, S.coluna, label);
+  $("more-body").innerHTML = Object.entries(OPT.filtros).filter(([f]) => !QUICK.includes(f)).map(([f, vals]) =>
+    `<fieldset><legend>${label(f)}</legend>${vals.map(v => `<label><input type="checkbox" data-f="${f}" value="${esc(v)}"> ${esc(val(v))}</label>`).join("")}</fieldset>`).join("");
+  $("more-body").addEventListener("change", e => { const c = e.target; if (c.dataset.f) toggle(c.dataset.f, c.value, c.checked); });
+  $("quick-filters").addEventListener("click", e => { const b = e.target.closest("button[data-f]"); if (b) toggle(b.dataset.f, b.dataset.v); });
   $("active").addEventListener("click", e => { const b = e.target.closest("button"); if (b) toggle(b.dataset.f, b.dataset.v, false); });
+  $("kpis").addEventListener("click", e => { const k = e.target.closest("[data-metric]"); if (k) { S.base = k.dataset.metric; if (S.base === "eng_rate") S.modo = "media"; load(); } });
+  $("reset").onclick = () => { S.filtros = {}; load(); };
+  [["de", "de"], ["ate", "ate"], ["free-dim", "livre"], ["row", "linha"], ["col", "coluna"]].forEach(([id, k]) => $(id).addEventListener("change", e => { S[k] = e.target.value; load(); }));
+  document.addEventListener("click", e => { const p = $("more-filters"); if (p.open && !p.contains(e.target)) p.open = false; });
   load();
 }
 function toggle(field, value, on) {
   const set = new Set(S.filtros[field] || []);
-  on ? set.add(value) : set.delete(value);
-  S.filtros[field] = [...set];
-  if (!S.filtros[field].length) delete S.filtros[field];
-  document.querySelectorAll(`#slicer-list input[data-f="${field}"]`).forEach(i => i.checked = set.has(i.value));
+  (on ?? !set.has(value)) ? set.add(value) : set.delete(value);
+  set.size ? S.filtros[field] = [...set] : delete S.filtros[field];
   load();
 }
-function load() { clearTimeout(timer); timer = setTimeout(fetchData, 120); }
+function load() { drawControls(); saveUrl(); clearTimeout(timer); timer = setTimeout(fetchData, 100); }
+/* The panel state lives in the address (?m=likes&modo=chance&platform=TikTok), so a view can be shared like a bookmark. */
+function saveUrl() {
+  const q = new URLSearchParams({ m: S.base, modo: S.modo, livre: S.livre });
+  Object.entries(S.filtros).forEach(([f, vs]) => vs.forEach(v => q.append(f, v)));
+  try { history.replaceState(null, "", "?" + q.toString()); } catch (e) { /* sandboxed viewers may block history */ }
+}
+function readUrl() {
+  const q = new URLSearchParams(location.search);
+  if (BASE_METRICS[q.get("m")]) S.base = q.get("m");
+  if (["media", "chance"].includes(q.get("modo"))) S.modo = q.get("modo");
+  if (q.get("livre") && OPT.dimensoes.includes(q.get("livre"))) S.livre = q.get("livre");
+  Object.keys(OPT.filtros).forEach(f => { const vs = q.getAll(f).filter(v => OPT.filtros[f].includes(v)); if (vs.length) S.filtros[f] = vs; });
+}
 async function fetchData() {
-  $("board").classList.add("loading");
-  const res = await fetch("/api/explore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(S) });
+  $("bi").classList.add("loading");
+  const body = { filtros: S.filtros, dimensao: S.livre, metrica: metric(), linha: S.linha, coluna: S.coluna, de: S.de, ate: S.ate, graficos: [...FIXED, S.livre] };
+  const res = await fetch("/api/explore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   LAST = await res.json();
-  $("board").classList.remove("loading");
+  $("bi").classList.remove("loading");
   draw();
 }
+
+/* ---------- controls ---------- */
+function drawControls() {
+  $("metric-tabs").innerHTML = Object.entries(BASE_METRICS).map(([k, t]) => `<button type="button" data-m="${k}" aria-pressed="${S.base === k}">${t}</button>`).join("");
+  $("metric-tabs").onclick = e => { const b = e.target.closest("button"); if (b) { S.base = b.dataset.m; if (S.base === "eng_rate") S.modo = "media"; load(); } };
+  const noHit = !HIT_METRIC[S.base];
+  $("mode-tabs").innerHTML = [["media", "Média"], ["chance", "Chance de bombar"]].map(([k, t]) =>
+    `<button type="button" data-k="${k}" aria-pressed="${S.modo === k}"${k === "chance" && noHit ? " disabled title='Disponível para views, likes e comentários'" : ""}>${t}</button>`).join("");
+  $("mode-tabs").onclick = e => { const b = e.target.closest("button"); if (b && !b.disabled) { S.modo = b.dataset.k; load(); } };
+  $("quick-filters").innerHTML = QUICK.map(f => `<div class="chip-group"><span class="chip-label">${label(f)}</span>${OPT.filtros[f].map(v =>
+    `<button type="button" class="pill${(S.filtros[f] || []).includes(v) ? " on" : ""}" data-f="${f}" data-v="${esc(v)}" aria-pressed="${(S.filtros[f] || []).includes(v)}">${esc(val(v))}</button>`).join("")}</div>`).join("");
+  document.querySelectorAll("#more-body input").forEach(i => i.checked = (S.filtros[i.dataset.f] || []).includes(i.value));
+  const extra = Object.keys(S.filtros).filter(f => !QUICK.includes(f)).reduce((n, f) => n + S.filtros[f].length, 0);
+  $("more-count").textContent = extra || "";
+  const tags = Object.entries(S.filtros).flatMap(([f, vs]) => vs.map(v => `<button type="button" data-f="${f}" data-v="${esc(v)}" title="Remover filtro">${label(f)}: ${esc(val(v))} ✕</button>`));
+  $("active").innerHTML = tags.join("");
+}
+
+/* ---------- visuals ---------- */
 function draw() {
-  const R = LAST, m = S.metrica;
-  $("active").innerHTML = Object.entries(S.filtros).flatMap(([f, vs]) => vs.map(v => `<button type="button" data-f="${f}" data-v="${esc(v)}">${label(f)}: ${esc(val(v))} ✕</button>`)).join("")
-    || '<span class="caption">Nenhum filtro: todos os posts.</span>';
-  Object.keys(OPT.filtros).forEach(f => { const n = (S.filtros[f] || []).length; $("cnt-" + f).textContent = n ? n : ""; });
+  const R = LAST, m = metric();
+  if (!R.posts) { $("summary").textContent = "Nenhum post com esses filtros. Remova algum filtro."; return; }
+  drawSummary(R.resumo, R);
   $("kpis").innerHTML = R.kpis.map(k => {
-    const isCount = k.id === "posts", v = isCount ? nf(k.valor) : fmtMetric(k.id, k.valor);
-    const diff = k.vs_total, cls = isCount ? "flat" : diff == null ? "flat" : Math.abs(diff) < 0.5 ? "flat" : diff > 0 ? "up" : "down";
-    const note = isCount ? `${pct(diff)} do total` : diff == null ? "—" : `${diff >= 0 ? "+" : ""}${nf(diff, 2)}% vs. todos`;
-    return `<div class="kpi"><span class="l">${esc(k.rotulo)}</span><span class="v">${v}</span><span class="d ${cls}">${note}</span></div>`;
+    const isCount = k.id === "posts", base = k.id === "top5_views" ? null : k.id;
+    const v = isCount ? nf(k.valor) : fmtMetric(k.id, k.valor);
+    const diff = k.vs_total, cls = isCount || diff == null || Math.abs(diff) < 0.5 ? "flat" : diff > 0 ? "up" : "down";
+    const note = isCount ? `${pct(diff)} do total` : diff == null ? "—" : `${diff >= 0 ? "+" : ""}${nf(diff, 2)}% vs. todos os posts`;
+    const active = base && S.base === base && S.modo === "media";
+    const attrs = base && BASE_METRICS[base] ? ` data-metric="${base}" role="button" tabindex="0" title="Ver ${esc(k.rotulo)} nos gráficos"` : "";
+    return `<div class="kpi${active ? " active" : ""}${attrs ? " clickable" : ""}"${attrs}><span class="l">${esc(k.rotulo)}</span><span class="v">${v}</span><span class="d ${cls}">${note}</span></div>`;
   }).join("");
-  if (!R.posts) { $("bd-caption").textContent = "Nenhum post com esses filtros."; return; }
-  drawBreakdown(R, m); drawSeries(R, m); drawMatrix(R); drawTop(R, m);
+  FIXED.forEach(d => barChart(`ch-${d}`, d, R.graficos[d] || []));
+  barChart("ch-free", S.livre, R.graficos[S.livre] || []);
+  lineChart(R.serie, m, R.media_geral);
+  drawMatrix(R.matriz); drawTop(R.top);
+  $("legend").innerHTML = `Cada barra mostra quanto o grupo está <b>acima ou abaixo da média</b> em ${esc(metricName(m))}. <span class="sw gold"></span> acima de verdade · <span class="sw red"></span> abaixo de verdade · <span class="sw gray"></span> variação normal. Clique numa barra para filtrar.`;
 }
-let bdChart = null, tsChart = null;
-function drawBreakdown(R, m) {
-  const rows = R.breakdown, name = OPT.metricas[m];
-  $("bd-title").textContent = `${name} por ${label(S.dimensao).toLowerCase()}`;
-  const build = () => ({ type: "bar", data: { labels: rows.map(r => val(r.grupo)), datasets: [
-      { label: name, data: rows.map(r => r.media), backgroundColor: rows.map(r => r.diferente ? css("--gold") : css("--none")), borderRadius: 4, barPercentage: 0.7 },
-      { type: "line", label: "média da seleção", data: rows.map(() => R.media_geral), borderColor: css("--ink"), borderDash: [6, 4], pointRadius: 0, borderWidth: 1.5 }] },
-    options: chartOptions({ plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => {
-        if (c.datasetIndex) return `média da seleção: ${fmtMetric(m, R.media_geral)}`;
-        const r = rows[c.dataIndex];
-        return [`${fmtMetric(m, r.media)} · ${nf(r.posts)} posts`, `${r.vs_resto >= 0 ? "+" : ""}${nf(r.vs_resto, 2)}% vs. o resto`, r.diferente ? "diferença real" : "dentro da variação normal"]; } } } },
-      scales: { y: { beginAtZero: true }, x: { grid: { display: false } } },
-      onClick: (e, els) => { if (els.length) { const g = rows[els[0].index].grupo; if (OPT.filtros[S.dimensao]) toggle(S.dimensao, g, !(S.filtros[S.dimensao] || []).includes(g)); } } }) });
-  bdChart = setChart(bdChart, "ch-bd", build);
-  const diff = rows.filter(r => r.diferente);
-  $("bd-caption").textContent = diff.length ? `Diferentes de verdade: ${diff.map(r => val(r.grupo)).join(", ")}.` : "Nenhum grupo é diferente de verdade: as diferenças estão dentro da variação normal.";
+function drawSummary(r, R) {
+  const name = metricName(r.metrica);
+  if (r.tipo === "nenhum") { $("summary").innerHTML = `<b>${nf(R.posts)} posts.</b> Nenhum grupo se destaca em ${esc(name)}: as diferenças estão dentro da variação normal.`; return; }
+  const dir = r.vs_media > 0 ? "acima" : "abaixo";
+  $("summary").innerHTML = `<b>${nf(R.posts)} posts.</b> Destaque: <b>${esc(label(r.dimensao).toLowerCase())} ${esc(val(r.grupo))}</b> está <b>${nf(Math.abs(r.vs_media), 1)}% ${dir}</b> da média em ${esc(name)}${r.outros ? ` (e mais ${r.outros} grupo(s) diferente(s))` : ""}.`;
 }
-function drawSeries(R, m) {
-  const s = R.serie;
-  $("ts-title").textContent = `${OPT.metricas[m]} por mês`;
-  const build = () => ({ type: "line", data: { labels: s.map(r => r.mes), datasets: [
-      { label: "média do mês", data: s.map(r => r.media), borderColor: css("--accent"), backgroundColor: css("--accent"), borderWidth: 2, pointRadius: 2, fill: false },
-      { label: "faixa provável", data: s.map(r => r.hi), borderColor: "transparent", backgroundColor: css("--accent-soft"), fill: "+1", pointRadius: 0 },
-      { label: "", data: s.map(r => r.lo), borderColor: "transparent", pointRadius: 0, fill: false }] },
-    options: chartOptions({ plugins: { legend: { display: false }, tooltip: { filter: i => i.datasetIndex === 0, callbacks: { label: c => `${fmtMetric(m, c.raw)} · ${nf(s[c.dataIndex].posts)} posts` } } },
-      scales: { x: { ticks: { maxTicksLimit: 8 }, grid: { display: false } } } }) });
-  tsChart = setChart(tsChart, "ch-ts", build);
+/* Data labels drawn at the end of each bar. */
+const VALUE_LABELS = { id: "valueLabels", afterDatasetsDraw(chart) {
+  const { ctx } = chart, meta = chart.getDatasetMeta(0);
+  ctx.save(); ctx.font = "600 11px Manrope, sans-serif"; ctx.fillStyle = css("--ink"); ctx.textBaseline = "middle";
+  meta.data.forEach((bar, i) => { const v = chart.data.datasets[0].data[i]; const txt = `${v >= 0 ? "+" : ""}${nf(v, Math.abs(v) < 1 ? 2 : 1)}%`;
+    ctx.textAlign = v >= 0 ? "left" : "right"; ctx.fillText(txt, bar.x + (v >= 0 ? 6 : -6), bar.y); });
+  ctx.restore(); } };
+function barChart(id, dim, rows) {
+  const selected = S.filtros[dim] || [], floor = metric().startsWith("top5") ? 30 : 2;
+  const span = Math.max(floor, ...rows.map(r => Math.abs(r.vs_media))) * 1.35;
+  const color = r => { const base = r.diferente ? (r.vs_media > 0 ? css("--gold") : css("--bad")) : css("--none");
+    return selected.length && !selected.includes(r.grupo) ? base + "55" : base; };
+  const build = () => ({ type: "bar", plugins: [VALUE_LABELS],
+    data: { labels: rows.map(r => val(r.grupo)), datasets: [{ data: rows.map(r => r.vs_media), backgroundColor: rows.map(color),
+      borderColor: rows.map(r => selected.includes(r.grupo) ? css("--ink") : "transparent"), borderWidth: 2, borderRadius: 4, barPercentage: 0.72 }] },
+    options: chartOptions({ indexAxis: "y", plugins: { legend: { display: false }, tooltip: { callbacks: {
+        title: it => it[0].label,
+        label: c => { const r = rows[c.dataIndex]; return [`${fmtMetric(metric(), r.media)} (${r.vs_media >= 0 ? "+" : ""}${nf(r.vs_media, 1)}% vs. média)`, `${nf(r.posts)} posts`, r.diferente ? "diferença real" : "variação normal"]; } } } },
+      scales: { x: { min: -span, max: span, ticks: { callback: v => `${v > 0 ? "+" : ""}${nf(v, 0)}%`, maxTicksLimit: 5 }, grid: { color: c => c.tick.value === 0 ? css("--ink") : css("--rule") } },
+                y: { grid: { display: false }, ticks: { font: { size: 12, weight: "600" } } } },
+      onHover: (e, els) => { e.native.target.style.cursor = els.length ? "pointer" : "default"; },
+      onClick: (e, els) => { if (els.length && OPT.filtros[dim]) toggle(dim, rows[els[0].index].grupo); } }) });
+  CH[id] = setChart(CH[id], id, build);
+  const real = rows.filter(r => r.diferente).length;
+  $("st-" + id).innerHTML = real ? `<span class="chip repetiu">${real} diferença${real > 1 ? "s" : ""} real${real > 1 ? "is" : ""}</span>` : '<span class="chip nada">sem diferença real</span>';
 }
-function drawMatrix(R) {
-  const M = R.matriz;
+function lineChart(serie, m, avg) {
+  const build = () => ({ type: "line", data: { labels: serie.map(r => r.mes), datasets: [
+      { label: "média do mês", data: serie.map(r => r.media), borderColor: css("--c1"), backgroundColor: css("--c1"), borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5, tension: 0.3 },
+      { label: "média do período", data: serie.map(() => avg), borderColor: css("--gold"), borderDash: [6, 4], pointRadius: 0, borderWidth: 1.5 }] },
+    options: chartOptions({ interaction: { mode: "index", intersect: false }, plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmtMetric(m, c.raw)}` } } },
+      scales: { x: { ticks: { maxTicksLimit: 6 }, grid: { display: false } }, y: { ticks: { maxTicksLimit: 5, callback: v => fmtMetric(m, v) } } } }) });
+  CH.ts = setChart(CH.ts, "ch-ts", build);
+}
+function drawMatrix(M) {
+  if (!M) return;
   const cell = (v, n) => { if (v == null) return '<td class="n">—</td>';
-    const dev = Math.max(-1, Math.min(1, (v - 100) / 3)), color = dev >= 0 ? "--ok" : "--bad";
-    return `<td class="n" title="${nf(n)} posts" style="background:color-mix(in srgb, var(${color}) ${Math.round(Math.abs(dev) * 45)}%, transparent)">${nf(v, 1)}</td>`; };
+    const d = v - 100, strength = Math.min(1, Math.abs(d) / (metric().startsWith("top5") ? 40 : 2)), color = d >= 0 ? "--gold" : "--bad";
+    return `<td class="n" title="${nf(n)} posts" style="background:color-mix(in srgb, var(${color}) ${Math.round(strength * 50)}%, transparent)">${d >= 0 ? "+" : ""}${nf(d, 1)}%</td>`; };
   $("matrix").innerHTML = `<thead><tr><th>${label(S.linha)} \\ ${label(S.coluna)}</th>${M.colunas.map(c => `<th>${esc(val(c))}</th>`).join("")}</tr></thead><tbody>` +
     M.linhas.map((l, i) => `<tr><td>${esc(val(l))}</td>${M.indice[i].map((v, j) => cell(v, M.posts[i][j])).join("")}</tr>`).join("") + "</tbody>";
 }
-function drawTop(R, m) {
-  const key = Object.keys(R.top[0] || {}).at(-1);
-  $("top-title").textContent = `Top 10 posts da seleção por ${OPT.metricas[key] || key}`;
+function drawTop(top) {
+  const key = Object.keys(top[0] || {}).at(-1);
   $("top").innerHTML = `<thead><tr><th>Data</th><th>Plataforma</th><th>Formato</th><th>Tema</th><th>Idioma</th><th>Patrocinado</th><th>Seguidores</th><th>${esc(OPT.metricas[key] || key)}</th></tr></thead><tbody>` +
-    R.top.map(t => `<tr><td>${t.post_date}</td><td>${t.platform}</td><td>${val(t.content_type)}</td><td>${t.content_category}</td><td>${val(t.language)}</td><td>${val(t.is_sponsored)}</td><td class="n">${nf(t.follower_count)}</td><td class="n">${fmtMetric(key, t[key])}</td></tr>`).join("") + "</tbody>";
+    top.map(t => `<tr><td>${t.post_date}</td><td>${t.platform}</td><td>${val(t.content_type)}</td><td>${t.content_category}</td><td>${val(t.language)}</td><td>${val(t.is_sponsored)}</td><td class="n">${nf(t.follower_count)}</td><td class="n">${fmtMetric(key, t[key])}</td></tr>`).join("") + "</tbody>";
 }
+$("kpis").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.dataset.metric) { e.preventDefault(); e.target.click(); } });
 boot();
 </script>
 {% endblock %}

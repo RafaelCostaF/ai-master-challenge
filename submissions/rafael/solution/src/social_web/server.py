@@ -88,7 +88,8 @@ def create_app(state: AppState) -> FastAPI:
     @app.post("/api/explore", tags=["explorar"])
     def explore_data(query: ExploreQuery) -> dict:
         try:
-            result = explore.explore(state.posts, query.filtros, query.dimensao, query.metrica, query.linha, query.coluna, query.de, query.ate)
+            result = explore.explore(state.posts, query.filtros, query.dimensao, query.metrica, query.linha, query.coluna, query.de, query.ate,
+                                     query.graficos)
         except ValueError as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
         return _clean(result)

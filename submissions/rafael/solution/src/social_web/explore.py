@@ -68,9 +68,10 @@ def breakdown(sub: pd.DataFrame, dimension: str, metric: str, min_posts: int = 3
             continue
         p = stats.ttest_ind(g[metric], rest, equal_var=False).pvalue if len(rest) > 1 else 1.0
         sem = g[metric].std() / np.sqrt(len(g))
+        overall = sub[metric].mean()
         rows.append({"grupo": str(value), "posts": len(g), "media": g[metric].mean(), "lo": g[metric].mean() - 1.96 * sem,
                      "hi": g[metric].mean() + 1.96 * sem, "vs_resto": (g[metric].mean() / rest.mean() - 1) * 100 if rest.mean() else 0,
-                     "p": 1.0 if np.isnan(p) else p})
+                     "vs_media": (g[metric].mean() / overall - 1) * 100 if overall else 0, "p": 1.0 if np.isnan(p) else p})
     if rows:
         q = multipletests([r["p"] for r in rows], method="fdr_bh")[1]
         for r, qv in zip(rows, q):
@@ -121,17 +122,40 @@ def top_posts(sub: pd.DataFrame, metric: str, n: int = TOP_POSTS) -> list[dict]:
     return top.to_dict(orient="records")
 
 
+DEFAULT_CHARTS = ["platform", "content_type", "content_category", "follower_tier", "language"]
+
+
+def _without(filters: dict | None, field: str) -> dict:
+    return {k: v for k, v in (filters or {}).items() if k != field}
+
+
 def explore(df: pd.DataFrame, filters: dict | None = None, dimension: str = "platform", metric: str = "views",
-            row: str = "platform", col: str = "content_type", date_from: str | None = None, date_to: str | None = None) -> dict:
-    """Everything the dashboard draws for one state of the slicers."""
-    if dimension not in DIMENSIONS or row not in DIMENSIONS or col not in DIMENSIONS or metric not in METRICS:
+            row: str = "platform", col: str = "content_type", date_from: str | None = None, date_to: str | None = None,
+            charts: list[str] | None = None) -> dict:
+    """Everything the dashboard draws for one state of the slicers.
+
+    Each chart in `charts` is computed with every filter except its own dimension (Power BI-style cross-filtering):
+    the chart keeps showing all its options, with the selected ones highlighted by the page.
+    """
+    charts = charts or DEFAULT_CHARTS
+    if any(d not in DIMENSIONS for d in [dimension, row, col, *charts]) or metric not in METRICS:
         raise ValueError("dimensão ou métrica desconhecida")
     sub = apply_filters(df, filters, date_from, date_to)
     if sub.empty:
-        return {"posts": 0, "kpis": kpis(sub, df), "breakdown": [], "serie": [], "matriz": None, "top": []}
-    return {"posts": len(sub), "kpis": kpis(sub, df), "breakdown": breakdown(sub, dimension, metric),
+        return {"posts": 0, "kpis": kpis(sub, df), "breakdown": [], "graficos": {d: [] for d in charts}, "serie": [], "matriz": None, "top": []}
+    graficos = {d: breakdown(apply_filters(df, _without(filters, d), date_from, date_to), d, metric) for d in charts}
+    return {"posts": len(sub), "kpis": kpis(sub, df), "breakdown": breakdown(sub, dimension, metric), "graficos": graficos,
             "serie": timeseries(sub, metric), "matriz": matrix(sub, row, col, metric), "top": top_posts(sub, metric),
-            "media_geral": float(sub[metric].mean())}
+            "media_geral": float(sub[metric].mean()), "resumo": headline(graficos, metric)}
+
+
+def headline(graficos: dict[str, list[dict]], metric: str) -> dict:
+    """The strongest real difference in the current selection (or none), for the page's one-line summary."""
+    real = [(d, r) for d, rows in graficos.items() for r in rows if r.get("diferente")]
+    if not real:
+        return {"tipo": "nenhum", "metrica": metric}
+    d, r = max(real, key=lambda x: abs(x[1]["vs_media"]))
+    return {"tipo": "destaque", "metrica": metric, "dimensao": d, "grupo": r["grupo"], "vs_media": r["vs_media"], "outros": len(real) - 1}
 
 
 def options(df: pd.DataFrame) -> dict:

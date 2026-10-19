@@ -82,3 +82,16 @@ def test_timeseries_drops_partial_months(posts):
     posts = posts.copy()
     posts.loc[posts.index[:5], "month"] = "2020-01"  # a sparse edge month
     assert "2020-01" not in [r["mes"] for r in explore.timeseries(posts, "views")]
+
+
+def test_cross_filtering_keeps_own_dimension(posts):
+    result = explore.explore(posts, {"platform": ["TikTok"]}, charts=["platform", "content_type"])
+    assert len(result["graficos"]["platform"]) == posts.platform.nunique()  # own filter ignored: all options visible
+    assert result["posts"] == (posts.platform == "TikTok").sum()
+
+
+def test_headline_reports_real_difference(posts):
+    assert explore.explore(posts)["resumo"]["tipo"] == "nenhum"
+    posts.loc[posts.content_type == "video", "views"] += 300
+    summary = explore.explore(posts)["resumo"]
+    assert summary["tipo"] == "destaque" and summary["dimensao"] == "content_type" and summary["vs_media"] > 0
