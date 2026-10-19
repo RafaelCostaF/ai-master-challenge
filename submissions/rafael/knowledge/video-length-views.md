@@ -23,6 +23,14 @@ Spearman duração × views ρ = +0,001 (p = 0,83) · Kruskal entre faixas p = 0
 - 58% dos vídeos ficam entre ~20 e 200 s, com ~2,9x mais vídeos por segundo de duração que acima de 200 s. Entre 200 e 600 s, a distribuição é plana.
 - A **mesma forma** aparece em imagem, texto e misto (quartis ~95 / 174 / 359 em todos os formatos), então `content_length` não é uma duração real por formato.
 
+## "Mais picos entre 20 e 150 s?" (questão levantada na análise visual)
+Figura: `docs/figures/picos_por_duracao.png` (3 painéis).
+- **Contagem:** sim, há mais vídeos no top 5% entre 30 e 180 s (134–166 por faixa de 30 s, contra 34–60 acima de 200 s), porque essas faixas têm ~3x mais vídeos.
+- **Taxa por vídeo:** igual. Entre 20 e 150 s, 4,9% chegam ao top 5%, contra 5,1% nas demais (p = 0,50). No top 1%, 0,98% contra 1,04% (p = 0,66). Qui² entre as 20 faixas p = 0,27; tendência com a duração p = 0,79.
+- **Máximos:** caem dentro do esperado só pelo nº de vídeos (sorteio da distribuição geral: ~10.450 para faixas com ~3.000 vídeos e ~10.420 para ~950). Com amostras do mesmo tamanho, a diferença (+14,5 views) não é significativa (permutação p = 0,24).
+- **Ressalva:** acima de 480 s, a taxa de picos é um pouco menor (4,1% vs. 5,2%; p = 0,007 isolado), mas a janela foi escolhida depois de ver o gráfico, e os testes pré-definidos não acusam nada. Fica como **hipótese a confirmar com dados novos**.
+- **Mensagem para o site:** "mais picos" na contagem ≠ "mais chance de pico". Decisões devem usar a **taxa por vídeo**.
+
 ## Leitura dos gráficos (para legenda no site)
 - **Histograma 2D:** a mancha escura à esquerda é **quantidade de vídeos, não mais views**. A linha de mediana é reta, e as linhas de máximo (roxo) e mínimo (verde) oscilam sem tendência.
 - **Histogramas por faixa:** as 4 curvas de views se sobrepõem.
