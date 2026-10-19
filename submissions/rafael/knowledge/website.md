@@ -69,3 +69,6 @@ Cache: `solution/models/web_models.joblib` (modelos) e `site_payload.json` (cont
 - **Frase-resumo automática:** o destaque real mais forte da seleção, ou "nenhum grupo se destaca".
 - **Link compartilhável:** o estado fica no endereço, ex. `/explorar?m=likes&modo=chance&platform=TikTok&content_category=beauty`.
 - **API:** `POST /api/explore` aceita `graficos: [...]` e devolve `graficos` (um breakdown por característica), `resumo` (destaque), `kpis`, `serie`, `matriz` e `top`.
+- **Padrão: "Chance de bombar"** (top 5%), onde as diferenças reais aparecem.
+- **Sugestões de filtro** (atalhos montados a partir dos resultados): ⭐ destaque confirmado (TikTok · beauty → qual idioma bomba em likes), melhor horário para comentários no YouTube, patrocinado × orgânico, público que mais bomba em likes, creators grandes × pequenos.
+- **O painel abre pré-preenchido** com a sugestão ⭐ quando o endereço não traz uma visão (para mostrar a funcionalidade de cara). "Limpar filtros" volta à base inteira.

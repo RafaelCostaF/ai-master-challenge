@@ -1,4 +1,8 @@
 {% extends "base.html" %}
+{% set hl = d.insights.destaque %}
+{% set hl_dims = hl.dimensao.split(' × ') %}
+{% set hl_vals = hl.bolsao.split(' · ') %}
+{% set hour = d.insights.horario_comentarios | sort(attribute='q (hora)') | first %}
 {% block body %}
 <main class="wrap wide bi2" id="bi">
   <section class="bi-head">
@@ -10,6 +14,11 @@
       <div class="seg" role="group" aria-label="Métrica" id="metric-tabs"></div>
       <div class="seg small" role="group" aria-label="Medida" id="mode-tabs"></div>
     </div>
+  </section>
+
+  <section class="suggest" aria-label="Sugestões de filtro">
+    <span class="chip-label">Sugestões</span>
+    <div class="suggest-list" id="suggestions"></div>
   </section>
 
   <section class="bi-filters" aria-label="Filtros">
@@ -56,7 +65,27 @@ const QUICK = ["platform", "content_type", "content_category"];
 const FIXED = ["platform", "content_type", "content_category", "follower_tier"];
 const BASE_METRICS = { views: "Views", likes: "Likes", comments_count: "Comentários", eng_rate: "Engajamento" };
 const HIT_METRIC = { views: "top5_views", likes: "top5_likes", comments_count: "top5_comments" };
-const S = { filtros: {}, base: "views", modo: "media", livre: "language", linha: "platform", coluna: "content_type", de: null, ate: null };
+const S = { filtros: {}, base: "views", modo: "chance", livre: "language", linha: "platform", coluna: "content_type", de: null, ate: null };
+/* Ready-made views, built from the analysis results (the confirmed highlight and the strongest posting-time pattern). */
+const SUGGESTIONS = [
+  { icon: "★", label: "{{ hl.plataforma }} · {{ hl_vals[0] | val }}: qual idioma bomba em {{ hl.metrica | val }}?",
+    state: { base: "{{ hl.metrica }}", modo: "chance", livre: "{{ hl_dims[1] }}", filtros: { platform: ["{{ hl.plataforma }}"], "{{ hl_dims[0] }}": ["{{ hl_vals[0] }}"] } } },
+  { label: "{{ hour.plataforma }}: melhor horário para comentários",
+    state: { base: "comments_count", modo: "chance", livre: "daypart", filtros: { platform: ["{{ hour.plataforma }}"] } } },
+  { label: "Patrocinado × orgânico", state: { base: "views", modo: "chance", livre: "is_sponsored", filtros: {} } },
+  { label: "Qual público bomba mais em likes?", state: { base: "likes", modo: "chance", livre: "audience_location", filtros: {} } },
+  { label: "Creators grandes × pequenos", state: { base: "views", modo: "media", livre: "follower_tier", filtros: {} } },
+];
+function applySuggestion(i) {
+  const st = SUGGESTIONS[i].state;
+  Object.assign(S, { base: st.base, modo: st.modo, livre: st.livre, filtros: structuredClone(st.filtros) });
+  $("free-dim").value = S.livre;
+  load();
+}
+function drawSuggestions() {
+  const same = st => st.base === S.base && st.modo === S.modo && st.livre === S.livre && JSON.stringify(st.filtros) === JSON.stringify(S.filtros);
+  $("suggestions").innerHTML = SUGGESTIONS.map((g, i) => `<button type="button" class="suggest-btn${same(g.state) ? " on" : ""}" data-i="${i}">${g.icon ? `<b>${g.icon}</b> ` : ""}${esc(g.label)}</button>`).join("");
+}
 let OPT = null, LAST = null, timer = null;
 const CH = {};
 const metric = () => S.modo === "chance" && HIT_METRIC[S.base] ? HIT_METRIC[S.base] : S.base;
@@ -66,7 +95,9 @@ const metricName = m => m.startsWith("top5") ? `chance de bombar em ${BASE_METRI
 
 async function boot() {
   OPT = await (await fetch("/api/options")).json();
-  readUrl();
+  /* No view in the address: open pre-filled with the first suggestion, so the panel shows a real finding right away. */
+  if (location.search) readUrl();
+  else { const st = SUGGESTIONS[0].state; Object.assign(S, { base: st.base, modo: st.modo, livre: st.livre, filtros: structuredClone(st.filtros) }); }
   const opts = (vals, value, lab = v => val(v)) => vals.map(v => `<option value="${esc(v)}"${v === value ? " selected" : ""}>${esc(lab(v))}</option>`).join("");
   $("de").innerHTML = opts(OPT.meses, OPT.meses[0], v => v); $("ate").innerHTML = opts(OPT.meses, OPT.meses.at(-1), v => v);
   const free = OPT.dimensoes.filter(d => !FIXED.includes(d));
@@ -79,6 +110,7 @@ async function boot() {
   $("active").addEventListener("click", e => { const b = e.target.closest("button"); if (b) toggle(b.dataset.f, b.dataset.v, false); });
   $("kpis").addEventListener("click", e => { const k = e.target.closest("[data-metric]"); if (k) { S.base = k.dataset.metric; if (S.base === "eng_rate") S.modo = "media"; load(); } });
   $("reset").onclick = () => { S.filtros = {}; load(); };
+  $("suggestions").addEventListener("click", e => { const b = e.target.closest("button[data-i]"); if (b) applySuggestion(+b.dataset.i); });
   [["de", "de"], ["ate", "ate"], ["free-dim", "livre"], ["row", "linha"], ["col", "coluna"]].forEach(([id, k]) => $(id).addEventListener("change", e => { S[k] = e.target.value; load(); }));
   document.addEventListener("click", e => { const p = $("more-filters"); if (p.open && !p.contains(e.target)) p.open = false; });
   load();
@@ -114,6 +146,7 @@ async function fetchData() {
 
 /* ---------- controls ---------- */
 function drawControls() {
+  drawSuggestions();
   $("metric-tabs").innerHTML = Object.entries(BASE_METRICS).map(([k, t]) => `<button type="button" data-m="${k}" aria-pressed="${S.base === k}">${t}</button>`).join("");
   $("metric-tabs").onclick = e => { const b = e.target.closest("button"); if (b) { S.base = b.dataset.m; if (S.base === "eng_rate") S.modo = "media"; load(); } };
   const noHit = !HIT_METRIC[S.base];

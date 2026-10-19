@@ -177,6 +177,13 @@ select:focus, input:focus { border-color: var(--gold); outline: none; box-shadow
 .seg button[aria-pressed="true"] { background: #031a26; color: #f5f4f3; box-shadow: inset 0 -2px 0 var(--gold); }
 .seg button:disabled { opacity: 0.4; cursor: not-allowed; }
 .seg.small button { font-size: 0.82rem; padding: 8px 12px; }
+.suggest { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.suggest-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.suggest-btn { font: 600 0.84rem/1.2 var(--body); padding: 8px 14px; border-radius: 999px; border: 1px dashed var(--gold); background: var(--gold-soft); color: var(--ink); cursor: pointer; text-align: left; }
+.suggest-btn:hover { border-style: solid; }
+.suggest-btn b { color: var(--gold-ink); }
+.suggest-btn.on { background: #031a26; color: #f5f4f3; border: 1px solid var(--gold); }
+.suggest-btn.on b { color: var(--gold); }
 .bi-filters { display: grid; gap: 10px; padding: 14px 16px; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius); box-shadow: var(--shadow); }
 .quick { display: flex; flex-wrap: wrap; gap: 10px 22px; }
 .chip-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
