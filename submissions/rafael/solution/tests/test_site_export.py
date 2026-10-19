@@ -1,7 +1,5 @@
-"""Tests for the website payload: complete sections, JSON-safe output, pocket conditions and template rendering."""
+"""Tests for the website payload: complete sections, JSON-safe output and pocket conditions."""
 import json
-import sys
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -9,9 +7,6 @@ import pytest
 
 from social_insights import site_export as se
 from test_questions import make_posts
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "site"))
-import build_site  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -50,10 +45,3 @@ def test_simulator_tables_cover_every_metric_and_type(payload):
 ])
 def test_pocket_conditions(dimension, value, expected):
     assert se._pocket_conditions(dimension, value) == expected
-
-
-def test_render_inlines_payload():
-    html = build_site.render('{"a":1}', "<script>const DATA = /*__SITE_DATA__*/null;</script>")
-    assert 'const DATA = {"a":1};' in html
-    with pytest.raises(ValueError):
-        build_site.render("{}", "<p>no placeholder</p>")

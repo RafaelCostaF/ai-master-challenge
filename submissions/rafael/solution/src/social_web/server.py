@@ -1,0 +1,115 @@
+"""FastAPI server: content pages, the Power BI-style explorer and the prediction API.
+
+Run (from submissions/rafael): .venv/bin/social-web            → http://127.0.0.1:8000
+                               .venv/bin/social-web --rebuild  → retrain models and rebuild content after new data
+"""
+import argparse
+import math
+import re
+from pathlib import Path
+
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+from social_insights.site_export import _clean
+
+from . import explore
+from .schemas import ExploreQuery, PostInput
+from .state import AppState, load_state
+
+HERE = Path(__file__).resolve().parent
+PAGES = {"/": ("inicio.html", "Início"), "/perguntas": ("perguntas.html", "As 4 perguntas"), "/estrategia": ("estrategia.html", "Estratégia"),
+         "/descobertas": ("descobertas.html", "Descobertas"), "/explorar": ("explorar.html", "Explorar dados"),
+         "/prever": ("prever.html", "Prever um post"), "/metodo": ("metodo.html", "Como chegamos lá")}
+LABELS = {"platform": "Plataforma", "content_type": "Formato", "content_category": "Tema", "language": "Idioma", "follower_tier": "Tamanho do creator",
+          "is_sponsored": "Patrocinado", "sponsor_category": "Setor do patrocinador", "daypart": "Período do dia", "weekday": "Dia da semana",
+          "length_bin": "Duração", "n_hashtags": "Nº de hashtags", "month_name": "Mês", "hour": "Hora",
+          "audience_gender_distribution": "Gênero do público", "audience_age_distribution": "Idade do público", "audience_location": "País do público"}
+VALUES = {"video": "vídeo", "image": "imagem", "text": "texto", "mixed": "misto", "English": "inglês", "Spanish": "espanhol", "Chinese": "chinês",
+          "Hindi": "hindi", "Japanese": "japonês", "True": "sim", "False": "não", "Monday": "segunda", "Tuesday": "terça", "Wednesday": "quarta",
+          "Thursday": "quinta", "Friday": "sexta", "Saturday": "sábado", "Sunday": "domingo", "female": "feminino", "male": "masculino",
+          "non-binary": "não binário", "unknown": "não identificado", "views": "views", "likes": "likes", "comments_count": "comentários",
+          "January": "janeiro", "February": "fevereiro", "March": "março", "April": "abril", "May": "maio", "June": "junho", "July": "julho",
+          "August": "agosto", "September": "setembro", "October": "outubro", "November": "novembro", "December": "dezembro"}
+
+
+def num(value, digits: int = 0) -> str:
+    """pt-BR number: 12.345,6."""
+    if value is None or (isinstance(value, float) and math.isnan(value)):
+        return "—"
+    text = f"{float(value):,.{digits}f}"
+    return text.replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def pt_text(text: str) -> str:
+    """Convert numbers inside generated sentences ("1,234.5") to pt-BR ("1.234,5")."""
+    return re.sub(r"(\d)([.,])(?=(\d+))", lambda m: m.group(1) + ("," if m.group(2) == "." else ("." if len(m.group(3)) == 3 else ",")), text)
+
+
+MEDIA_WORDS = re.compile(r"\b(video|image|text|mixed)\b")
+
+
+def media_words(text: str) -> str:
+    """Translate raw media-type words inside generated sentences (whole words only)."""
+    return MEDIA_WORDS.sub(lambda m: VALUES[m.group(1)], text)
+
+
+def create_app(state: AppState) -> FastAPI:
+    app = FastAPI(title="Auditoria 52K Posts", description="Análise de social media, painel exploratório e previsão antes de postar.",
+                  version="1.0.0")
+    app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
+    templates = Jinja2Templates(directory=HERE / "templates")
+    templates.env.filters.update(num=num, pct=lambda v, d=1: "—" if v is None else f"{num(v, d)}%", pt=pt_text,
+                                 label=lambda k: LABELS.get(k, k), val=lambda v: VALUES.get(str(v), str(v)), words=media_words)
+    templates.env.globals.update(PAGES=PAGES, LABELS=LABELS, VALUES=VALUES)
+
+    def page(path: str):
+        template, title = PAGES[path]
+
+        async def handler(request: Request) -> HTMLResponse:
+            return templates.TemplateResponse(request, template, {"d": state.payload, "title": title, "path": path})
+        return handler
+
+    for path in PAGES:
+        app.add_api_route(path, page(path), methods=["GET"], response_class=HTMLResponse, include_in_schema=False)
+
+    @app.get("/api/health", tags=["sistema"])
+    def health() -> dict:
+        return {"status": "ok", "posts": len(state.posts)}
+
+    @app.get("/api/options", tags=["explorar"])
+    def options() -> dict:
+        return _clean(explore.options(state.posts) | {"rotulos": LABELS, "valores": VALUES})
+
+    @app.post("/api/explore", tags=["explorar"])
+    def explore_data(query: ExploreQuery) -> dict:
+        try:
+            result = explore.explore(state.posts, query.filtros, query.dimensao, query.metrica, query.linha, query.coluna, query.de, query.ate)
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        return _clean(result)
+
+    @app.post("/api/predict", tags=["prever"])
+    def predict(post: PostInput) -> dict:
+        return _clean(state.predictor.predict(post.model_dump()))
+
+    return app
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--rebuild", action="store_true", help="retreina os modelos e recalcula o conteúdo")
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8000)
+    args = parser.parse_args()
+    import uvicorn
+    print("Carregando dados e modelos (a 1ª execução treina tudo e leva alguns minutos)…")
+    app = create_app(load_state(rebuild=args.rebuild))
+    print(f"Pronto: http://{args.host}:{args.port}  ·  API: http://{args.host}:{args.port}/docs")
+    uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
+
+
+if __name__ == "__main__":
+    main()

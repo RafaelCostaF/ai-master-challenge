@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block body %}
+<main class="wrap wide">
+  <section class="page-head">
+    <span class="eyebrow">Ferramenta</span>
+    <h1>Prever um post antes de publicar</h1>
+    <p class="lede">Descreva o post que você vai publicar. O servidor roda os modelos e responde a chance de ele virar destaque (ficar entre os 5% com mais views, likes ou comentários do mesmo formato), quantas views esperar e quais descobertas se aplicam. O formulário já vem com um exemplo.</p>
+  </section>
+
+  <div class="predictor">
+    <form id="post-form" autocomplete="off">
+      <fieldset><legend>O post</legend>
+        <label class="field" for="platform">Plataforma<select id="platform" name="platform"></select></label>
+        <label class="field" for="content_type">Formato<select id="content_type" name="content_type"></select></label>
+        <label class="field" for="content_category">Tema<select id="content_category" name="content_category"></select></label>
+        <label class="field" for="language">Idioma<select id="language" name="language"></select></label>
+        <label class="field" for="content_length">Duração (segundos)<input type="number" id="content_length" name="content_length" min="1" max="3600" value="45"></label>
+        <label class="field" for="n_hashtags">Nº de hashtags<input type="number" id="n_hashtags" name="n_hashtags" min="0" max="30" value="3"></label>
+        <label class="field wide" for="caption_words">Palavras na legenda<input type="number" id="caption_words" name="caption_words" min="0" max="500" value="15"></label>
+      </fieldset>
+      <fieldset><legend>Quando</legend>
+        <label class="field" for="weekday">Dia da semana<select id="weekday" name="weekday"></select></label>
+        <label class="field" for="hour">Hora (0–23)<input type="number" id="hour" name="hour" min="0" max="23" value="9"></label>
+      </fieldset>
+      <fieldset><legend>Quem posta</legend>
+        <label class="field" for="follower_count">Seguidores do creator<input type="number" id="follower_count" name="follower_count" min="1" step="1000" value="25000"></label>
+        <label class="field" for="is_sponsored">Patrocinado?<select id="is_sponsored" name="is_sponsored"><option value="false">não</option><option value="true">sim</option></select></label>
+        <label class="field wide" for="creator_id">Creator conhecido (opcional)<input type="text" id="creator_id" name="creator_id" placeholder="ex.: creator_586"></label>
+      </fieldset>
+      <fieldset><legend>Público do creator</legend>
+        <label class="field" for="audience_gender_distribution">Gênero<select id="audience_gender_distribution" name="audience_gender_distribution"></select></label>
+        <label class="field" for="audience_age_distribution">Idade<select id="audience_age_distribution" name="audience_age_distribution"></select></label>
+        <label class="field wide" for="audience_location">País<select id="audience_location" name="audience_location"></select></label>
+      </fieldset>
+      <button class="btn primary wide" type="submit">Calcular</button>
+    </form>
+
+    <div class="result" id="result" aria-live="polite"><p class="muted">Calculando…</p></div>
+  </div>
+
+  <details class="tech"><summary>Como a previsão é feita</summary>
+    <p>O servidor testou vários modelos (média histórica, histórico de posts parecidos, regressão logística e LightGBM) em posts que eles não tinham visto. Só usa um modelo se ele acertar mais que a média; se nenhum acertar, a "chance oficial" fica na média histórica (~5%) e o site avisa. O "histórico de posts parecidos" mostra como foram os posts da mesma plataforma, tema e idioma, com a faixa provável. Também dá para chamar a previsão por API: <a href="/docs">/docs</a>.</p></details>
+</main>
+<script>
+const CHOICES = {
+  platform: ["Instagram", "TikTok", "YouTube", "Bilibili", "RedNote"], content_type: ["video", "image", "text", "mixed"],
+  content_category: ["beauty", "lifestyle", "tech"], language: ["English", "Spanish", "Chinese", "Hindi", "Japanese"],
+  weekday: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+  audience_gender_distribution: ["female", "male", "non-binary", "unknown"], audience_age_distribution: ["13-18", "19-25", "26-35", "36-50", "50+"],
+  audience_location: ["USA", "Brazil", "China", "Germany", "India", "Japan", "Russia", "UK"] };
+const EXAMPLE = { platform: "TikTok", content_type: "video", content_category: "beauty", language: "Spanish", weekday: "Friday",
+  audience_gender_distribution: "female", audience_age_distribution: "19-25", audience_location: "USA" };
+Object.entries(CHOICES).forEach(([k, vs]) => $(k).innerHTML = vs.map(v => `<option value="${v}"${EXAMPLE[k] === v ? " selected" : ""}>${esc(val(v))}</option>`).join(""));
+const METRIC_NAME = { views: "views", likes: "likes", comments_count: "comentários" };
+let timer = null;
+
+function readForm() {
+  const f = Object.fromEntries(new FormData($("post-form")).entries());
+  ["hour", "follower_count", "content_length", "n_hashtags", "caption_words"].forEach(k => f[k] = Number(f[k]));
+  f.is_sponsored = f.is_sponsored === "true";
+  f.creator_id = f.creator_id.trim() || null;
+  return f;
+}
+async function predict() {
+  $("result").classList.add("loading");
+  const res = await fetch("/api/predict", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(readForm()) });
+  const data = await res.json();
+  $("result").classList.remove("loading");
+  if (!res.ok) { $("result").innerHTML = `<p class="bad">Confira os campos: ${esc((data.detail || []).map(e => e.msg).join("; "))}</p>`; return; }
+  render(data);
+}
+const scale = v => Math.min(100, v / 15 * 100);
+function meter(c) {
+  return `<div class="meter"><span class="eyebrow">${METRIC_NAME[c.metrica]}</span>
+    <span class="pct">${pct(c.chance)}</span><span class="caption">chance de virar destaque (top 5%)${c.modelo === "taxa base" ? ": igual à média" : ""}</span>
+    <div class="bar" role="img" aria-label="posts parecidos: ${pct(c.historico)}"><span class="range" style="left:${scale(c.historico_min)}%;width:${scale(c.historico_max) - scale(c.historico_min)}%"></span>
+      <span class="base" style="left:${scale(c.base)}%"></span><span class="dot" style="left:${scale(c.historico)}%"></span></div>
+    <span class="caption">Posts parecidos: <b>${pct(c.historico)}</b> viraram destaque (faixa provável ${pct(c.historico_min)}–${pct(c.historico_max)}, ${nf(c.posts_parecidos)} posts). O traço escuro é o normal (~5%).</span></div>`;
+}
+function render(r) {
+  const formats = [...new Set(r.por_formato.map(c => c.formato))];
+  const cell = (f, m) => { const c = r.por_formato.find(x => x.formato === f && x.metrica === m);
+    const tag = c.historico_min > c.base ? ' <span class="yes">▲</span>' : c.historico_max < c.base ? ' <span class="bad">▼</span>' : "";
+    return `<td class="n">${pct(c.historico)}${tag}</td>`; };
+  const pocket = p => `<div class="card">${chip(p.evidencia)}<span><b>${nf(p.lift, 1)}x</b> ${p.lift >= 1 ? "mais" : "menos"} chance de top 5% em ${METRIC_NAME[p.metrica]} ${p.plataforma === "todas" ? "(geral)" : "no " + p.plataforma}</span>
+    <span class="caption">${describeConditions(p.condicoes)} · ${nf(p.posts)} posts</span></div>`;
+  $("result").innerHTML = `
+    <ul class="summary-list">${r.resumo.map(s => `<li>${esc(s)}</li>`).join("")}</ul>
+    <div class="meters">${r.chances.map(meter).join("")}</div>
+    <div class="grid-2">
+      <div class="panel"><h3>Views esperadas</h3><p><span class="pct num" style="font-size:1.6rem">${nf(r.views.estimativa)}</span></p>
+        <p class="caption">Faixa provável: ${nf(r.views.min)} a ${nf(r.views.max)} views.${r.views.melhor_que_media ? "" : " Nada do que se sabe antes de postar mudou as views no histórico, então a estimativa é a média."}</p></div>
+      <div class="panel"><h3>Engajamento esperado</h3><p><span class="pct num" style="font-size:1.6rem">${pct(r.engajamento.estimativa)}</span></p>
+        <p class="caption">Interações por view. Faixa provável: ${pct(r.engajamento.min)} a ${pct(r.engajamento.max)}.${r.engajamento.melhor_que_media ? "" : " Igual à média histórica."}</p></div>
+    </div>
+    <div class="panel"><h3>E se fosse outro formato? (posts parecidos que viraram destaque)</h3>
+      <div class="table-wrap"><table><thead><tr><th>Formato</th>${Object.values(METRIC_NAME).map(n => `<th>${n}</th>`).join("")}</tr></thead><tbody>
+      ${formats.map(f => `<tr${f === r.post.content_type ? ' style="font-weight:600"' : ""}><td>${val(f)}</td>${Object.keys(METRIC_NAME).map(m => cell(f, m)).join("")}</tr>`).join("")}
+      </tbody></table></div><p class="caption">▲ acima do normal com segurança · ▼ abaixo do normal com segurança · sem seta = dentro do normal.</p></div>
+    <div class="panel"><h3>Descobertas que se aplicam a este post</h3>
+      <div class="cards">${r.descobertas.map(pocket).join("") || '<p class="muted">Nenhuma descoberta se aplica a este post.</p>'}</div>
+      ${r.descobertas_total > r.descobertas.length ? `<p class="caption">Mostrando ${r.descobertas.length} de ${r.descobertas_total}.</p>` : ""}</div>`;
+}
+$("post-form").addEventListener("submit", e => { e.preventDefault(); predict(); });
+$("post-form").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(predict, 300); });
+predict();
+</script>
+{% endblock %}

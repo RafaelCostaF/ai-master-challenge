@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% set q2 = d.respostas.q2 %}
+{% set cost = q2.custo_por_porte %}
+{% set cpm_min = cost | map(attribute='cpm_implicito_mediano') | min %}
+{% set cpm_max = cost | map(attribute='cpm_implicito_mediano') | max %}
+{% set hl = d.insights.destaque %}
+{% set hour = d.insights.horario_comentarios | sort(attribute='q (hora)') | first %}
+{% set scan = d.modelos.varredura %}
+{% set spon = q2.diferencas | selectattr('medida', 'equalto', 'eng_rate_views — estratificado') | first %}
+{% set hl_vals = hl.bolsao.split(' · ') %}
+{% block body %}
+<main class="wrap">
+  <section class="page-head">
+    <span class="eyebrow">Challenge 004 · Estratégia de social media</span>
+    <h1>O que {{ d.meta.posts | num }} posts dizem sobre o que funciona</h1>
+    <p class="lede">Analisamos {{ d.meta.posts | num }} posts de {{ d.meta.creators | num }} creators no Instagram, TikTok, YouTube, Bilibili e RedNote entre {{ d.meta.inicio[:7] }} e {{ d.meta.fim[:7] }}. A pergunta era simples: o que faz um post ter mais views, likes e comentários, e onde o dinheiro está sendo desperdiçado.</p>
+  </section>
+
+  <section>
+    <h2>Em 1 minuto</h2>
+    <div class="findings">
+      <article class="finding">
+        <span class="big">{{ scan.significativos }} de {{ scan.testes }}</span>
+        <h3>Formato, tema, horário e tamanho do creator não mudam o resultado</h3>
+        <p class="muted">Comparamos cada característica dos posts com views, likes e comentários. Nenhuma fez diferença real: as variações ficam abaixo de 1% e somem quando se olha com cuidado.</p>
+      </article>
+      <article class="finding">
+        <span class="big">{{ (cpm_max / cpm_min) | round | int }}x</span>
+        <h3>Pagar por seguidores não compra alcance</h3>
+        <p class="muted">Um creator com 1 milhão de seguidores teve as mesmas views de um com 5 mil. Como o preço sobe com os seguidores, mil views custam US$ {{ cpm_min | num(2) }} com creators pequenos e US$ {{ cpm_max | num(0) }} com os grandes.</p>
+      </article>
+      <article class="finding">
+        <span class="big">{{ spon['diferença (%)'] | num(2) }}%</span>
+        <h3>Post patrocinado engaja igual ao orgânico</h3>
+        <p class="muted">Comparando posts da mesma plataforma, formato, tema e tamanho de creator, o patrocinado não ganhou engajamento nem alcance. Patrocinar só vale pelo preço, nunca pela "força" do post.</p>
+      </article>
+      <article class="finding">
+        <span class="big">{{ hl.lift | num(1) }}x</span>
+        <h3>Uma alavanca confirmada: {{ hl.plataforma }} · {{ hl_vals[0] | val }} em {{ hl_vals[1] | val }}</h3>
+        <p class="muted">Esses posts tiveram o dobro de chance de ficar entre os 5% com mais {{ hl.metrica | val }}. Foi o único padrão que se manteve depois de todas as checagens e se repetiu nos dois anos.</p>
+      </article>
+      <article class="finding">
+        <span class="big">{{ hour['hora mediana top'] | num }}h</span>
+        <h3>No {{ hour.plataforma }}, quem posta cedo recebe mais comentários</h3>
+        <p class="muted">Os posts com mais comentários no {{ hour.plataforma }} saíram por volta das {{ hour['hora mediana top'] | num }}h; o resto, por volta das {{ hour['hora mediana demais'] | num }}h. No TikTok, o horário não fez diferença.</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2>O que fazer na segunda-feira</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Ação</th><th>Esforço</th><th>Resultado esperado</th><th>Quem</th></tr></thead>
+      <tbody>{% for w in d.estrategia.quick_wins %}<tr><td>{{ w['ação'] | pt | words }}</td><td>{{ w['esforço'] }}</td><td>{{ w.impacto | pt }}</td><td>{{ w.dono }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    <p class="caption">Detalhes e justificativas em <a href="/estrategia">Estratégia</a>.</p>
+  </section>
+
+  <section>
+    <div class="cta">
+      <a href="/explorar"><b>Explorar os dados →</b><span>Painel interativo: filtre por plataforma, formato, tema, público e período, e veja os números mudarem.</span></a>
+      <a href="/prever"><b>Prever um post →</b><span>Descreva o post que você vai publicar e veja a chance de ele virar destaque em views, likes e comentários.</span></a>
+    </div>
+  </section>
+
+  <section>
+    <div class="notice"><strong>Sobre os dados</strong>
+      <p>Os dados do desafio são <b>simulados</b>: os números de cada post foram gerados quase ao acaso. Por isso a maior parte das respostas é "isso não faz diferença". Usamos métodos que encontram diferenças reais quando elas existem (testamos isso de propósito). Com os dados reais da empresa, o site é recalculado e mostra o que de fato funciona para vocês.</p></div>
+  </section>
+</main>
+{% endblock %}

@@ -155,16 +155,16 @@ def sponsorship_policy(df: pd.DataFrame, cost_per_follower: float = COST_PER_FOL
         ("Patrocinar para ganhar desempenho: SIM, " if lift else "Patrocinar para ganhar desempenho: NÃO. O patrocínio não muda engajamento nem alcance. ")
         + ("nas condições com efeito: " + ", ".join(good_conditions["condição"]) + ". " if len(good_conditions) else "Nenhuma condição tem efeito. ")
         + f"Patrocinar só se o post se pagar como mídia: até ~{be['threshold']:,.0f} seguidores "
-          f"(CPM ≤ US$ {target_cpm:.0f} e CPE ≤ US$ {target_cpe:.2f}, com ~{be['views medianas']:,.0f} views e ~{be['interações medianas']:,.0f} interações por post). "
+          f"(até US$ {target_cpm:.0f} por mil views e US$ {target_cpe:.2f} por interação, com ~{be['views medianas']:,.0f} views e ~{be['interações medianas']:,.0f} interações por post). "
         + f"Hoje só {len(within) / len(costs):.0%} dos posts patrocinados estão dentro desse limite. "
         + f"Perfil: {', '.join(profile.index[profile['dentro do threshold']]) or 'nenhuma faixa atual'}, em qualquer plataforma ou categoria. "
           "O engajamento histórico não serve de critério, porque não diferencia creators."
     )
     actions = [
         f"Teto de contratação: {be['threshold']:,.0f} seguidores por post (ou pagamento por desempenho acima disso).",
-        f"Contratos por CPM/CPE garantido (≤ US$ {target_cpm:.0f}/mil views, ≤ US$ {target_cpe:.2f}/interação), não por post fixo.",
-        "Disclosure sempre explícito: não reduz o engajamento e elimina o risco regulatório.",
-        "Todo novo patrocínio entra com grupo de controle (posts orgânicos comparáveis) para medir o uplift real.",
+        f"Contratar por resultado: até US$ {target_cpm:.0f} por mil views ou US$ {target_cpe:.2f} por interação, em vez de preço fixo por post.",
+        "Sinalizar publicidade de forma explícita (ex.: #publi): não reduz o engajamento e elimina o risco regulatório.",
+        "Todo novo patrocínio entra com grupo de comparação (posts orgânicos parecidos) para medir o ganho real.",
     ]
     return Recommendation("2. Política de patrocínio", decision, answer.evidence,
                           {"Ponto de equilíbrio por tamanho de creator": be["grade"], "Perfil de influenciador (patrocinados)": profile,
@@ -219,13 +219,14 @@ def quick_wins(df: pd.DataFrame, **assumptions) -> Recommendation:
     wins = pd.DataFrame([
         {"ação": f"Teto de {be['threshold']:,.0f} seguidores para novos contratos", "esforço": "baixo (regra de compra)",
          "impacto": f"evita ~US$ {stop.evidence.iloc[0]['excedente sobre preço justo (US$)']:,.0f} de excedente", "dono": "Head de Marketing / Compras"},
-        {"ação": "Renegociar contratos ativos acima do teto para CPM/CPE garantido", "esforço": "médio", "impacto": "custo por resultado no nível do mercado", "dono": "Parcerias"},
-        {"ação": "Disclosure explícito como padrão", "esforço": "baixo", "impacto": "compliance sem perda de engajamento", "dono": "Social media"},
+        {"ação": "Renegociar contratos ativos acima do teto para pagamento por resultado (views ou interações)", "esforço": "médio",
+         "impacto": "custo por resultado no nível do mercado", "dono": "Parcerias"},
+        {"ação": "Sinalização de publicidade explícita (#publi) como padrão", "esforço": "baixo", "impacto": "conformidade legal sem perda de engajamento", "dono": "Social media"},
         {"ação": f"Mix de produção padrão em {cheapest}",
          "esforço": "baixo", "impacto": f"economia potencial ~US$ {stop.evidence.iloc[1]['excedente sobre preço justo (US$)']:,.0f}", "dono": "Conteúdo"},
         {"ação": "Retirar \"melhor horário\" e \"hashtags ideais\" do checklist", "esforço": "baixo", "impacto": "horas do time liberadas", "dono": "Social media"},
-        {"ação": "Rodar `answer_questions.py` e o 1º teste A/B (patrocinado vs. orgânico pareado)", "esforço": "médio",
-         "impacto": "medir o uplift real com dados da empresa", "dono": "AI Master / Analytics"},
+        {"ação": "Recalcular este diagnóstico com os dados da empresa e rodar o 1º teste A/B (patrocinado vs. orgânico parecido)", "esforço": "médio",
+         "impacto": "medir o ganho real com dados da empresa", "dono": "AI Master / Analytics"},
     ])
     decision = ("6 ações executáveis nesta semana, sem nova contratação nem ferramenta: 3 cortam custo (teto, renegociação, mix de produção), "
                 "1 reduz risco (disclosure), 1 libera tempo do time (checklist) e 1 cria a medição contínua (A/B).")

@@ -1,33 +1,45 @@
-# Site de entrega — arquitetura e como usar
+# Site de entrega (com servidor) — arquitetura e como usar
 
-Saída: `solution/site/dist/index.html` (arquivo único, abre no navegador sem servidor) · gerado em 2026-10-19.
+Código: `solution/src/social_web/` · comando: `.venv/bin/social-web` · atualizado em 2026-10-19.
+Substitui o site estático anterior (removido): agora há servidor, linguagem para leigos, previsões feitas no servidor e painel estilo Power BI.
 
-## Arquitetura (separação de responsabilidades)
-| Camada | Arquivo | Papel |
-|---|---|---|
-| Dados | `solution/src/social_insights/site_export.py` | roda as análises e devolve um payload JSON; **todo número e frase vem dos dados** (vereditos, ações e cards gerados pelas funções) |
-| Apresentação | `solution/site/template.html` | HTML + CSS + JS; lê `DATA` e renderiza seções, tabelas, gráficos (Chart.js 4.4.1 via cdnjs) e o simulador |
-| Montagem | `solution/site/build_site.py` | injeta o JSON no template → `dist/index.html` (documento completo), `dist/site.html` (fragmento) e `dist/data.json` |
-| Testes | `solution/tests/test_site_export.py` | seções completas, JSON seguro, tabelas do simulador, parser de condições, renderização |
-
-## Seções do site (↔ o que o desafio pede)
-| Seção | Entrega |
-|---|---|
-| Resumo | tese, 4 números-chave, aviso sobre o dataset sintético |
-| Os dados | qualidade, correlação entre métricas, varredura de 33 atributos × 3 métricas |
-| Perguntas 1–4 | o que gera engajamento · patrocínio (comparação estratificada + CPM implícito) · audiência · o que não funciona (11 crenças + duração do vídeo) |
-| Estratégia | onde concentrar · política de patrocínio (ponto de equilíbrio) · o que parar · quick wins (esforço, impacto, dono) |
-| Insights | destaque robusto (TikTok · beauty · espanhol → likes), horário × comentários por plataforma, replicação, explorador de ~940 bolsões com filtros |
-| Modelos | 14 abordagens de engajamento (treino × validação), previsão de views pré-postagem, AUC da chance de top 5%, controle positivo |
-| Simulador | monta um post → chance oficial de top 5% por métrica, sinal do segmento com IC90, comparação entre formatos, views esperadas, bolsões que se aplicam |
-| Método | testes usados, limitações, comandos para reproduzir |
-
-## Como usar
+## Como rodar
 ```bash
 cd submissions/rafael
-.venv/bin/python solution/site/build_site.py   # ~3 min; regenera dist/ (rodar após trocar o CSV pelos dados reais)
-xdg-open solution/site/dist/index.html          # ou abrir no navegador
+python -m venv .venv && .venv/bin/pip install -r requirements.txt && .venv/bin/pip install -e .
+.venv/bin/social-web                 # http://127.0.0.1:8000  (1ª vez: treina e calcula tudo, ~5 min; depois sobe em segundos)
+.venv/bin/social-web --rebuild       # após trocar o CSV pelos dados da empresa
+.venv/bin/social-web --host 0.0.0.0 --port 8080   # para expor na rede
 ```
-- Funciona offline, exceto os gráficos (Chart.js e fontes vêm de CDN); sem internet, as tabelas continuam com os dados.
-- Tema claro/escuro automático; responsivo até ~400 px.
-- **Simulador:** usa a chance oficial (modelo adotado ou taxa base) e as tabelas de segmento exportadas. Modelos de ML adotados no futuro são aplicados pela CLI `solution/predict_hit.py`; o site então mostra a taxa base e o sinal do segmento.
+Cache: `solution/models/web_models.joblib` (modelos) e `site_payload.json` (conteúdo), fora do git.
+
+## Arquitetura
+| Módulo | Papel |
+|---|---|
+| `server.py` | FastAPI: `create_app(state)` (testável), rotas das páginas (Jinja2), API, filtros pt-BR (`num`, `pct`, `pt`, `label`, `val`, `words`), CLI `main()` |
+| `state.py` | carrega o CSV, treina/lê do cache: chance de top 5%, previsão de views, engajamento; monta o payload de conteúdo (`site_export.build_payload`) |
+| `predict.py` | `PredictionService`: monta o post (faixas, horário, histórico do creator), chama os 3 modelos, cruza com as descobertas e escreve o resumo em linguagem simples |
+| `explore.py` | agregações do painel: filtros, cartões, comparação de grupos (com marcação de "diferença real" corrigida), série mensal sem meses incompletos, matriz e top 10 |
+| `schemas.py` | validação das entradas da API (pydantic) |
+| `templates/` | 7 páginas: Início · As 4 perguntas · Estratégia · Descobertas · Explorar dados · Prever um post · Como chegamos lá |
+| `static/` | CSS (tema claro/escuro, responsivo), `common.js` (formatação, selos de evidência, gráficos) e Chart.js embutido (funciona offline) |
+
+## API (documentação automática em `/docs`)
+| Rota | Uso |
+|---|---|
+| `POST /api/predict` | corpo = post planejado (plataforma, formato, tema, idioma, horário, seguidores, duração, público, patrocínio, creator opcional) → chance de top 5% por métrica, comparação entre formatos, views e engajamento esperados com faixa provável, descobertas que se aplicam, resumo em frases |
+| `POST /api/explore` | filtros + agrupamento + métrica + linhas/colunas da matriz + período → tudo que o painel desenha |
+| `GET /api/options` | valores dos filtros e métricas disponíveis |
+| `GET /api/health` | status |
+
+## Linguagem para leigos (padrão do site)
+- "Virar destaque" = top 5%. "Faixa provável" = intervalo de 90%. "2x mais chance" = o dobro do normal.
+- Selos: **confirmado** (passou em tudo) · **se repetiu nos 2 anos** (candidato a teste) · **pista** (pode ser coincidência).
+- Jargão técnico (q-value, AUC, R²) só dentro de "Detalhes técnicos".
+
+## Testes
+`solution/tests/test_web.py` (dados sintéticos e modelos leves) cobre:
+- filtros, cartões, marcação de diferença real e ordem natural;
+- remoção de meses incompletos e casamento das descobertas;
+- as 7 páginas renderizando;
+- as APIs `explore` e `predict`, incluindo a validação de entrada (422).

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{ title }} · Auditoria 52K Posts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/static/css/site.css">
+<script>window.SITE_LABELS = {{ LABELS | tojson }}; window.SITE_VALUES = {{ VALUES | tojson }};</script>
+<script src="/static/vendor/chart.umd.min.js"></script>
+<script src="/static/js/common.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="inner">
+    <a class="brand" href="/">Auditoria 52K Posts</a>
+    <nav class="nav" aria-label="Páginas">
+      {% for href, (tpl, name) in PAGES.items() %}
+      <a href="{{ href }}"{% if href == path %} aria-current="page"{% endif %}{% if href in ['/explorar', '/prever'] %} class="tool"{% endif %}>{{ name }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+</header>
+{% block body %}{% endblock %}
+<footer class="site">
+  <div class="wrap">
+    <span>{{ d.meta.posts | num }} posts · {{ d.meta.plataformas | length }} plataformas · {{ d.meta.inicio[:7] }} a {{ d.meta.fim[:7] }}</span>
+    <span>Atualizado em {{ d.meta.gerado_em }}</span>
+    <a href="/docs">API (previsões e dados)</a>
+  </div>
+</footer>
+</body>
+</html>

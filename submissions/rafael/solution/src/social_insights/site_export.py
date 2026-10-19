@@ -199,12 +199,15 @@ def simulator(df: pd.DataFrame, hit_predictor: hit_probability.HitPredictor, vie
     })
 
 
-def build_payload(df: pd.DataFrame, light: bool = False) -> dict:
-    """Full site payload. `light=True` trims the slowest model comparison (used by tests)."""
-    views_eval = views_forecast.evaluate(df)
+def build_payload(df: pd.DataFrame, light: bool = False, hit_predictor: hit_probability.HitPredictor | None = None,
+                  views_fc: views_forecast.ViewsForecaster | None = None, views_eval: pd.DataFrame | None = None) -> dict:
+    """Full site payload. Pass already-trained models to avoid retraining; `light=True` trims the slowest comparison (tests)."""
+    views_eval = views_forecast.evaluate(df) if views_eval is None else views_eval
+    hit_predictor = hit_probability.HitPredictor.train(df) if hit_predictor is None else hit_predictor
+    views_fc = views_forecast.ViewsForecaster.train(df, views_eval) if views_fc is None else views_fc
     payload = {"meta": meta(df), "dados": data_quality(df), "respostas": answers(df), "estrategia": strategy_section(df),
                "insights": insights(df), "modelos": models(df, views_eval, light), "duracao": video_length(df),
-               "simulador": simulator(df, hit_probability.HitPredictor.train(df), views_forecast.ViewsForecaster.train(df, views_eval))}
+               "simulador": simulator(df, hit_predictor, views_fc)}
     payload["kpis"] = headline_kpis(payload)
     return _clean(payload)
 
