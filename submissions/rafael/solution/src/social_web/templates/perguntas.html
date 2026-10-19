@@ -108,7 +108,5 @@ lazyChart("ch-duracao", () => ({ type: "line", data: { labels: bins.map(b => b.c
     { label: "pior da faixa", data: bins.map(b => b.min), borderColor: css("--c1"), backgroundColor: css("--c1"), borderWidth: 2, pointRadius: 3 }] },
   options: chartOptions({ interaction: { mode: "index", intersect: false }, plugins: { tooltip: { callbacks: { afterBody: it => `${nf(bins[it[0].dataIndex].size)} vídeos nesta faixa` } } },
     scales: { y: { title: { display: true, text: "views", color: css("--muted") } }, x: { title: { display: true, text: "duração do vídeo", color: css("--muted") } } } }) }));
-/* Opening a section linked from the summary (/perguntas#patrocinio) expands its details. */
-if (location.hash) document.querySelector(location.hash + " details.more")?.setAttribute("open", "");
 </script>
 {% endblock %}

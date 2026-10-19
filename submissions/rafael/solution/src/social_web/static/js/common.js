@@ -72,3 +72,7 @@ document.addEventListener("click", e => document.querySelectorAll("details.menu[
 document.addEventListener("toggle", e => {
   if (e.target.open) CHARTS.filter(c => e.target.contains($(c.canvasId))).forEach(c => c.chart.resize());
 }, true);
+/* A link to a section (e.g. /perguntas#patrocinio) opens that section's details, after the page's charts are registered. */
+window.addEventListener("load", () => {
+  if (/^#[\w-]+$/.test(location.hash)) document.querySelector(location.hash + " details.more")?.setAttribute("open", "");
+});

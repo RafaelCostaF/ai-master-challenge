@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from statsmodels.stats.multitest import multipletests
 
-from . import (attribute_scan, discovery, engagement_model, focus, hit_probability, questions, strategy, validation,
+from . import (attribute_scan, creators, discovery, engagement_model, focus, hit_probability, questions, strategy, validation,
                views_forecast)
 from .data import FOLLOWER_TIERS, LENGTH_BINS, METRICS, PLATFORMS
 
@@ -167,6 +167,22 @@ def models(df: pd.DataFrame, views_eval: pd.DataFrame, light: bool = False) -> d
     }
 
 
+HIST_BINS = 40
+
+
+def creators_section(df: pd.DataFrame) -> dict:
+    """Creator × results: variance share, spread vs. chance (histograms), persistence of the best and an honest top 10."""
+    spread = creators.spread_vs_chance(df)
+    edges = np.linspace(min(spread["medias"].min(), spread["medias_acaso"].min()), max(spread["medias"].max(), spread["medias_acaso"].max()), HIST_BINS + 1)
+    pers = creators.persistence(df)
+    return {"variancia": records(creators.variance_share(df), index=True),
+            "dispersao": {"observado": spread["desvio observado"], "acaso": spread["desvio esperado por acaso"], "p_value": spread["p_value"],
+                          "centros": ((edges[:-1] + edges[1:]) / 2).round(0).tolist(),
+                          "reais": np.histogram(spread["medias"], edges)[0].tolist(), "sorteio": np.histogram(spread["medias_acaso"], edges)[0].tolist()},
+            "persistencia": {k: v for k, v in pers.items() if k != "tabela"},
+            "ranking": records(creators.leaderboard(df).rename_axis("creator"), index=True), "media_geral": df["views"].mean()}
+
+
 def video_length(df: pd.DataFrame) -> dict:
     videos = df[df["content_type"] == "video"]
     bins = pd.cut(videos["content_length"], np.arange(0, 630, 30))
@@ -206,7 +222,7 @@ def build_payload(df: pd.DataFrame, light: bool = False, hit_predictor: hit_prob
     hit_predictor = hit_probability.HitPredictor.train(df) if hit_predictor is None else hit_predictor
     views_fc = views_forecast.ViewsForecaster.train(df, views_eval) if views_fc is None else views_fc
     payload = {"meta": meta(df), "dados": data_quality(df), "respostas": answers(df), "estrategia": strategy_section(df),
-               "insights": insights(df), "modelos": models(df, views_eval, light), "duracao": video_length(df),
+               "insights": insights(df), "modelos": models(df, views_eval, light), "duracao": video_length(df), "criadores": creators_section(df),
                "simulador": simulator(df, hit_predictor, views_fc)}
     payload["kpis"] = headline_kpis(payload)
     return _clean(payload)

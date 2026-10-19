@@ -40,6 +40,26 @@
     </div></details>
   </section>
 
+  {% set cr = d.criadores %}
+  {% set icc = cr.variancia | selectattr('métrica', 'equalto', 'views') | first %}
+  <section id="creators">
+    <span class="chip nada" style="justify-self:start">sem diferença real</span>
+    <h2>Quem posta não muda as views</h2>
+    <p class="answer">Os creators "campeões" são sorte. As médias de views variam entre creators <b>exatamente o que o sorteio produziria</b> ({{ cr.dispersao.observado | num(1) }} views contra {{ cr.dispersao.acaso | num(1) }}), e só {{ cr.persistencia['% que continuou'] | num(1) }}% dos 10% melhores do 1º ano continuaram entre os melhores no 2º (o acaso daria 10%).</p>
+    <div class="means"><span class="tag">Na prática</span><p>Não pague a mais por um creator por causa do desempenho passado. Contrate por preço e por resultado.</p></div>
+    <details class="more"><summary>Ver gráfico e ranking</summary><div class="more-body">
+      <div class="grid-2">
+        <div class="panel"><h3>Média de views por creator: real × sorteio</h3><div class="chart"><canvas id="ch-creators"></canvas></div>
+          <p class="caption">As barras mostram os creators reais; a linha mostra o que aconteceria redistribuindo os mesmos posts ao acaso entre eles. Quase não há diferença.</p></div>
+        <div class="panel"><h3>Top 10 creators: média bruta × descontada a sorte</h3>
+          <div class="table-wrap"><table><thead><tr><th>Creator</th><th>Posts</th><th>Média bruta</th><th>Descontada a sorte</th></tr></thead><tbody>
+          {% for c in cr.ranking %}<tr><td>{{ c.creator }}</td><td class="n">{{ c.posts }}</td><td class="n">{{ c['média bruta'] | num }}</td><td class="n">{{ c['média ajustada'] | num }}</td></tr>{% endfor %}
+          </tbody></table></div>
+          <p class="caption">Com ~10 posts cada, a vantagem dos "campeões" desaparece quando se desconta a sorte: todos voltam à média geral ({{ cr.media_geral | num }}). Parte da variação de views ligada ao creator: {{ icc['ICC (% da variação ligada ao creator)'] | num(1) }}%.</p></div>
+      </div>
+    </div></details>
+  </section>
+
   <section>
     <h2>Padrões por plataforma</h2>
     <p class="caption">Escolha a plataforma e a métrica. Aparecem primeiro os padrões confirmados e os que se repetiram; as pistas ficam recolhidas.</p>
@@ -57,6 +77,13 @@ lazyChart("ch-hour", () => ({ type: "bar", data: { labels: parts, datasets: [
     { type: "line", label: "normal (1%)", data: parts.map(() => 1), borderColor: css("--ink"), borderDash: [6, 4], pointRadius: 0, borderWidth: 1.5 }] },
   options: chartOptions({ plugins: { tooltip: { callbacks: { label: c => `${c.dataset.label}: ${pct(c.raw, 2)}` } } }, scales: { y: { ticks: { callback: v => v + "%" } }, x: { grid: { display: false } } } }) }));
 
+const CR = {{ d.criadores.dispersao | tojson }};
+lazyChart("ch-creators", () => ({ type: "bar", data: { labels: CR.centros.map(c => nf(c)), datasets: [
+    { type: "bar", label: "creators reais", data: CR.reais, backgroundColor: css("--c1"), barPercentage: 1, categoryPercentage: 1 },
+    { type: "line", label: "sorteio ao acaso", data: CR.sorteio, borderColor: css("--gold"), borderWidth: 2.5, pointRadius: 0, tension: 0.3 }] },
+  options: chartOptions({ plugins: { tooltip: { callbacks: { title: it => `média ≈ ${it[0].label} views`, label: c => `${c.dataset.label}: ${nf(c.raw)} creators` } } },
+    scales: { x: { ticks: { maxTicksLimit: 6 }, grid: { display: false }, title: { display: true, text: "média de views do creator", color: css("--muted") } },
+              y: { title: { display: true, text: "nº de creators", color: css("--muted") } } } }) }));
 const state = { plat: "todas", metric: "views" };
 const METRIC_NAME = { views: "views", likes: "likes", comments_count: "comentários" };
 function tabs(id, items, key) {

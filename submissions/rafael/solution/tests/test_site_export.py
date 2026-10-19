@@ -45,3 +45,9 @@ def test_simulator_tables_cover_every_metric_and_type(payload):
 ])
 def test_pocket_conditions(dimension, value, expected):
     assert se._pocket_conditions(dimension, value) == expected
+
+
+def test_creators_section(payload):
+    cr = payload["criadores"]
+    assert len(cr["dispersao"]["reais"]) == len(cr["dispersao"]["sorteio"]) == len(cr["dispersao"]["centros"])
+    assert cr["ranking"] and "% que continuou" in cr["persistencia"]
