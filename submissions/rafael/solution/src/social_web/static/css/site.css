@@ -58,6 +58,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .top .inner, .wrap { max-width: var(--width); margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .top .inner { display: flex; align-items: center; gap: 28px; padding-block: 12px; flex-wrap: wrap; }
 .brand { font: 600 1.35rem/1 var(--display); color: var(--on-navy); text-decoration: none; white-space: nowrap; letter-spacing: 0.01em; }
+.brand { display: inline-flex; align-items: center; gap: 10px; }
+.brand img { width: 30px; height: 30px; display: block; }
 .brand b { color: var(--gold); font-weight: 700; }
 .nav { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-left: auto; }
 .nav > a, .menu summary { text-decoration: none; color: var(--on-navy-muted); padding: 8px 14px; border-radius: 999px; font-size: 0.92rem; font-weight: 600; transition: color 0.15s, background 0.15s; }

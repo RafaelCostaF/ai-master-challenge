@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -76,6 +76,10 @@ def create_app(state: AppState) -> FastAPI:
 
     for path in PAGES:
         app.add_api_route(path, page(path), methods=["GET"], response_class=HTMLResponse, include_in_schema=False)
+
+    @app.api_route("/favicon.ico", methods=["GET", "HEAD"], include_in_schema=False)
+    def favicon() -> FileResponse:
+        return FileResponse(HERE / "static" / "img" / "favicon.ico", media_type="image/x-icon")
 
     @app.get("/prever", include_in_schema=False)
     def old_predict_page() -> RedirectResponse:

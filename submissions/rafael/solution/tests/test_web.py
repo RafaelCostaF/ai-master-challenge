@@ -122,3 +122,9 @@ def test_nearby_best_finds_planted_language(tmp_path_factory):
             "audience_age_distribution": "19-25", "audience_location": "USA", "creator_id": None}
     suggestion = state.predictor.predict(post, goal="likes")["sugestao"]
     assert suggestion["mudancas"].get("language") == "Spanish" and suggestion["para"] > suggestion["de"]
+
+
+def test_favicon_and_logo(client):
+    res = client.get("/favicon.ico")
+    assert res.status_code == 200 and res.headers["content-type"] == "image/x-icon" and res.content[:4] == b"\x00\x00\x01\x00"
+    assert 'src="/static/img/g4-icon-192.png"' in client.get("/").text

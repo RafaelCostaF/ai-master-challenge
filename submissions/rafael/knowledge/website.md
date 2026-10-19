@@ -45,7 +45,7 @@ Cache: `solution/models/web_models.joblib` (modelos) e `site_payload.json` (cont
 - as APIs `explore` e `predict`, incluindo a validação de entrada (422).
 
 ## Identidade visual e UX (2026-10-19)
-- **Marca:** "G4 Marketing" no cabeçalho, com a paleta do G4 Educação levantada do site oficial: azul-marinho `#031A26`/`#001F35`, dourado `#B9915B`, off-white `#F5F4F3` e azul `#184560`.
+- **Marca:** símbolo oficial do G4 (favicon `/favicon.ico` e `static/img/`) + "G4 Marketing" no cabeçalho, com a paleta do G4 Educação levantada do site oficial: azul-marinho `#031A26`/`#001F35`, dourado `#B9915B`, off-white `#F5F4F3` e azul `#184560`.
 - **Tipografia:** Playfair Display (o equivalente livre mais próximo da PP Museum usada pelo G4) nos títulos, com algarismos alinhados nos números de destaque; Manrope no texto, como no site do G4.
 - **Divulgação progressiva:**
   - o **Resumo** é um painel de uma tela: 4 respostas, 2 destaques, "Comece / Pare / Teste" e atalhos para as ferramentas;
