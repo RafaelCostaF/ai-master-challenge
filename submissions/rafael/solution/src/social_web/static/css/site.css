@@ -319,3 +319,9 @@ footer.site .wrap { padding-block: 20px 28px; display: flex; flex-wrap: wrap; ga
   .sim-extra, .expect { grid-template-columns: minmax(0, 1fr) !important; }
   .top { position: static; }
 }
+
+/* Shared caveats (timezone, length unit) and audit tables */
+.caveat { font-size: 0.84rem; color: var(--muted); max-width: 76ch; margin: 4px 0 0; }
+.caveat b { color: var(--ink); font-weight: 700; }
+td.fit { background: color-mix(in srgb, var(--gold) 18%, transparent); font-weight: 700; }
+.sim-extra .caveat, .qcard .caveat { grid-column: 1 / -1; }

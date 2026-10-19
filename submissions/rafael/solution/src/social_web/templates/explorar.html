@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_notes.html" import time_note, length_note %}
 {% set hl = d.insights.destaque %}
 {% set hl_dims = hl.dimensao.split(' × ') %}
 {% set hl_vals = hl.bolsao.split(' · ') %}
@@ -46,6 +47,7 @@
     <div class="tile"><div class="tile-head"><h3>Mês a mês</h3></div><div class="chart bar-chart"><canvas id="ch-ts"></canvas></div></div>
   </section>
   <p class="caption" id="legend"></p>
+  <div id="caveats">{{ time_note() }}{{ length_note(d) }}</div>
 
   <details class="more panel"><summary>Cruzar duas características (matriz)</summary><div class="more-body">
     <div class="visual-head"><span></span>
@@ -180,7 +182,14 @@ function draw() {
   barChart("ch-free", S.livre, R.graficos[S.livre] || []);
   lineChart(R.serie, m, R.media_geral);
   drawMatrix(R.matriz); drawTop(R.top);
+  drawCaveats();
   $("legend").innerHTML = `Cada barra mostra quanto o grupo está <b>acima ou abaixo da média</b> em ${esc(metricName(m))}. <span class="sw gold"></span> acima de verdade · <span class="sw red"></span> abaixo de verdade · <span class="sw gray"></span> variação normal. Clique numa barra para filtrar.`;
+}
+/* Show the timezone / length-unit caveats only while a time or length field is grouped or filtered. */
+const CAVEAT_FIELDS = { fuso: ["hour", "daypart", "weekday"], duracao: ["length_bin", "content_length"] };
+function drawCaveats() {
+  const used = [S.livre, S.linha, S.coluna, ...Object.keys(S.filtros)];
+  Object.entries(CAVEAT_FIELDS).forEach(([note, fields]) => { $("caveats").querySelector(`[data-note="${note}"]`).hidden = !used.some(f => fields.includes(f)); });
 }
 function drawSummary(r, R) {
   const name = metricName(r.metrica);

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_notes.html" import time_note, length_note %}
 {% set hl = d.insights.destaque %}
 {% set hl_dims = hl.dimensao.split(' × ') %}
 {% set hl_vals = hl.bolsao.split(' · ') %}
@@ -24,6 +25,7 @@
       <div class="pick" data-field="weekday"><span class="pick-label">Dia</span><div class="pills"></div></div>
       <label class="pick" for="hour"><span class="pick-label">Hora: <b id="hour-label"></b></span>
         <input type="range" id="hour" name="hour" min="0" max="23" step="1"></label>
+      {{ time_note() }}
 
       <div class="step"><span class="step-n">3</span><h3>Quem posta</h3></div>
       <label class="pick" for="follower_count"><span class="pick-label">Seguidores do creator</span>
@@ -32,13 +34,14 @@
       <label class="switch" for="is_sponsored"><input type="checkbox" id="is_sponsored" name="is_sponsored"><span class="track"></span> Post patrocinado</label>
 
       <details class="more"><summary>Mais opções (duração, legenda, público, creator)</summary><div class="more-body sim-extra">
-        <label class="field" for="content_length">Duração (segundos)<input type="number" id="content_length" name="content_length" min="1" max="3600"></label>
+        <label class="field" for="content_length"><span id="length-label">Duração (segundos)</span><input type="number" id="content_length" name="content_length" min="1" max="3600"></label>
         <label class="field" for="n_hashtags">Nº de hashtags<input type="number" id="n_hashtags" name="n_hashtags" min="0" max="30"></label>
         <label class="field" for="caption_words">Palavras na legenda<input type="number" id="caption_words" name="caption_words" min="0" max="500"></label>
         <label class="field" for="creator_id">Creator conhecido<input type="text" id="creator_id" name="creator_id" placeholder="ex.: creator_586"></label>
         <label class="field" for="audience_gender_distribution">Gênero do público<select id="audience_gender_distribution" name="audience_gender_distribution"></select></label>
         <label class="field" for="audience_age_distribution">Idade do público<select id="audience_age_distribution" name="audience_age_distribution"></select></label>
         <label class="field" for="audience_location">País do público<select id="audience_location" name="audience_location"></select></label>
+        {{ length_note(d) }}
       </div></details>
     </form>
 
@@ -46,6 +49,7 @@
   </div>
 </main>
 <script>
+const UNITS = {{ d.auditorias.regras.unidades | tojson }};
 const CHOICES = {
   platform: ["Instagram", "TikTok", "YouTube", "Bilibili", "RedNote"], content_type: ["video", "image", "text", "mixed"],
   content_category: ["beauty", "lifestyle", "tech"], language: ["English", "Spanish", "Chinese", "Hindi", "Japanese"],
@@ -80,6 +84,8 @@ function drawForm() {
     .forEach(k => { if (document.activeElement !== $(k)) $(k).value = POST[k]; });
   $("is_sponsored").checked = POST.is_sponsored;
   $("hour-label").textContent = `${POST.hour}h (${daypart(POST.hour)})`;
+  const unit = UNITS[POST.content_type];
+  $("length-label").textContent = unit ? `Duração (${unit})` : "Duração (sem unidade neste formato)";
   const same = ex => Object.entries(ex.post).every(([k, v]) => POST[k] === v);
   $("examples").innerHTML = EXAMPLES.map((ex, i) => `<button type="button" class="suggest-btn${same(ex) ? " on" : ""}" data-ex="${i}">${ex.icon ? `<b>${ex.icon}</b> ` : ""}${esc(ex.label)}</button>`).join("");
 }
@@ -148,6 +154,15 @@ function suggestionCard(r) {
       <button type="button" class="btn primary" data-apply-all='${esc(JSON.stringify(sg.mudancas))}'>Aplicar sugestão</button>
     </div></div>`;
 }
+/* Warn when the post does not speak the audience's language or uses a platform blocked in that market (rules: /auditorias#regras). */
+function marketWarning(m) {
+  if (!m || (m.idioma_ok && m.plataforma_ok)) return "";
+  const where = esc(val(m.mercado));
+  const issues = [
+    m.idioma_ok ? "" : `o idioma escolhido não é falado nesse mercado (${m.idiomas.length ? "idiomas: " + m.idiomas.map(val).join(", ") : "nenhum idioma local na base"})`,
+    m.plataforma_ok ? "" : `${esc(POST.platform)} não está disponível em ${where}`].filter(Boolean);
+  return `<div class="notice"><strong>Mercado</strong><p>Público em ${where}: ${issues.join("; ")}. <a href="/auditorias#mercado">Ver auditoria →</a></p></div>`;
+}
 function render(r) {
   const [cls, title, sub] = verdict(r);
   const statusOf = m => (r.status.find(s => s.metrica === m) || {}).status || "normal";
@@ -164,6 +179,7 @@ function render(r) {
     <span class="caption">${describeConditions(p.condicoes)} · ${nf(p.posts)} posts</span></div>`;
   $("result").innerHTML = `
     <div class="verdict-banner ${cls}"><b>${esc(title)}</b><span>${esc(sub)}</span></div>
+    ${marketWarning(r.mercado)}
     ${suggestionCard(r)}
     <div class="meters">${r.chances.map(c => card(c, statusOf(c.metrica))).join("")}</div>
     <div class="panel"><h3>Outras melhorias possíveis</h3>

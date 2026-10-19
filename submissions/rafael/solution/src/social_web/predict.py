@@ -5,7 +5,7 @@ from itertools import combinations
 import numpy as np
 import pandas as pd
 
-from social_insights import engagement_model, hit_probability, views_forecast
+from social_insights import audits, engagement_model, hit_probability, views_forecast
 from social_insights.data import DAYPARTS, FOLLOWER_TIERS, LENGTH_BINS
 
 METRICS = {"views": "views", "likes": "likes", "comments_count": "comentários"}
@@ -15,6 +15,14 @@ MAX_IMPROVEMENTS = 3
 SEGMENT_FIELDS = ["platform", "content_category", "language"]  # the fields that define "similar posts"
 CHANGEABLE = ["content_type", *SEGMENT_FIELDS]
 MAX_CHANGES = 2
+
+
+def market_check(frame: pd.DataFrame) -> dict:
+    """Is the post in a language of its audience market, on a platform available there? (rules in audits.py)"""
+    flags = audits.market_coherence_flags(frame).iloc[0]
+    market = frame["audience_location"].iloc[0]
+    return {"mercado": market, "idioma_ok": bool(flags["idioma do mercado"]), "plataforma_ok": bool(flags["plataforma disponível"]),
+            "idiomas": sorted(audits.MARKET_LANGUAGES.get(market, set()))}
 
 
 def _product(lists: list[list]) -> list[tuple]:
@@ -89,7 +97,8 @@ class PredictionService:
                 "descobertas": [{**p, "evidencia_simples": EVIDENCE_PLAIN.get(p["evidencia"], p["evidencia"])} for p in matched[:MAX_POCKETS]],
                 "descobertas_total": len(matched), "resumo": self._summary(row, chances["atual"], matched),
                 "status": [{"metrica": c["metrica"], "status": status(c)} for c in chances["atual"]],
-                "melhorias": self._improvements(row, chances), "sugestao": self.nearby_best(row, goal), "objetivo": goal}
+                "melhorias": self._improvements(row, chances), "sugestao": self.nearby_best(row, goal), "objetivo": goal,
+                "mercado": market_check(frame)}
 
     def _metric_signals(self, row: dict) -> dict:
         return {m: self._signal(m, row["content_type"], row) for m in METRICS}

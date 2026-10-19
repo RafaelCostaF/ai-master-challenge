@@ -54,7 +54,7 @@ def test_pocket_matching():
     assert not predict.pocket_matches({"plataforma": "YouTube", "condicoes": {"content_category": "beauty"}}, row)
 
 
-@pytest.mark.parametrize("path", ["/", "/perguntas", "/estrategia", "/descobertas", "/explorar", "/simular", "/metodo"])
+@pytest.mark.parametrize("path", ["/", "/perguntas", "/estrategia", "/descobertas", "/explorar", "/simular", "/auditorias", "/metodo"])
 def test_pages_render(client, path):
     res = client.get(path)
     assert res.status_code == 200 and "G4 Marketing" in res.text and "{{" not in res.text
@@ -128,3 +128,26 @@ def test_favicon_and_logo(client):
     res = client.get("/favicon.ico")
     assert res.status_code == 200 and res.headers["content-type"] == "image/x-icon" and res.content[:4] == b"\x00\x00\x01\x00"
     assert 'src="/static/img/g4-icon-192.png"' in client.get("/").text
+
+
+def test_audits_page_shows_five_verdicts_and_rules(client):
+    res = client.get("/auditorias")
+    assert res.status_code == 200 and res.text.count('data-audit="') == 5
+    assert "não parecer jurídico" in res.text and 'href="/auditorias"' in res.text
+
+
+@pytest.mark.parametrize("path", ["/", "/perguntas", "/estrategia", "/descobertas", "/explorar", "/simular"])
+def test_timezone_note_on_time_pages(client, path):
+    assert server.TIME_NOTE in client.get(path).text
+
+
+@pytest.mark.parametrize("path", ["/", "/perguntas", "/explorar", "/simular", "/auditorias"])
+def test_length_note_where_duration_appears(client, path):
+    assert 'data-note="duracao"' in client.get(path).text
+
+
+def test_predict_flags_market_mismatch(client):
+    off = client.post("/api/predict", json={"platform": "Instagram", "language": "English", "audience_location": "Russia"}).json()["mercado"]
+    assert off == {"mercado": "Russia", "idioma_ok": False, "plataforma_ok": False, "idiomas": ["Russian"]}
+    ok = client.post("/api/predict", json={"platform": "TikTok", "language": "English", "audience_location": "USA"}).json()["mercado"]
+    assert ok["idioma_ok"] and ok["plataforma_ok"]

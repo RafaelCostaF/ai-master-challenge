@@ -51,3 +51,11 @@ def test_creators_section(payload):
     cr = payload["criadores"]
     assert len(cr["dispersao"]["reais"]) == len(cr["dispersao"]["sorteio"]) == len(cr["dispersao"]["centros"])
     assert cr["ranking"] and "% que continuou" in cr["persistencia"]
+
+
+def test_audits_section(payload):
+    a = payload["auditorias"]
+    assert [c["id"] for c in a["cartoes"]] == ["disclosure", "fit", "mercado", "duracao", "poder"]
+    assert all(c["manchete"] and c["veredito"] and c["numero"] is not None for c in a["cartoes"])
+    assert a["risco_mercado"] and a["mercado"] and a["poder"]["pontos"] and a["nota_duracao"]
+    assert {"anuncio", "encaixe", "idiomas", "bloqueios", "unidades"} <= set(a["regras"])
