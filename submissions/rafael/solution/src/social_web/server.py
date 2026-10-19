@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -22,8 +22,8 @@ from .state import AppState, load_state
 HERE = Path(__file__).resolve().parent
 PAGES = {"/": ("inicio.html", "Resumo"), "/perguntas": ("perguntas.html", "As 4 perguntas"), "/estrategia": ("estrategia.html", "Estratégia"),
          "/descobertas": ("descobertas.html", "Descobertas"), "/explorar": ("explorar.html", "Explorar dados"),
-         "/prever": ("prever.html", "Prever um post"), "/metodo": ("metodo.html", "Como chegamos lá")}
-MAIN_PAGES = ["/", "/explorar", "/prever"]
+         "/simular": ("simular.html", "Simular post"), "/metodo": ("metodo.html", "Como chegamos lá")}
+MAIN_PAGES = ["/", "/explorar", "/simular"]
 DEEP_PAGES = ["/perguntas", "/estrategia", "/descobertas", "/metodo"]
 LABELS = {"platform": "Plataforma", "content_type": "Formato", "content_category": "Tema", "language": "Idioma", "follower_tier": "Tamanho do creator",
           "is_sponsored": "Patrocinado", "sponsor_category": "Setor do patrocinador", "daypart": "Período do dia", "weekday": "Dia da semana",
@@ -77,6 +77,10 @@ def create_app(state: AppState) -> FastAPI:
     for path in PAGES:
         app.add_api_route(path, page(path), methods=["GET"], response_class=HTMLResponse, include_in_schema=False)
 
+    @app.get("/prever", include_in_schema=False)
+    def old_predict_page() -> RedirectResponse:
+        return RedirectResponse("/simular", status_code=301)
+
     @app.get("/api/health", tags=["sistema"])
     def health() -> dict:
         return {"status": "ok", "posts": len(state.posts)}
@@ -96,7 +100,8 @@ def create_app(state: AppState) -> FastAPI:
 
     @app.post("/api/predict", tags=["prever"])
     def predict(post: PostInput) -> dict:
-        return _clean(state.predictor.predict(post.model_dump()))
+        data = post.model_dump()
+        return _clean(state.predictor.predict(data, goal=data.pop("objetivo")))
 
     return app
 

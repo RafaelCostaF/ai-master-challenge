@@ -21,7 +21,7 @@ Cache: `solution/models/web_models.joblib` (modelos) e `site_payload.json` (cont
 | `predict.py` | `PredictionService`: monta o post (faixas, horário, histórico do creator), chama os 3 modelos, cruza com as descobertas e escreve o resumo em linguagem simples |
 | `explore.py` | agregações do painel: filtros, cartões, comparação de grupos (com marcação de "diferença real" corrigida), série mensal sem meses incompletos, matriz e top 10 |
 | `schemas.py` | validação das entradas da API (pydantic) |
-| `templates/` | 7 páginas: Início · As 4 perguntas · Estratégia · Descobertas · Explorar dados · Prever um post · Como chegamos lá |
+| `templates/` | 7 páginas: Início · As 4 perguntas · Estratégia · Descobertas · Explorar dados · Simular post · Como chegamos lá |
 | `static/` | CSS (tema claro/escuro, responsivo), `common.js` (formatação, selos de evidência, gráficos) e Chart.js embutido (funciona offline) |
 
 ## API (documentação automática em `/docs`)
@@ -51,7 +51,7 @@ Cache: `solution/models/web_models.joblib` (modelos) e `site_payload.json` (cont
   - o **Resumo** é um painel de uma tela: 4 respostas, 2 destaques, "Comece / Pare / Teste" e atalhos para as ferramentas;
   - cada cartão tem "+ Ver detalhes";
   - nas páginas de aprofundamento, gráficos, tabelas e textos técnicos ficam fechados até o clique.
-- **Navegação:** Resumo · Explorar dados · Prever um post · "Aprofundar ▾" (as 4 perguntas, estratégia, descobertas, como chegamos lá). Links do Resumo para `/perguntas#patrocinio` abrem a seção já expandida.
+- **Navegação:** Resumo · Explorar dados · Simular post · "Aprofundar ▾" (as 4 perguntas, estratégia, descobertas, como chegamos lá). Links do Resumo para `/perguntas#patrocinio` abrem a seção já expandida.
 - **Ferramentas:**
   - **Explorar** mostra indicadores e o gráfico principal; evolução mensal, matriz e top 10 ficam em seções expansíveis.
   - **Prever** mostra só os campos essenciais (o resto em "Mais opções"); o resultado traz o resumo, as chances, as views e o engajamento, com "outro formato" e "descobertas" sob demanda.
@@ -72,3 +72,19 @@ Cache: `solution/models/web_models.joblib` (modelos) e `site_payload.json` (cont
 - **Padrão: "Chance de bombar"** (top 5%), onde as diferenças reais aparecem.
 - **Sugestões de filtro** (atalhos montados a partir dos resultados): ⭐ destaque confirmado (TikTok · beauty → qual idioma bomba em likes), melhor horário para comentários no YouTube, patrocinado × orgânico, público que mais bomba em likes, creators grandes × pequenos.
 - **O painel abre pré-preenchido** com a sugestão ⭐ quando o endereço não traz uma visão (para mostrar a funcionalidade de cara). "Limpar filtros" volta à base inteira.
+
+## "Simular post" (antes "Prever um post"; endereço `/simular`, e `/prever` redireciona), 2026-10-19
+- **Formulário de 1 clique em 3 passos:**
+  1. O post: botões de plataforma, formato, tema e idioma.
+  2. Quando: dia em botões e hora em controle deslizante.
+  3. Quem posta: seguidores com atalhos (5 mil, 25 mil, 100 mil, 1 mi) e chave de patrocínio.
+  Duração, legenda, público e creator ficam em "Mais opções". Os **exemplos prontos** ("Experimente") vêm dos resultados (★ destaque confirmado, horário do YouTube).
+- **Resultado em camadas:**
+  - **veredito** ("Boa aposta para likes" / "Na média" / "Atenção");
+  - **sugestão para o seu post**: a versão mais próxima e comprovadamente melhor (até 2 mudanças de formato, plataforma, tema ou idioma), com "Aplicar sugestão" e seletor **Otimizar para** (qualquer, views, likes, comentários);
+  - cartões por métrica com selo (acima / na média / abaixo do normal), chance, "x o normal" e faixa provável;
+  - outras melhorias com "Aplicar";
+  - views e engajamento esperados;
+  - outros formatos, descobertas e "como é calculado" sob demanda.
+- **Honestidade da sugestão:** testar ~75 variações acha algumas por sorte. Por isso cada sugestão traz um selo: **confirmado** (apoiada por descoberta robusta), **se repetiu nos 2 anos** (descoberta replicada) ou **pista** (com o aviso "confirme com um teste").
+- **API:** `POST /api/predict` aceita `objetivo` e devolve `status` por métrica, `melhorias` (trocas únicas) e `sugestao` (`mudancas`, métrica, de → para, faixa e evidência).

@@ -54,7 +54,7 @@ def test_pocket_matching():
     assert not predict.pocket_matches({"plataforma": "YouTube", "condicoes": {"content_category": "beauty"}}, row)
 
 
-@pytest.mark.parametrize("path", ["/", "/perguntas", "/estrategia", "/descobertas", "/explorar", "/prever", "/metodo"])
+@pytest.mark.parametrize("path", ["/", "/perguntas", "/estrategia", "/descobertas", "/explorar", "/simular", "/metodo"])
 def test_pages_render(client, path):
     res = client.get(path)
     assert res.status_code == 200 and "G4 Marketing" in res.text and "{{" not in res.text
@@ -95,3 +95,30 @@ def test_headline_reports_real_difference(posts):
     posts.loc[posts.content_type == "video", "views"] += 300
     summary = explore.explore(posts)["resumo"]
     assert summary["tipo"] == "destaque" and summary["dimensao"] == "content_type" and summary["vs_media"] > 0
+
+
+def test_old_predict_path_redirects(client):
+    res = client.get("/prever", follow_redirects=False)
+    assert res.status_code == 301 and res.headers["location"] == "/simular"
+
+
+def test_predict_returns_status_and_improvements(client):
+    body = client.post("/api/predict", json={"platform": "TikTok"}).json()
+    assert {s["status"] for s in body["status"]} <= {"acima", "normal", "abaixo"}
+    assert isinstance(body["melhorias"], list)
+
+
+def test_nearby_best_finds_planted_language(tmp_path_factory):
+    df = make_posts()
+    df["creator_id"] = "c" + (df.index % 400).astype(str)
+    df["creator_name"] = "n" + (df.index % 900).astype(str)
+    df["content_url"] = "https://a.com/"
+    boost = (df.platform == "TikTok") & (df.language == "Spanish")
+    df.loc[boost, "likes"] += 120  # Spanish posts on TikTok bomb in likes
+    state = load_state(df=df, cache_dir=tmp_path_factory.mktemp("planted"), light=True)
+    post = {"platform": "TikTok", "content_type": "video", "content_category": "tech", "language": "English", "is_sponsored": False,
+            "sponsor_category": "Not sponsors", "disclosure_type": "none", "disclosure_location": "none", "weekday": "Friday", "hour": 10,
+            "follower_count": 20000, "content_length": 40, "n_hashtags": 2, "caption_words": 10, "audience_gender_distribution": "female",
+            "audience_age_distribution": "19-25", "audience_location": "USA", "creator_id": None}
+    suggestion = state.predictor.predict(post, goal="likes")["sugestao"]
+    assert suggestion["mudancas"].get("language") == "Spanish" and suggestion["para"] > suggestion["de"]

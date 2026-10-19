@@ -27,6 +27,7 @@ class PostInput(BaseModel):
     audience_age_distribution: Literal["13-18", "19-25", "26-35", "36-50", "50+"] = "19-25"
     audience_location: Literal["USA", "China", "India", "Japan", "Brazil", "Germany", "UK", "Russia"] = "USA"
     creator_id: str | None = Field(None, description="opcional: usa o histórico deste creator")
+    objetivo: Literal["qualquer", "views", "likes", "comments_count"] = Field("qualquer", description="métrica que a sugestão deve melhorar")
 
     @model_validator(mode="after")
     def organic_posts_have_no_sponsor(self):
