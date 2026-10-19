@@ -44,3 +44,18 @@ def test_insight_cards_are_sentences(posts):
     posts.loc[(posts.platform == "TikTok") & (posts.content_category == "tech"), "views"] += 150
     cards = dv.insight_cards(dv.scan_pockets(posts, "views"), n=3)
     assert cards["insight"].str.contains("top 5% de views").all()
+
+
+def test_scan_by_platform_finds_pocket_only_in_its_platform(posts):
+    pocket = (posts.platform == "TikTok") & (posts.content_category == "tech")
+    posts.loc[pocket, "likes"] += 120
+    table = dv.scan_by_platform(posts, "likes", platforms=["TikTok", "YouTube"])
+    assert "platform" not in " ".join(table["dimensão"])
+    hits = table[(table["dimensão"] == "content_category") & (table["bolsão"] == "tech") & (table["evidência"] == "robusta (FDR)")]
+    assert set(hits["plataforma"]) == {"TikTok"}
+
+
+def test_daypart_top_rate_detects_morning_effect(posts):
+    posts.loc[posts.daypart == "manhã", "comments_count"] += 30
+    table = dv.daypart_top_rate(posts, "comments_count", q=0.95)
+    assert (table["manhã"] > table["tarde"]).all() and (table["p (qui²)"] < 0.05).all()

@@ -36,10 +36,10 @@ def prepare(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def pocket_masks(df: pd.DataFrame, min_n: int = MIN_N) -> dict[tuple[str, str], np.ndarray]:
+def pocket_masks(df: pd.DataFrame, min_n: int = MIN_N, exclude: tuple[str, ...] = ()) -> dict[tuple[str, str], np.ndarray]:
     """(dimension, value) → boolean mask, for single values, numeric decile windows and value pairs."""
     pockets = {}
-    for col in CATEGORICAL:
+    for col in [c for c in CATEGORICAL if c not in exclude]:
         for value, idx in df.groupby(col).indices.items():
             pockets[(col, value)] = idx
     for col in NUMERIC:
@@ -49,7 +49,7 @@ def pocket_masks(df: pd.DataFrame, min_n: int = MIN_N) -> dict[tuple[str, str], 
                 lo, hi = edges[start], edges[start + width]
                 inside = (df[col] >= lo) & ((df[col] < hi) if start + width < len(edges) - 1 else (df[col] <= hi))
                 pockets[(f"{col} (janela)", f"{lo:,.0f}–{hi:,.0f}")] = np.flatnonzero(inside.values)
-    for a, b in combinations(PAIR_FEATURES, 2):
+    for a, b in combinations([c for c in PAIR_FEATURES if c not in exclude], 2):
         for (va, vb), idx in df.groupby([a, b]).indices.items():
             pockets[(f"{a} × {b}", f"{va} · {vb}")] = idx
     masks = {}
@@ -71,13 +71,13 @@ def _rate_test(hit: np.ndarray, mask: np.ndarray) -> tuple[float, float, float]:
     return p1, p1 / p2 if p2 > 0 else np.nan, 2 * stats.norm.sf(abs(z))
 
 
-def scan_pockets(df: pd.DataFrame, target: str, top_q: float = TOP_Q, min_n: int = MIN_N) -> pd.DataFrame:
+def scan_pockets(df: pd.DataFrame, target: str, top_q: float = TOP_Q, min_n: int = MIN_N, exclude: tuple[str, ...] = ()) -> pd.DataFrame:
     """All pockets for one metric, with full-data stats and the split-half replication check."""
     data = prepare(df).reset_index(drop=True)
     threshold = data[target].quantile(top_q)
     hit = (data[target] >= threshold).values
     first_half = (data["post_date"] < data["post_date"].median()).values
-    masks = pocket_masks(data, min_n)
+    masks = pocket_masks(data, min_n, exclude)
     rows = []
     for (dimension, value), mask in masks.items():
         rate, lift, p = _rate_test(hit, mask)
@@ -209,3 +209,32 @@ def top_overlap(df: pd.DataFrame, metrics: list[str], q: float = TOP1_Q) -> pd.D
         rows.append({"par": f"{a} & {b}", "posts top nas duas": both, "esperado se independentes": expected,
                      "p_value": stats.binomtest(both, len(df), tops[a].mean() * tops[b].mean()).pvalue})
     return pd.DataFrame(rows).set_index("par")
+
+
+# ---------- per platform ----------
+
+def scan_by_platform(df: pd.DataFrame, target: str, platforms: list[str] | None = None, **kw) -> pd.DataFrame:
+    """scan_pockets inside each platform (top 5% recomputed per platform; platform itself not used as an attribute)."""
+    platforms = platforms or sorted(df["platform"].unique())
+    tables = [scan_pockets(df[df["platform"] == p], target, exclude=("platform",), **kw).assign(plataforma=p) for p in platforms]
+    return pd.concat(tables, ignore_index=True)
+
+
+def platform_summary(tables: pd.DataFrame) -> pd.DataFrame:
+    """Replication summary per (platform, metric)."""
+    return pd.DataFrame({key: replication_summary(g) for key, g in tables.groupby(["plataforma", "alvo"])}).T.rename_axis(["plataforma", "alvo"])
+
+
+def daypart_top_rate(df: pd.DataFrame, target: str, q: float = TOP1_Q, by: str = "platform") -> pd.DataFrame:
+    """% of posts reaching the top (computed within each `by` group) per daypart, plus a chi² p-value per group."""
+    rows = []
+    for key, g in df.groupby(by):
+        top = g[target] >= g[target].quantile(q)
+        rates = top.groupby(g["daypart"], observed=True).mean() * 100
+        p = stats.chi2_contingency(pd.crosstab(g["daypart"], top))[1]
+        rows.append({by: key, **rates.to_dict(), "p (qui²)": p,
+                     "hora mediana top": g.loc[top, "hour"].median(), "hora mediana demais": g.loc[~top, "hour"].median(),
+                     "p (Mann-Whitney hora)": stats.mannwhitneyu(g.loc[top, "hour"], g.loc[~top, "hour"]).pvalue})
+    table = pd.DataFrame(rows).set_index(by)
+    table["q (hora)"] = multipletests(table["p (Mann-Whitney hora)"], method="fdr_bh")[1]
+    return table
