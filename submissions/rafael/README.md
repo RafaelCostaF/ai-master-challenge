@@ -1,0 +1,160 @@
+# Submissão — Rafael — Challenge 004
+
+## Sobre mim
+
+- **Nome:** Rafael
+- **LinkedIn:** https://www.linkedin.com/in/rafaelcostaf/
+- **Challenge escolhido:** 004 — Estratégia Social Media
+
+---
+
+## Executive Summary
+
+Analisei os 52.214 posts com um protocolo que só aceita uma diferença como real depois de corrigir para os milhares de testes feitos e de provar, com efeitos plantados, que o método a detectaria. O resultado central: **nada do que o time controla (plataforma, formato, tema, porte do creator, horário, hashtags, patrocínio) muda engajamento ou alcance nesta base**, que o próprio Kaggle descreve como simulada. A recomendação principal é **contratar creators por resultado, não por post**: como as views não crescem com os seguidores, o creator mega paga ~134x mais por mil views que o nano, qualquer que seja o cachê. Entreguei também um **site para o time de marketing** (resumo, painel, simulador de post e auditorias) que recalcula todos os textos e números com os dados reais da empresa.
+
+**Leitura de 5 minutos:** [`docs/resumo-executivo.md`](docs/resumo-executivo.md)
+
+---
+
+## Solução
+
+### Abordagem
+
+1. **Regras primeiro** ([`instructions/`](instructions/)): entregáveis, critérios de valor, padrão de código e uma regra central: todo número vem de código reproduzível.
+2. **Entender os dados antes de opinar** (EDA, [`notebooks/01`](solution/notebooks/01_eda.ipynb)): as métricas são Poisson independentes (views ~10.100 ± 100 em todos os posts), os seguidores são uniformes de 0 a 1M e os textos são gerados. Isso mudou a entrega: em vez de vender ruído como insight, **provar com rigor o que não funciona** e entregar um método e uma ferramenta que funcionem com dados reais.
+3. **Rigor estatístico em todas as frentes:**
+   - correção para muitos testes (FDR), por plataforma e global;
+   - comparação justa de patrocínio (269 estratos de plataforma × formato × categoria × porte, mais regressão);
+   - efeito mínimo detectável em cada "não há efeito";
+   - controle positivo (efeitos de 2–5% plantados precisam ser encontrados);
+   - validação temporal nos modelos.
+4. **Perguntas do desafio → funções** (`questions.py`, `strategy.py`): cada resposta e cada recomendação é um texto gerado dos números.
+5. **Produto:** site FastAPI em linguagem para leigos, com resumo primeiro e detalhes sob demanda.
+6. **Checagem independente** em sessões separadas: a descrição do dataset contra as conclusões e a entrega contra os requisitos ([`review/`](review/critica-entrega.md)).
+
+### Resultados / Findings
+
+| Pergunta | Resposta | Evidência |
+|---|---|---|
+| O que gera engajamento? | Nada do que foi testado | 450 combinações (até plataforma × formato × tema × porte): 22 com p < 0,05, exatamente o esperado por acaso; 0 após correção |
+| Patrocínio funciona? | Não para desempenho; só quando o preço é justo | +0,008% de engajamento e +0,004% de views em 269 estratos comparáveis; 0 de 17 condições com efeito |
+| Que público engaja mais? | Nenhum | 36 contextos (plataforma, formato, tema) × gênero, idade e país: 0 efeitos |
+| O que não funciona? | 11 de 11 crenças de mercado | ex.: seguidores × views ρ = 0,005; vídeo vs. imagem/texto −0,03% |
+| Modelos de previsão | Nenhum bate a média, e a ferramenta avisa | 14 abordagens de engajamento, previsão de views com validação temporal, chance de top 5% (0 de 12 combinações adotadas); com efeito plantado, o mesmo protocolo adota o modelo certo |
+| Quem posta importa? | Não: os "campeões" são sorte | 8,8% dos top 10% do 1º ano continuam no top no 2º (acaso: 10%) |
+| Único padrão robusto | TikTok · beauty · espanhol: 2x mais chance de top 5% em likes | 10,0% vs. 4,9%, nos dois anos; q global = 0,035 entre ~14,7 mil testes. Vai para teste, não para regra |
+| Auditorias de carteira | Lacunas que valem mesmo sem efeito no engajamento | 47% dos patrocínios com disclosure implícito; só 2,3% com #ad no texto; 60% fora do nicho do creator; só 22% dos posts no idioma do mercado |
+
+Detalhe completo, gerado por código: [`docs/respostas.md`](docs/respostas.md) · achados por tema: [`knowledge/`](knowledge/) · 14 notebooks executados: [`solution/notebooks/`](solution/notebooks/).
+
+### Recomendações
+
+**Esta semana. Valem também com os dados reais:**
+1. Contratar creators **por resultado** (CPM/CPE), não por post: a diferença de ~134x por mil views entre mega e nano independe do valor do cachê.
+2. **Rótulo de publicidade verificável no texto** (#publi/#ad): reduz o risco regulatório (47% em risco alto) sem custo de engajamento.
+3. **Grupo de comparação orgânico em todo patrocínio**, para medir o ganho real.
+4. **Não pagar a mais por creator "campeão"** e tirar "melhor horário" e "hashtags ideais" do checklist.
+
+**Recalcular com os preços reais antes de aplicar:**
+
+5. Teto de ~10 mil seguidores para contratos de preço fixo (varia de 1 mil a 40 mil conforme as premissas).
+6. Formato padrão pelo custo real de produção.
+
+**Fila de testes** (com o custo de confirmar cada hipótese):
+1. TikTok · beauty · espanhol × inglês: A/B com ~1.430 posts por grupo.
+2. Horário no YouTube: acompanhar no histórico (um A/B exigiria ~17 mil posts por grupo).
+3. Uplift do patrocínio: A/B com os contratos da empresa.
+
+**Ferramenta recorrente:** trocar o CSV pelos dados da empresa e rodar `social-web --rebuild`. Vereditos, recomendações, fila de testes e simulador se recalculam.
+
+### Limitações
+
+- **A base é simulada** (Kaggle: "views simulated via a Poisson distribution"). Os achados descrevem esta base. O que se transfere são o método e a ferramenta, validados com efeitos plantados.
+- **Não há preços.** Custos e teto de seguidores vêm de premissas editáveis (`strategy.py`), mostradas com tabela de sensibilidade. Os valores em US$ são ordem de grandeza, não contábeis.
+- **`post_date` sem fuso:** os horários assumem um relógio único. `content_length` mistura segundos e palavras e só é analisado por formato.
+- **`creator_id` instável** (~10 nomes e contagens de seguidores por id): a frequência de postagem não pôde ser medida por creator.
+- Os rótulos de disclosure da base não aparecem no texto dos posts: a auditoria mede a composição declarada, não a prática real.
+
+### Como rodar
+
+Requer Python 3.14 (as versões fixadas em `requirements.txt` foram resolvidas nele) e uma credencial do Kaggle em `~/.kaggle/kaggle.json`.
+
+```bash
+cd submissions/rafael
+python3.14 -m venv .venv && .venv/bin/pip install -r requirements.txt && .venv/bin/pip install -e .
+bash scripts/get_data.sh                              # baixa o CSV e confere o sha256
+.venv/bin/python -m pytest -q                         # 116 testes (~2 min)
+.venv/bin/python solution/answer_questions.py --out docs/respostas.md   # relatório das 4 perguntas + estratégia
+.venv/bin/social-web                                  # site em http://127.0.0.1:8000 (1ª vez treina tudo, ~5 min)
+```
+Também via `make setup data test report notebooks site` ([`Makefile`](Makefile)).
+
+| Pasta | Conteúdo |
+|---|---|
+| `solution/src/social_insights/` | análises, modelos, estratégia e auditorias (pacote Python) |
+| `solution/src/social_web/` | site FastAPI: Início, Explorar, Simular post, Perguntas, Estratégia, Descobertas, Auditorias, Método; API em `/docs` |
+| `solution/notebooks/` | 14 notebooks executados (gerados por `notebooks/build/`) |
+| `solution/tests/` | testes com efeitos plantados (o método precisa achar o que existe e ficar quieto no ruído) |
+| `solution/*.py` | CLIs: relatório, previsão de engajamento, views e chance de top 5% |
+| `docs/` | resumo executivo, relatório completo e figuras |
+| `knowledge/` · `review/` | achados por tema · revisão crítica da entrega |
+
+---
+
+## Process Log — Como usei IA
+
+Narrativa completa, tabela de erros da IA e evidências: [`process-log/README.md`](process-log/README.md).
+
+### Ferramentas usadas
+
+| Ferramenta | Para que usou |
+|---|---|
+| Claude Code (Opus) | Execução de ponta a ponta: dados, EDA, estatística, modelos, pacote + testes, site, documentação |
+| Sessões paralelas do Claude Code | Checagem independente: descrição do dataset × conclusões; revisão crítica × requisitos |
+| Outra IA (chat) | Plano de ação de análise ([`knowledge/action-plan.md`](knowledge/action-plan.md)), executado e criticado |
+| Jupyter + pytest | Verificação: notebooks executados e 116 testes |
+
+### Workflow
+
+1. Regras e critérios de valor em `instructions/`, antes de qualquer código.
+2. EDA para eu entender os dados → descoberta de que as métricas são sorteadas.
+3. Análises gerais e por plataforma (clusterização, NLP, público), sempre com correção e controle positivo.
+4. Plano de outra IA (correlações, RF/XGBoost/CatBoost, SHAP), com SHAP contra alvo embaralhado.
+5. Perguntas e estratégia viraram funções; modelos (14 abordagens); efeito mínimo detectável; varredura de todos os atributos.
+6. Previsão antes de postar, duração × views, bolsões com nível de evidência, chance de top 5%.
+7. Site com servidor e iterações de UX (resumo primeiro, painel simples, simulador, identidade G4).
+8. Duas checagens independentes → auditorias e correção de contradições.
+
+São 30 prompts com conteúdo ([`process-log/prompts.md`](process-log/prompts.md)), 3 sessões e 39 decisões registradas ([`DEVELOPMENT_PROCESS.md`](DEVELOPMENT_PROCESS.md)).
+
+### Onde a IA errou e como corrigi
+
+- **Hopkins indicava "há clusters"**, mas dá ~0,9 até em ruído gaussiano → troquei por um nulo por permutação.
+- **Ranking de SHAP e R² de treino ~0,1** pareciam "fatores" → comparação com o alvo embaralhado e com a validação (R² ≤ 0).
+- **22 segmentos com p < 0,05 viraram candidatos a insight**, exatamente o esperado por acaso em 450 testes → FDR obrigatório.
+- **"Disclosure explícito = compliance sem perda"**, mas o rótulo nem aparece no texto do post → auditoria e regra de rótulo verificável.
+- **Faixas de duração misturando segundos e palavras** → análise por formato, na unidade certa.
+- **"Priorizar TikTok espanhol" e "teto de 10 mil seguidores / US$ 109 mi" como fatos** → a revisão crítica mostrou que contradiziam a tese e vinham das premissas → fila de testes, sensibilidade e classes "robusta × depende de premissa".
+
+### O que eu adicionei que a IA sozinha não faria
+
+- Exigir entender os dados antes da estratégia. Isso revelou que a base é simulada e definiu a entrega.
+- Hipóteses de negócio: separar por plataforma, "quem posta importa?", "o que se sabe antes de postar?", chance de virar destaque por formato.
+- Contestar a IA com o gráfico ("mais picos entre 20–150 s"), o que forçou a distinguir contagem de taxa.
+- Pedir que variações virassem insights, mas com nível de evidência. O resultado foi uma fila de testes em vez de "nada a reportar".
+- Checagens em sessões separadas, que pegaram os erros mais graves.
+- Produto para leigos, com resumo primeiro; horário tratado como relógio único em vez de inventar fuso.
+
+---
+
+## Evidências
+
+- [ ] Screenshots das conversas com IA
+- [ ] Screen recording do workflow
+- [x] Chat exports — [`process-log/conversas/`](process-log/conversas/) + prompts de todas as sessões em [`process-log/prompts.md`](process-log/prompts.md)
+- [x] Git history — branch `submission/rafael` (commits pequenos por etapa)
+- [x] Outro: [`DEVELOPMENT_PROCESS.md`](DEVELOPMENT_PROCESS.md) (decisões e alternativas descartadas), [`review/critica-entrega.md`](review/critica-entrega.md), notebooks comentados, scripts de sondagem em `process-log/`
+
+---
+
+_Submissão enviada em: 19/10/2026_
