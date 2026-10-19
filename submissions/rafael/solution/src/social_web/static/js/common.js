@@ -1,4 +1,4 @@
-/* Shared helpers: pt-BR formatting, labels, evidence chips and theme-aware Chart.js setup (charts re-render on theme change). */
+/* Shared helpers: pt-BR formatting, lazy charts in collapsed sections, labels, evidence chips and theme-aware Chart.js setup (charts re-render on theme change). */
 const LBL = window.SITE_LABELS || {};
 const VAL = window.SITE_VALUES || {};
 const label = k => LBL[k] || k;
@@ -35,6 +35,13 @@ function makeChart(canvasId, build) {
   requestAnimationFrame(() => entry.chart.resize());  // re-measure once the surrounding layout has settled
   return entry;
 }
+/* Charts inside a closed <details> have no size: draw them the first time their section opens. */
+function lazyChart(canvasId, build) {
+  const el = $(canvasId), box = el && el.closest("details");
+  if (!box || box.open) return makeChart(canvasId, build);
+  box.addEventListener("toggle", () => { if (box.open && !CHARTS.some(c => c.canvasId === canvasId)) makeChart(canvasId, build); });
+  return null;
+}
 /* Replace the content of an existing chart entry (or create it on first use). */
 function setChart(entry, canvasId, build) {
   if (!entry) return makeChart(canvasId, build);
@@ -48,7 +55,7 @@ function redrawCharts() { CHARTS.forEach(e => { e.chart.destroy(); e.chart = new
 function chartOptions(extra = {}) {
   const ink = css("--muted"), rule = css("--rule");
   const base = { responsive: true, maintainAspectRatio: false, animation: false,
-    plugins: { legend: { labels: { color: ink, boxWidth: 12, font: { family: "IBM Plex Sans" } } },
+    plugins: { legend: { labels: { color: ink, boxWidth: 12, font: { family: "Manrope" } } },
                tooltip: { backgroundColor: css("--ink"), titleColor: css("--paper"), bodyColor: css("--paper") } },
     scales: { x: { ticks: { color: ink }, grid: { color: rule } }, y: { ticks: { color: ink }, grid: { color: rule } } } };
   return deepMerge(base, extra);
@@ -59,3 +66,9 @@ function deepMerge(a, b) {
 }
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redrawCharts);
 new MutationObserver(redrawCharts).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+/* Close the "Aprofundar" menu when clicking anywhere else. */
+document.addEventListener("click", e => document.querySelectorAll("details.menu[open]").forEach(m => { if (!m.contains(e.target)) m.open = false; }));
+/* Charts drawn while their section was closed have no size: re-measure them when the section opens. */
+document.addEventListener("toggle", e => {
+  if (e.target.open) CHARTS.filter(c => e.target.contains($(c.canvasId))).forEach(c => c.chart.resize());
+}, true);

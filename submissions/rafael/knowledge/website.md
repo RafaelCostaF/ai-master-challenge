@@ -1,4 +1,4 @@
-# Site de entrega (com servidor) — arquitetura e como usar
+# G4 Marketing — site de entrega (com servidor): arquitetura, design e como usar
 
 Código: `solution/src/social_web/` · comando: `.venv/bin/social-web` · atualizado em 2026-10-19.
 Substitui o site estático anterior (removido): agora há servidor, linguagem para leigos, previsões feitas no servidor e painel estilo Power BI.
@@ -43,3 +43,17 @@ Cache: `solution/models/web_models.joblib` (modelos) e `site_payload.json` (cont
 - remoção de meses incompletos e casamento das descobertas;
 - as 7 páginas renderizando;
 - as APIs `explore` e `predict`, incluindo a validação de entrada (422).
+
+## Identidade visual e UX (2026-10-19)
+- **Marca:** "G4 Marketing" no cabeçalho, com a paleta do G4 Educação levantada do site oficial: azul-marinho `#031A26`/`#001F35`, dourado `#B9915B`, off-white `#F5F4F3` e azul `#184560`.
+- **Tipografia:** Playfair Display (o equivalente livre mais próximo da PP Museum usada pelo G4) nos títulos, com algarismos alinhados nos números de destaque; Manrope no texto, como no site do G4.
+- **Divulgação progressiva:**
+  - o **Resumo** é um painel de uma tela: 4 respostas, 2 destaques, "Comece / Pare / Teste" e atalhos para as ferramentas;
+  - cada cartão tem "+ Ver detalhes";
+  - nas páginas de aprofundamento, gráficos, tabelas e textos técnicos ficam fechados até o clique.
+- **Navegação:** Resumo · Explorar dados · Prever um post · "Aprofundar ▾" (as 4 perguntas, estratégia, descobertas, como chegamos lá). Links do Resumo para `/perguntas#patrocinio` abrem a seção já expandida.
+- **Ferramentas:**
+  - **Explorar** mostra indicadores e o gráfico principal; evolução mensal, matriz e top 10 ficam em seções expansíveis.
+  - **Prever** mostra só os campos essenciais (o resto em "Mais opções"); o resultado traz o resumo, as chances, as views e o engajamento, com "outro formato" e "descobertas" sob demanda.
+  - As seções abertas pelo usuário continuam abertas quando o resultado é recalculado.
+- **Gráficos em seções fechadas:** `lazyChart` desenha o gráfico ao abrir a seção, e um listener de `toggle` redimensiona gráficos já existentes.

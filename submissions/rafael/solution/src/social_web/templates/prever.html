@@ -4,7 +4,7 @@
   <section class="page-head">
     <span class="eyebrow">Ferramenta</span>
     <h1>Prever um post antes de publicar</h1>
-    <p class="lede">Descreva o post que você vai publicar. O servidor roda os modelos e responde a chance de ele virar destaque (ficar entre os 5% com mais views, likes ou comentários do mesmo formato), quantas views esperar e quais descobertas se aplicam. O formulário já vem com um exemplo.</p>
+    <p class="lede">Descreva o post e veja a chance de ele virar destaque (ficar entre os 5% com mais views, likes ou comentários do formato). O resultado atualiza enquanto você muda os campos. <span class="eyebrow">Exemplo preenchido</span></p>
   </section>
 
   <div class="predictor">
@@ -14,24 +14,24 @@
         <label class="field" for="content_type">Formato<select id="content_type" name="content_type"></select></label>
         <label class="field" for="content_category">Tema<select id="content_category" name="content_category"></select></label>
         <label class="field" for="language">Idioma<select id="language" name="language"></select></label>
-        <label class="field" for="content_length">Duração (segundos)<input type="number" id="content_length" name="content_length" min="1" max="3600" value="45"></label>
-        <label class="field" for="n_hashtags">Nº de hashtags<input type="number" id="n_hashtags" name="n_hashtags" min="0" max="30" value="3"></label>
-        <label class="field wide" for="caption_words">Palavras na legenda<input type="number" id="caption_words" name="caption_words" min="0" max="500" value="15"></label>
       </fieldset>
-      <fieldset><legend>Quando</legend>
+      <fieldset><legend>Quando e quem</legend>
         <label class="field" for="weekday">Dia da semana<select id="weekday" name="weekday"></select></label>
         <label class="field" for="hour">Hora (0–23)<input type="number" id="hour" name="hour" min="0" max="23" value="9"></label>
-      </fieldset>
-      <fieldset><legend>Quem posta</legend>
         <label class="field" for="follower_count">Seguidores do creator<input type="number" id="follower_count" name="follower_count" min="1" step="1000" value="25000"></label>
         <label class="field" for="is_sponsored">Patrocinado?<select id="is_sponsored" name="is_sponsored"><option value="false">não</option><option value="true">sim</option></select></label>
-        <label class="field wide" for="creator_id">Creator conhecido (opcional)<input type="text" id="creator_id" name="creator_id" placeholder="ex.: creator_586"></label>
       </fieldset>
-      <fieldset><legend>Público do creator</legend>
-        <label class="field" for="audience_gender_distribution">Gênero<select id="audience_gender_distribution" name="audience_gender_distribution"></select></label>
-        <label class="field" for="audience_age_distribution">Idade<select id="audience_age_distribution" name="audience_age_distribution"></select></label>
-        <label class="field wide" for="audience_location">País<select id="audience_location" name="audience_location"></select></label>
-      </fieldset>
+      <details class="more"><summary>Mais opções (duração, legenda, público, creator)</summary><div class="more-body">
+        <fieldset>
+          <label class="field" for="content_length">Duração (segundos)<input type="number" id="content_length" name="content_length" min="1" max="3600" value="45"></label>
+          <label class="field" for="n_hashtags">Nº de hashtags<input type="number" id="n_hashtags" name="n_hashtags" min="0" max="30" value="3"></label>
+          <label class="field" for="caption_words">Palavras na legenda<input type="number" id="caption_words" name="caption_words" min="0" max="500" value="15"></label>
+          <label class="field" for="creator_id">Creator conhecido<input type="text" id="creator_id" name="creator_id" placeholder="ex.: creator_586"></label>
+          <label class="field" for="audience_gender_distribution">Gênero do público<select id="audience_gender_distribution" name="audience_gender_distribution"></select></label>
+          <label class="field" for="audience_age_distribution">Idade do público<select id="audience_age_distribution" name="audience_age_distribution"></select></label>
+          <label class="field wide" for="audience_location">País do público<select id="audience_location" name="audience_location"></select></label>
+        </fieldset>
+      </div></details>
       <button class="btn primary wide" type="submit">Calcular</button>
     </form>
 
@@ -78,6 +78,11 @@ function meter(c) {
     <span class="caption">Posts parecidos: <b>${pct(c.historico)}</b> viraram destaque (faixa provável ${pct(c.historico_min)}–${pct(c.historico_max)}, ${nf(c.posts_parecidos)} posts). O traço escuro é o normal (~5%).</span></div>`;
 }
 function render(r) {
+  const wasOpen = [...$("result").querySelectorAll("details")].map(d => d.open);  // keep what the user opened across updates
+  draw(r);
+  if (wasOpen.length) $("result").querySelectorAll("details").forEach((d, i) => { if (i < wasOpen.length) d.open = wasOpen[i]; });
+}
+function draw(r) {
   const formats = [...new Set(r.por_formato.map(c => c.formato))];
   const cell = (f, m) => { const c = r.por_formato.find(x => x.formato === f && x.metrica === m);
     const tag = c.historico_min > c.base ? ' <span class="yes">▲</span>' : c.historico_max < c.base ? ' <span class="bad">▼</span>' : "";
@@ -93,13 +98,14 @@ function render(r) {
       <div class="panel"><h3>Engajamento esperado</h3><p><span class="pct num" style="font-size:1.6rem">${pct(r.engajamento.estimativa)}</span></p>
         <p class="caption">Interações por view. Faixa provável: ${pct(r.engajamento.min)} a ${pct(r.engajamento.max)}.${r.engajamento.melhor_que_media ? "" : " Igual à média histórica."}</p></div>
     </div>
-    <div class="panel"><h3>E se fosse outro formato? (posts parecidos que viraram destaque)</h3>
+    <details class="more panel"><summary>E se fosse outro formato?</summary><div class="more-body">
+      <p class="caption">Quantos posts parecidos viraram destaque, em cada formato.</p>
       <div class="table-wrap"><table><thead><tr><th>Formato</th>${Object.values(METRIC_NAME).map(n => `<th>${n}</th>`).join("")}</tr></thead><tbody>
-      ${formats.map(f => `<tr${f === r.post.content_type ? ' style="font-weight:600"' : ""}><td>${val(f)}</td>${Object.keys(METRIC_NAME).map(m => cell(f, m)).join("")}</tr>`).join("")}
-      </tbody></table></div><p class="caption">▲ acima do normal com segurança · ▼ abaixo do normal com segurança · sem seta = dentro do normal.</p></div>
-    <div class="panel"><h3>Descobertas que se aplicam a este post</h3>
+      ${formats.map(f => `<tr${f === r.post.content_type ? ' style="font-weight:700"' : ""}><td>${val(f)}</td>${Object.keys(METRIC_NAME).map(m => cell(f, m)).join("")}</tr>`).join("")}
+      </tbody></table></div><p class="caption">▲ acima do normal com segurança · ▼ abaixo do normal com segurança · sem seta = dentro do normal.</p></div></details>
+    <details class="more panel"${r.descobertas.some(p => !p.evidencia.startsWith("explor")) ? " open" : ""}><summary>Descobertas que se aplicam (${r.descobertas_total})</summary><div class="more-body">
       <div class="cards">${r.descobertas.map(pocket).join("") || '<p class="muted">Nenhuma descoberta se aplica a este post.</p>'}</div>
-      ${r.descobertas_total > r.descobertas.length ? `<p class="caption">Mostrando ${r.descobertas.length} de ${r.descobertas_total}.</p>` : ""}</div>`;
+      ${r.descobertas_total > r.descobertas.length ? `<p class="caption">Mostrando ${r.descobertas.length} de ${r.descobertas_total}.</p>` : ""}</div></details>`;
 }
 $("post-form").addEventListener("submit", e => { e.preventDefault(); predict(); });
 $("post-form").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(predict, 300); });

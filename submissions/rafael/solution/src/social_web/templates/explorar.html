@@ -4,7 +4,7 @@
   <section class="page-head">
     <span class="eyebrow">Painel interativo</span>
     <h1>Explorar os dados</h1>
-    <p class="lede">Filtre à esquerda e todos os quadros se atualizam. Clique numa barra para filtrar por ela. Barras em destaque são grupos <b>realmente diferentes</b> do resto; as cinzas estão dentro da variação normal.</p>
+    <p class="lede">Filtre à esquerda e tudo se atualiza. Clique numa barra para filtrar por ela. Barras <b>douradas</b> são grupos realmente diferentes do resto; as cinzas estão dentro da variação normal.</p>
   </section>
 
   <div class="bi">
@@ -31,21 +31,24 @@
         <p class="caption" id="bd-caption"></p>
       </div>
 
-      <div class="grid-2">
-        <div class="panel"><h3 id="ts-title">Ao longo do tempo</h3><div class="chart"><canvas id="ch-ts"></canvas></div>
-          <p class="caption">Linha = média do mês; faixa = variação provável. O primeiro e o último mês (incompletos) ficam de fora.</p></div>
-        <div class="panel">
-          <div class="visual-head"><h3>Matriz</h3>
-            <div class="controls">
-              <label class="field" for="row">Linhas<select id="row"></select></label>
-              <label class="field" for="col">Colunas<select id="col"></select></label>
-            </div></div>
-          <div class="table-wrap"><table id="matrix"></table></div>
-          <p class="caption">100 = média da seleção. Verde = acima, vermelho = abaixo. Passe o mouse para ver o nº de posts.</p>
-        </div>
-      </div>
+      <details class="more panel"><summary>Ver evolução por mês</summary><div class="more-body">
+        <h3 id="ts-title">Ao longo do tempo</h3><div class="chart"><canvas id="ch-ts"></canvas></div>
+        <p class="caption">Linha = média do mês; faixa = variação provável. O primeiro e o último mês (incompletos) ficam de fora.</p>
+      </div></details>
 
-      <div class="panel"><h3 id="top-title">Top 10 posts da seleção</h3><div class="table-wrap"><table id="top"></table></div></div>
+      <details class="more panel"><summary>Ver matriz (cruzar duas características)</summary><div class="more-body">
+        <div class="visual-head"><h3>Matriz</h3>
+          <div class="controls">
+            <label class="field" for="row">Linhas<select id="row"></select></label>
+            <label class="field" for="col">Colunas<select id="col"></select></label>
+          </div></div>
+        <div class="table-wrap"><table id="matrix"></table></div>
+        <p class="caption">100 = média da seleção. Verde = acima, vermelho = abaixo. Passe o mouse para ver o nº de posts.</p>
+      </div></details>
+
+      <details class="more panel"><summary>Ver os 10 melhores posts da seleção</summary><div class="more-body">
+        <h3 id="top-title">Top 10 posts da seleção</h3><div class="table-wrap"><table id="top"></table></div>
+      </div></details>
       <p class="caption">Atenção: ao testar muitas combinações de filtros, alguma vai parecer diferente por acaso. Antes de decidir, confira em <a href="/descobertas">Descobertas</a>, onde os padrões foram checados nos dois anos.</p>
     </div>
   </div>
@@ -107,7 +110,7 @@ function drawBreakdown(R, m) {
   const rows = R.breakdown, name = OPT.metricas[m];
   $("bd-title").textContent = `${name} por ${label(S.dimensao).toLowerCase()}`;
   const build = () => ({ type: "bar", data: { labels: rows.map(r => val(r.grupo)), datasets: [
-      { label: name, data: rows.map(r => r.media), backgroundColor: rows.map(r => r.diferente ? css("--accent") : css("--none")), borderRadius: 4, barPercentage: 0.7 },
+      { label: name, data: rows.map(r => r.media), backgroundColor: rows.map(r => r.diferente ? css("--gold") : css("--none")), borderRadius: 4, barPercentage: 0.7 },
       { type: "line", label: "média da seleção", data: rows.map(() => R.media_geral), borderColor: css("--ink"), borderDash: [6, 4], pointRadius: 0, borderWidth: 1.5 }] },
     options: chartOptions({ plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => {
         if (c.datasetIndex) return `média da seleção: ${fmtMetric(m, R.media_geral)}`;

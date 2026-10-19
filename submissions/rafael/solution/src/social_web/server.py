@@ -20,9 +20,11 @@ from .schemas import ExploreQuery, PostInput
 from .state import AppState, load_state
 
 HERE = Path(__file__).resolve().parent
-PAGES = {"/": ("inicio.html", "Início"), "/perguntas": ("perguntas.html", "As 4 perguntas"), "/estrategia": ("estrategia.html", "Estratégia"),
+PAGES = {"/": ("inicio.html", "Resumo"), "/perguntas": ("perguntas.html", "As 4 perguntas"), "/estrategia": ("estrategia.html", "Estratégia"),
          "/descobertas": ("descobertas.html", "Descobertas"), "/explorar": ("explorar.html", "Explorar dados"),
          "/prever": ("prever.html", "Prever um post"), "/metodo": ("metodo.html", "Como chegamos lá")}
+MAIN_PAGES = ["/", "/explorar", "/prever"]
+DEEP_PAGES = ["/perguntas", "/estrategia", "/descobertas", "/metodo"]
 LABELS = {"platform": "Plataforma", "content_type": "Formato", "content_category": "Tema", "language": "Idioma", "follower_tier": "Tamanho do creator",
           "is_sponsored": "Patrocinado", "sponsor_category": "Setor do patrocinador", "daypart": "Período do dia", "weekday": "Dia da semana",
           "length_bin": "Duração", "n_hashtags": "Nº de hashtags", "month_name": "Mês", "hour": "Hora",
@@ -57,13 +59,13 @@ def media_words(text: str) -> str:
 
 
 def create_app(state: AppState) -> FastAPI:
-    app = FastAPI(title="Auditoria 52K Posts", description="Análise de social media, painel exploratório e previsão antes de postar.",
+    app = FastAPI(title="G4 Marketing", description="Análise de social media, painel exploratório e previsão antes de postar.",
                   version="1.0.0")
     app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
     templates = Jinja2Templates(directory=HERE / "templates")
     templates.env.filters.update(num=num, pct=lambda v, d=1: "—" if v is None else f"{num(v, d)}%", pt=pt_text,
                                  label=lambda k: LABELS.get(k, k), val=lambda v: VALUES.get(str(v), str(v)), words=media_words)
-    templates.env.globals.update(PAGES=PAGES, LABELS=LABELS, VALUES=VALUES)
+    templates.env.globals.update(PAGES=PAGES, MAIN_PAGES=MAIN_PAGES, DEEP_PAGES=DEEP_PAGES, LABELS=LABELS, VALUES=VALUES)
 
     def page(path: str):
         template, title = PAGES[path]

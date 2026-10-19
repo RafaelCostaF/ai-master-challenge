@@ -57,7 +57,7 @@ def test_pocket_matching():
 @pytest.mark.parametrize("path", ["/", "/perguntas", "/estrategia", "/descobertas", "/explorar", "/prever", "/metodo"])
 def test_pages_render(client, path):
     res = client.get(path)
-    assert res.status_code == 200 and "Auditoria 52K Posts" in res.text and "{{" not in res.text
+    assert res.status_code == 200 and "G4 Marketing" in res.text and "{{" not in res.text
 
 
 def test_api_explore_and_options(client):

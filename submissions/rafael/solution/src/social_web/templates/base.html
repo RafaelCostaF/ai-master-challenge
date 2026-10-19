@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>{{ title }} · Auditoria 52K Posts</title>
+<title>{{ title }} · G4 Marketing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap">
 <link rel="stylesheet" href="/static/css/site.css">
 <script>window.SITE_LABELS = {{ LABELS | tojson }}; window.SITE_VALUES = {{ VALUES | tojson }};</script>
 <script src="/static/vendor/chart.umd.min.js"></script>
@@ -15,11 +15,17 @@
 <body>
 <header class="top">
   <div class="inner">
-    <a class="brand" href="/">Auditoria 52K Posts</a>
+    <a class="brand" href="/" aria-label="G4 Marketing, início"><b>G4</b> Marketing</a>
     <nav class="nav" aria-label="Páginas">
-      {% for href, (tpl, name) in PAGES.items() %}
-      <a href="{{ href }}"{% if href == path %} aria-current="page"{% endif %}{% if href in ['/explorar', '/prever'] %} class="tool"{% endif %}>{{ name }}</a>
+      {% for href in MAIN_PAGES %}
+      <a href="{{ href }}"{% if href == path %} aria-current="page"{% endif %}{% if href != '/' %} class="tool"{% endif %}>{{ PAGES[href][1] }}</a>
       {% endfor %}
+      <details class="menu"{% if path in DEEP_PAGES %} data-current="true"{% endif %}>
+        <summary>Aprofundar</summary>
+        <div class="menu-list">
+          {% for href in DEEP_PAGES %}<a href="{{ href }}"{% if href == path %} aria-current="page"{% endif %}>{{ PAGES[href][1] }}</a>{% endfor %}
+        </div>
+      </details>
     </nav>
   </div>
 </header>
