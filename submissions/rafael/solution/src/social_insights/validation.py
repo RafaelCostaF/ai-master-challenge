@@ -24,3 +24,13 @@ def inject_engagement_uplift(df: pd.DataFrame, mask: pd.Series, uplift: float, s
     out["interactions"] = out[["likes", "shares", "comments_count"]].sum(axis=1)
     out["eng_rate_views"] = out["interactions"] / out["views"]
     return out
+
+
+def inject_creator_effect(df: pd.DataFrame, metric: str, relative_sd: float, seed: int = SEED) -> pd.DataFrame:
+    """Copy of df where each creator gets a persistent multiplier ~ N(1, relative_sd) on `metric` (a "who posts matters" world)."""
+    rng = np.random.default_rng(seed)
+    creators = df["creator_id"].unique()
+    factor = pd.Series(1 + rng.normal(0, relative_sd, len(creators)), index=creators)
+    out = df.copy()
+    out[metric] = (out[metric] * out["creator_id"].map(factor)).round().astype(int)
+    return out
