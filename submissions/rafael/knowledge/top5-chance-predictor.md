@@ -29,7 +29,7 @@ Ela mostra o mesmo post nos 4 formatos para comparar.
 | misto (44) | 5,0% | 6,0% | 5,5% |
 | texto (48) | 4,9% | 5,0% | 5,1% |
 (sinal do segmento e intervalo de 90%; base ≈ 5%)
-- **Likes em vídeo** nesse segmento: ~**9%**, quase 2x a base, com intervalo que não cruza 5%. É o achado robusto do notebook 11 aparecendo na ferramenta.
+- **Likes em vídeo** nesse segmento: ~**9%**, quase 2x a base, com intervalo que não cruza 5%. É o achado robusto do notebook 11 aparecendo na ferramenta, e a hipótese nº 1 da fila de testes (não uma regra).
 
 ## Mensagens para o site
 1. "Antes de postar, a ferramenta mostra a chance de o post virar destaque em views, likes e comentários, em cada formato."

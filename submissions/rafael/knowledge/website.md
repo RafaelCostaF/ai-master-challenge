@@ -21,13 +21,13 @@ Cache: `solution/models/web_models.joblib` (modelos) e `site_payload.json` (cont
 | `predict.py` | `PredictionService`: monta o post (faixas, horário, histórico do creator), chama os 3 modelos, cruza com as descobertas e escreve o resumo em linguagem simples |
 | `explore.py` | agregações do painel: filtros, cartões, comparação de grupos (com marcação de "diferença real" corrigida), série mensal sem meses incompletos, matriz e top 10 |
 | `schemas.py` | validação das entradas da API (pydantic) |
-| `templates/` | 7 páginas: Início · As 4 perguntas · Estratégia · Descobertas · Explorar dados · Simular post · Como chegamos lá |
+| `templates/` | 8 páginas: Início · As 4 perguntas · Estratégia · Descobertas · Explorar dados · Simular post · Auditorias · Como chegamos lá; `_notes.html` = macros dos avisos (fuso horário, unidade da duração) |
 | `static/` | CSS (tema claro/escuro, responsivo), `common.js` (formatação, selos de evidência, gráficos) e Chart.js embutido (funciona offline) |
 
 ## API (documentação automática em `/docs`)
 | Rota | Uso |
 |---|---|
-| `POST /api/predict` | corpo = post planejado (plataforma, formato, tema, idioma, horário, seguidores, duração, público, patrocínio, creator opcional) → chance de top 5% por métrica, comparação entre formatos, views e engajamento esperados com faixa provável, descobertas que se aplicam, resumo em frases |
+| `POST /api/predict` | corpo = post planejado (plataforma, formato, tema, idioma, horário, seguidores, duração, público, patrocínio, creator opcional) → chance de top 5% por métrica, comparação entre formatos, views e engajamento esperados com faixa provável, descobertas que se aplicam, resumo em frases, `mercado` (idioma do mercado? rede disponível lá? via `audits.market_coherence_flags`) |
 | `POST /api/explore` | filtros + agrupamento + métrica + linhas/colunas da matriz + período → tudo que o painel desenha |
 | `GET /api/options` | valores dos filtros e métricas disponíveis |
 | `GET /api/health` | status |
@@ -100,3 +100,13 @@ Cache: `solution/models/web_models.joblib` (modelos) e `site_payload.json` (cont
 | Detalhes | filetes dourados finos; marca-d'água gigante em itálico; links "Explorar →" em negrito | filete dourado nos "+ Ver detalhes"; marca-d'água "dados" na faixa do Resumo; links de seção em negrito |
 | Composição | faixas azul-marinho centralizadas | faixa do Resumo centralizada; ferramentas alinhadas à esquerda (escaneamento) |
 Fontes: Manrope (300–800) + Libre Baskerville (a serifada que o próprio site do G4 carrega; a PP Museum é comercial).
+
+## Auditorias e avisos (2026-10-19)
+- **Página `/auditorias`** (`templates/auditorias.html`, no menu "Aprofundar"): primeiro, 5 cartões de veredito (disclosure, fit patrocinador × nicho, coerência idioma × mercado × rede, duração na unidade certa, poder dos testes), cada um com o número-chave e "Na prática". O resto fica em "Ver detalhes": barras empilhadas de risco por mercado, tabela nicho × patrocinador com o encaixe destacado, % coerente por mercado, redes bloqueadas, duração por formato, dispersão n × MDE e o veredito técnico de cada auditoria.
+- **Regras editáveis:** `AD_RULES`, `SPONSOR_FIT`, `MARKET_LANGUAGES`, `UNAVAILABLE_PLATFORMS` (em `audits.py`) aparecem na seção "As regras usadas", com o aviso de que são premissas de mercado e não parecer jurídico.
+- **Payload:** `auditorias` (gerado por `site_export.audits_section`), com `cartoes`, `risco_mercado`, `rotulo_local`, `nicho`, `mercado`, `bloqueadas`, `duracao`, `poder`, `regras` (+ `unidades`) e `nota_duracao`.
+- **Aviso de fuso horário:** o texto fica definido uma única vez em `server.TIME_NOTE` (global do Jinja) e é exibido pela macro `time_note()`. Aparece em Início (destaque de horário e mitos), Perguntas (Q4), Estratégia, Descobertas (#horario), Simular (abaixo da hora) e Explorar (só quando hora, período ou dia da semana estão em uso). `post_date` é tratado como já normalizado e não é convertido.
+- **Aviso de duração:** a macro `length_note(d)` mostra `auditorias.nota_duracao` onde duração ou faixas de duração aparecem: Início (mitos), Perguntas (Q4 e o gráfico de duração), Simular (o rótulo do campo muda conforme a unidade do formato) e Explorar (só com `length_bin`).
+- **Simular:** cartão "Mercado" quando o idioma não é falado no país do público ou a rede está indisponível lá.
+- **Contradições resolvidas (revisão de 2026-10-19):** o destaque TikTok · beauty · espanhol virou "testar antes de mudar o mix" (com nº de posts por grupo), e não mais "priorizar". O horário no YouTube passou a "entram mais no top 1% de comentários", não "recebem mais comentários", e vira desempate de agenda (A/B inviável, ~17 mil posts). Os quick wins ganharam a coluna **Base** (robusta × depende de premissa). Estratégia ganhou **Fila de testes** (`estrategia.testes`) e **sensibilidade do teto** (`estrategia.sensibilidade`). A manchete da home passou de "O preço muda" para "A decisão é de preço".
+- **Texto de disclosure corrigido:** a estratégia e o quick win não dizem mais "elimina o risco / conformidade". Agora `strategy.disclosure_rule` exige rótulo verificável no texto e cita o % em risco alto, o % com rótulo visível e o custo (nenhum) em engajamento.

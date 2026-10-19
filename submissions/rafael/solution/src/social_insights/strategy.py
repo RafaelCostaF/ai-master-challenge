@@ -9,8 +9,10 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from statsmodels.stats.multitest import multipletests
+from statsmodels.stats.power import NormalIndPower
+from statsmodels.stats.proportion import proportion_effectsize
 
-from . import questions
+from . import audits, discovery, questions
 from .data import PLATFORMS
 from .questions import ALPHA, ENGAGEMENT, REACH, Answer
 
@@ -20,6 +22,17 @@ PRODUCTION_COST = {"text": 50, "image": 100, "mixed": 150, "video": 300}  # US$ 
 TARGET_CPM = 10.0    # max US$ per 1,000 views worth paying (paid-social benchmark)
 TARGET_CPE = 0.05    # max US$ per interaction (like/share/comment) worth paying
 FOLLOWER_GRID = [5_000, 10_000, 25_000, 50_000, 100_000, 250_000, 500_000, 1_000_000]
+COST_GRID = [0.005, 0.01, 0.02, 0.05]   # US$ per follower tried in the threshold sensitivity
+CPM_GRID = [5.0, 10.0, 20.0]            # target CPMs tried in the threshold sensitivity
+
+# --- A/B test sizing ---
+POWER = 0.8
+RELEVANT_UPLIFT = 0.05     # smallest uplift worth detecting in a sponsorship test (5%)
+MIN_TEST_POSTS = 30        # practical floor per group, even when the math asks for fewer
+MAX_AB_POSTS = 2_000       # above this per group, a dedicated A/B is impractical: monitor instead
+
+ROBUST = "robusta (vale com dados reais)"
+ASSUMED = "depende de premissa (recalcular com preços reais)"
 
 
 @dataclass
@@ -99,6 +112,35 @@ def break_even(df: pd.DataFrame, cost_per_follower: float = COST_PER_FOLLOWER, t
             "teto de seguidores (CPE)": max_followers_cpe, "threshold": min(max_followers_cpm, max_followers_cpe), "grade": grid.set_index("seguidores")}
 
 
+def threshold_sensitivity(df: pd.DataFrame, costs: list[float] = COST_GRID, cpms: list[float] = CPM_GRID) -> pd.DataFrame:
+    """Follower ceiling (CPM rule) for each price × target CPM: shows how much the ceiling owes to the assumptions."""
+    views = df[REACH].median()
+    grid = pd.DataFrame({f"CPM-alvo US$ {cpm:.0f}": [cpm * views / 1000 / c for c in costs] for cpm in cpms},
+                        index=pd.Index([f"US$ {c * 1000:.0f} por mil seguidores" for c in costs], name="preço do creator"))
+    return grid.round(-2)
+
+
+def tier_cost_ratio(df: pd.DataFrame) -> float:
+    """How many times more the largest tier pays per 1K views than the smallest. Independent of the price level
+    whenever the fee is proportional to followers (it cancels out), so it holds for any per-follower rate."""
+    cpm = implied_costs(df).groupby("follower_tier", observed=True)["cpm"].median().dropna()
+    return float(cpm.iloc[-1] / cpm.iloc[0])
+
+
+def ab_sample_size(p_control: float, p_test: float, power: float = POWER) -> int | None:
+    """Posts per group to tell two rates apart (two-sided α, given power); None when there is no gap to size."""
+    if not np.isfinite([p_control, p_test]).all() or p_control == p_test:
+        return None
+    n = NormalIndPower().solve_power(proportion_effectsize(p_test, p_control), alpha=ALPHA, power=power)
+    return int(np.ceil(n))
+
+
+def mean_sample_size(df: pd.DataFrame, metric: str, uplift: float = RELEVANT_UPLIFT, power: float = POWER) -> int:
+    """Posts per group to detect a relative uplift in a metric's mean, floored at a practical minimum."""
+    effect = uplift * df[metric].mean() / df[metric].std()
+    return max(MIN_TEST_POSTS, int(np.ceil(NormalIndPower().solve_power(effect, alpha=ALPHA, power=power))))
+
+
 # ---------- 1. Where to focus ----------
 
 def where_to_focus(df: pd.DataFrame, production_cost: dict = PRODUCTION_COST, cost_per_follower: float = COST_PER_FOLLOWER) -> Recommendation:
@@ -110,6 +152,8 @@ def where_to_focus(df: pd.DataFrame, production_cost: dict = PRODUCTION_COST, co
     frequency = frequency_effect(df)
 
     platform_tie = platform["equivalente ao melhor"].all() and platform["equivalente ao melhor (engajamento)"].all()
+    format_tie = content["equivalente ao melhor"].all()
+    tier_tie = tier["equivalente ao melhor"].all()
     best_platform = platform.index[0]
     best_format = cheapest_equivalent(content, pd.Series(production_cost))
     best_tier = cheapest_equivalent(tier, tier["custo mediano patrocinado (US$)"])
@@ -118,14 +162,21 @@ def where_to_focus(df: pd.DataFrame, production_cost: dict = PRODUCTION_COST, co
     decision = (
         (f"Plataforma: nenhuma vence (diferenças ≤ {platform['vs. melhor (%)'].abs().max():.2f}%), então concentre em 1–2 por custo operacional e presença do público-alvo. "
          if platform_tie else f"Plataforma: {best_platform} (significativamente melhor). ")
-        + f"Formato: {best_format} (mesmo engajamento que o melhor e menor custo por resultado, pela premissa de custo de produção). "
-        + f"Creators: {best_tier} (equivalente em engajamento e mais barato). "
+        + (f"Formato: nenhum engaja mais (diferenças ≤ {content['vs. melhor (%)'].abs().max():.2f}%), então vale o mais barato de produzir; "
+           f"pela premissa de custo, {best_format}, mas a escolha depende do custo real e do formato que cada plataforma comporta. "
+           if format_tie else f"Formato: {best_format} (rende mais e compensa o custo de produção). ")
+        + ("Creators: o porte não muda o engajamento nem as views, então não há motivo para pagar mais por creators grandes. "
+           if tier_tie else f"Creators: {best_tier} (equivalente em engajamento e mais barato). ")
         + (f"Frequência: há saturação em {', '.join(saturated)}." if saturated else
-           "Frequência: postar mais não reduz o desempenho por post em nenhuma plataforma, então o limite é a capacidade de produção.")
+           f"Frequência: dias com mais posts (mediana de {frequency['posts/dia (mediana)'].median():.0f} por plataforma, somando todos os creators) "
+           "não têm pior desempenho por post; o limite é a capacidade de produção, e a cadência da marca deve ser medida com os dados dela.")
     )
     actions = [
-        f"Fixar o mix de produção em {best_format} como padrão; formatos mais caros só com hipótese a testar.",
-        f"Priorizar creators {best_tier} nas próximas contratações.",
+        ("Não pagar a mais por formato esperando engajamento: levantar o custo real de produção por formato e usar o mais barato que "
+         f"a plataforma comporta (pela premissa atual, {best_format})." if format_tie
+         else f"Fixar o mix de produção em {best_format} como padrão."),
+        "Não pagar prêmio por porte de creator: escolher pelo preço por resultado e pelo público-alvo." if tier_tie
+        else f"Priorizar creators {best_tier} nas próximas contratações.",
         "Concentrar o time em 1–2 plataformas (critério: onde está o cliente-alvo e o menor custo operacional)." if platform_tie
         else f"Realocar esforço para {best_platform}.",
         "Aumentar a frequência até o limite da capacidade e reavaliar a saturação mensalmente (`frequency_effect`).",
@@ -133,6 +184,17 @@ def where_to_focus(df: pd.DataFrame, production_cost: dict = PRODUCTION_COST, co
     return Recommendation("1. Onde concentrar esforço?", decision, platform,
                           {"Formato (engajamento × custo)": content, "Faixa de creator": tier, "Frequência (saturação por plataforma)": frequency},
                           actions)
+
+
+def disclosure_rule(df: pd.DataFrame) -> str:
+    """Disclosure action backed by the audit: share at high risk, share with a visible label, and the engagement cost."""
+    sponsored = df[df["is_sponsored"].astype(bool)]
+    high = 100 * (audits.disclosure_risk(sponsored) == "alto").mean()
+    visible = 100 * audits.has_ad_marker(sponsored).mean()
+    costly = audits.disclosure_audit(df).details["Disclosure × engajamento"]["significativo"].any()
+    return (f"Exigir rótulo de publicidade verificável no próprio texto (#publi/#ad): hoje {high:.0f}% dos patrocinados usam disclosure "
+            f"implícito (risco regulatório alto) e só {visible:.1f}% mostram o rótulo no texto"
+            + (". O tipo de disclosure muda o engajamento: testar antes." if costly else "; o tipo de disclosure não muda o engajamento."))
 
 
 # ---------- 2. Sponsorship policy ----------
@@ -145,30 +207,33 @@ def sponsorship_policy(df: pd.DataFrame, cost_per_follower: float = COST_PER_FOL
     good_conditions = conditions[conditions["significativo"] & (conditions["uplift engajamento (%)"] > 0)]
     be = break_even(df, cost_per_follower, target_cpm, target_cpe)
     costs = implied_costs(df, cost_per_follower)
-    within = costs[costs["follower_count"] <= be["threshold"]]
     profile = costs.groupby("follower_tier", observed=True).agg(
         posts=("custo", "size"), cpm_mediano=("cpm", "median"), cpe_mediano=("cpe", "median"), engajamento=(ENGAGEMENT, "mean"))
     profile["dentro do threshold"] = profile["cpm_mediano"] <= target_cpm
 
     lift = eng["p_value"] < ALPHA and eng["diferença"] > 0
+    ratio = tier_cost_ratio(df)
+    sensitivity = threshold_sensitivity(df)
+    group_size = mean_sample_size(df, ENGAGEMENT)
     decision = (
         ("Patrocinar para ganhar desempenho: SIM, " if lift else "Patrocinar para ganhar desempenho: NÃO. O patrocínio não muda engajamento nem alcance. ")
         + ("nas condições com efeito: " + ", ".join(good_conditions["condição"]) + ". " if len(good_conditions) else "Nenhuma condição tem efeito. ")
-        + f"Patrocinar só se o post se pagar como mídia: até ~{be['threshold']:,.0f} seguidores "
-          f"(até US$ {target_cpm:.0f} por mil views e US$ {target_cpe:.2f} por interação, com ~{be['views medianas']:,.0f} views e ~{be['interações medianas']:,.0f} interações por post). "
-        + f"Hoje só {len(within) / len(costs):.0%} dos posts patrocinados estão dentro desse limite. "
-        + f"Perfil: {', '.join(profile.index[profile['dentro do threshold']]) or 'nenhuma faixa atual'}, em qualquer plataforma ou categoria. "
-          "O engajamento histórico não serve de critério, porque não diferencia creators."
+        + f"Regra que vale com qualquer preço: como as views não crescem com os seguidores, um cachê proporcional aos seguidores deixa o "
+          f"creator {profile.index[-1]} ~{ratio:,.0f}x mais caro por mil views que o {profile.index[0]}. Por isso, pagar por resultado, não por post. "
+        + f"Com as premissas atuais (US$ {cost_per_follower * 1000:.0f} por mil seguidores, até US$ {target_cpm:.0f} por mil views e "
+          f"US$ {target_cpe:.2f} por interação), o post de preço fixo se paga até ~{be['threshold']:,.0f} seguidores; "
+          f"com outros preços o teto vai de {sensitivity.min().min():,.0f} a {sensitivity.max().max():,.0f} (tabela de sensibilidade). "
+        + "O desempenho histórico do creator não serve de critério, porque não diferencia creators."
     )
     actions = [
-        f"Teto de contratação: {be['threshold']:,.0f} seguidores por post (ou pagamento por desempenho acima disso).",
-        f"Contratar por resultado: até US$ {target_cpm:.0f} por mil views ou US$ {target_cpe:.2f} por interação, em vez de preço fixo por post.",
-        "Sinalizar publicidade de forma explícita (ex.: #publi): não reduz o engajamento e elimina o risco regulatório.",
-        "Todo novo patrocínio entra com grupo de comparação (posts orgânicos parecidos) para medir o ganho real.",
+        f"Contratar por resultado: até US$ {target_cpm:.0f} por mil views ou US$ {target_cpe:.2f} por interação, em vez de preço fixo por post (vale com qualquer cachê).",
+        f"Enquanto o preço for fixo por post: teto de ~{be['threshold']:,.0f} seguidores (sai das premissas; recalcular com o cachê real).",
+        disclosure_rule(df),
+        f"Todo novo patrocínio entra com grupo de comparação (posts orgânicos parecidos, ≥ {group_size} por grupo) para medir o ganho real.",
     ]
     return Recommendation("2. Política de patrocínio", decision, answer.evidence,
-                          {"Ponto de equilíbrio por tamanho de creator": be["grade"], "Perfil de influenciador (patrocinados)": profile,
-                           "Condições testadas": conditions}, actions)
+                          {"Ponto de equilíbrio por tamanho de creator": be["grade"], "Teto de seguidores por premissa (sensibilidade)": sensitivity,
+                           "Perfil de influenciador (patrocinados)": profile, "Condições testadas": conditions}, actions)
 
 
 # ---------- 3. Stop doing ----------
@@ -200,39 +265,89 @@ def stop_doing(df: pd.DataFrame, production_cost: dict = PRODUCTION_COST, cost_p
         rows.append({"investimento": f"Otimizar com base em: {belief}", "posts": np.nan, "% dos patrocinados": np.nan,
                      "gasto implícito (US$)": np.nan, "excedente sobre preço justo (US$)": np.nan, "evidência": "efeito nulo (q ≥ 0,05)"})
     table = pd.DataFrame(rows).set_index("investimento")
-    decision = (f"Parar de pagar por alcance que não vem: {len(above):,} posts patrocinados acima do threshold geram ~US$ {sponsorship_waste:,.0f} "
-                f"de excedente sobre o preço justo ({sponsorship_waste / costs['custo'].sum():.0%} de todo o gasto implícito com patrocínio). Parar de produzir formatos caros sem ganho (economia potencial ~US$ {production_waste:,.0f}). "
-                f"Parar rotinas de otimização sem efeito ({int((beliefs['se sustenta?'] == 'não').sum())} práticas testadas sem efeito).")
-    actions = ["Congelar renovações de creators acima do threshold até renegociar por desempenho.",
-               f"Migrar a produção padrão para {cheapest}; formatos caros só com teste A/B aprovado.",
-               "Retirar do checklist de publicação: \"melhor horário\", \"número ideal de hashtags\" e \"legenda longa\"."]
+    decision = (f"Parar de pagar preço fixo por seguidores: as views não acompanham o porte. Pelas premissas de preço, {len(above) / len(costs):.0%} dos posts "
+                f"patrocinados ficam acima do teto e {sponsorship_waste / costs['custo'].sum():.0%} do gasto implícito com patrocínio é excedente sobre o preço justo "
+                f"(~US$ {sponsorship_waste / 1e6:,.0f} mi neste histórico; valor ilustrativo, não contábil). "
+                "Parar de pagar a mais por formatos caros esperando engajamento: nenhum formato engaja mais. "
+                f"Parar de usar como regra geral {int((beliefs['se sustenta?'] == 'não').sum())} práticas testadas sem efeito (horário, hashtags, legenda, duração...).")
+    actions = ["Congelar renovações por preço fixo acima do teto até renegociar por resultado.",
+               "Formatos caros só com motivo de marca ou teste A/B aprovado, não por expectativa de engajamento.",
+               "Tirar \"melhor horário\", \"número ideal de hashtags\" e \"legenda longa\" do checklist como regra geral; "
+               "horário só por plataforma e depois de teste (ver fila de testes)."]
     return Recommendation("3. O que parar de fazer", decision, table, {"Crenças testadas": beliefs}, actions)
 
 
 # ---------- 4. Quick wins ----------
 
 def quick_wins(df: pd.DataFrame, **assumptions) -> Recommendation:
-    """Actions for this week, derived from the other three recommendations (ordered by impact ÷ effort)."""
-    focus, policy, stop = where_to_focus(df), sponsorship_policy(df, **assumptions), stop_doing(df, **assumptions)
+    """Actions for this week: robust ones first (valid on the company's real data too), then the ones that rest on cost assumptions."""
+    focus, stop = where_to_focus(df), stop_doing(df, **assumptions)
     be = break_even(df, **assumptions)
     cheapest = cheapest_equivalent(focus.details["Formato (engajamento × custo)"], pd.Series(PRODUCTION_COST))
+    waste_share = stop.evidence.iloc[0]["excedente sobre preço justo (US$)"] / stop.evidence.iloc[0]["gasto implícito (US$)"]
     wins = pd.DataFrame([
-        {"ação": f"Teto de {be['threshold']:,.0f} seguidores para novos contratos", "esforço": "baixo (regra de compra)",
-         "impacto": f"evita ~US$ {stop.evidence.iloc[0]['excedente sobre preço justo (US$)']:,.0f} de excedente", "dono": "Head de Marketing / Compras"},
-        {"ação": "Renegociar contratos ativos acima do teto para pagamento por resultado (views ou interações)", "esforço": "médio",
-         "impacto": "custo por resultado no nível do mercado", "dono": "Parcerias"},
-        {"ação": "Sinalização de publicidade explícita (#publi) como padrão", "esforço": "baixo", "impacto": "conformidade legal sem perda de engajamento", "dono": "Social media"},
-        {"ação": f"Mix de produção padrão em {cheapest}",
-         "esforço": "baixo", "impacto": f"economia potencial ~US$ {stop.evidence.iloc[1]['excedente sobre preço justo (US$)']:,.0f}", "dono": "Conteúdo"},
-        {"ação": "Retirar \"melhor horário\" e \"hashtags ideais\" do checklist", "esforço": "baixo", "impacto": "horas do time liberadas", "dono": "Social media"},
-        {"ação": "Recalcular este diagnóstico com os dados da empresa e rodar o 1º teste A/B (patrocinado vs. orgânico parecido)", "esforço": "médio",
-         "impacto": "medir o ganho real com dados da empresa", "dono": "AI Master / Analytics"},
+        {"ação": "Novos contratos e renovações por resultado (views ou interações), não por post", "base": ROBUST, "esforço": "médio",
+         "impacto": f"o custo por view deixa de crescer com o porte (hoje o maior porte paga ~{tier_cost_ratio(df):,.0f}x mais por mil views)",
+         "dono": "Parcerias / Compras"},
+        {"ação": "Rótulo de publicidade verificável no texto (#publi/#ad) como padrão", "base": ROBUST, "esforço": "baixo",
+         "impacto": disclosure_rule(df).split(": ", 1)[1], "dono": "Social media"},
+        {"ação": "Todo patrocínio novo com grupo de comparação orgânico", "base": ROBUST, "esforço": "baixo",
+         "impacto": f"mede o ganho real; ≥ {mean_sample_size(df, ENGAGEMENT)} posts por grupo para ver +{RELEVANT_UPLIFT:.0%} de engajamento",
+         "dono": "AI Master / Analytics"},
+        {"ação": "Não pagar a mais por creator \"campeão\" e tirar horário/hashtags ideais do checklist", "base": ROBUST, "esforço": "baixo",
+         "impacto": "desempenho passado e essas regras não mudam o resultado; horas do time liberadas", "dono": "Social media"},
+        {"ação": f"Teto de ~{be['threshold']:,.0f} seguidores para contratos de preço fixo", "base": ASSUMED, "esforço": "baixo (regra de compra)",
+         "impacto": f"pelas premissas, {waste_share:.0%} do gasto implícito com patrocínio é excedente", "dono": "Head de Marketing"},
+        {"ação": f"Formato padrão pelo custo real de produção (pela premissa, {cheapest})", "base": ASSUMED, "esforço": "baixo",
+         "impacto": "mesmo engajamento com menor custo por post", "dono": "Conteúdo"},
     ])
-    decision = ("6 ações executáveis nesta semana, sem nova contratação nem ferramenta: 3 cortam custo (teto, renegociação, mix de produção), "
-                "1 reduz risco (disclosure), 1 libera tempo do time (checklist) e 1 cria a medição contínua (A/B).")
+    robust = int((wins["base"] == ROBUST).sum())
+    decision = (f"{len(wins)} ações para esta semana, sem contratação nem ferramenta nova. As {robust} primeiras valem também com os dados reais "
+                f"da empresa; as {len(wins) - robust} últimas dependem das premissas de preço e devem ser recalculadas com os preços reais.")
     return Recommendation("4. Quick wins (esta semana)", decision, wins,
-                          {"Base: onde concentrar": pd.DataFrame({"decisão": [focus.verdict]}),
-                           "Base: política de patrocínio": pd.DataFrame({"decisão": [policy.verdict]})}, wins["ação"].tolist())
+                          {"Base: onde concentrar": pd.DataFrame({"decisão": [focus.verdict]})}, wins["ação"].tolist())
+
+
+def test_queue(df: pd.DataFrame, by_platform: pd.DataFrame | None = None) -> Recommendation:
+    """The few hypotheses worth testing, ordered by evidence, with the posts each test needs.
+    Sized to confirm half of the observed gap (observed gaps from a scan are inflated by selection)."""
+    if by_platform is None:
+        by_platform = pd.concat([discovery.scan_by_platform(df, m, platforms=PLATFORMS) for m in ["views", "likes", "comments_count"]],
+                                ignore_index=True)
+    q_global = multipletests(by_platform["p_value"], method="fdr_bh")[1]
+    best = by_platform.assign(q_global=q_global).sort_values("p_value").iloc[0]
+    metric_names = {"views": "views", "likes": "likes", "comments_count": "comentários"}
+    rows = []
+    rest_rate = best["taxa top 5% (%)"] / best["lift"] / 100
+    target = (rest_rate + best["taxa top 5% (%)"] / 100) / 2
+    rows.append({"tipo": "bolsão", "hipótese": f"{best['plataforma']} · {best['bolsão']} aumenta a chance de top 5% em {metric_names.get(best['alvo'], best['alvo'])}",
+                 "evidência": f"{best['taxa top 5% (%)']:.1f}% vs. {rest_rate:.1%} ({best['lift']:.1f}x), nos 2 anos; q global = {best['q_global']:.3f} entre {len(by_platform):,} testes",
+                 "posts por grupo": ab_sample_size(rest_rate, target)})
+
+    daypart = discovery.daypart_top_rate(df, "comments_count")
+    top_hour = daypart.sort_values("q (hora)").iloc[0]
+    if top_hour["q (hora)"] < ALPHA:
+        platform = daypart.index[daypart["q (hora)"] == top_hour["q (hora)"]][0]
+        g = df[df["platform"] == platform]
+        top = g["comments_count"] >= g["comments_count"].quantile(discovery.TOP1_Q)
+        early = g["daypart"].isin(["madrugada", "manhã"])
+        p_early, p_late = top[early].mean(), top[~early].mean()
+        rows.append({"tipo": "horário", "hipótese": f"{platform}: posts até 12h entram mais no top 1% de comentários",
+                     "evidência": f"{p_early:.2%} vs. {p_late:.2%}; hora típica do top {top_hour['hora mediana top']:.0f}h vs. {top_hour['hora mediana demais']:.0f}h (q = {top_hour['q (hora)']:.2f})",
+                     "posts por grupo": ab_sample_size(p_late, (p_early + p_late) / 2)})
+
+    rows.append({"tipo": "patrocínio", "hipótese": f"Patrocínio aumenta o engajamento em pelo menos {RELEVANT_UPLIFT:.0%}",
+                 "evidência": "nenhum efeito neste histórico; aqui as métricas variam só ~1% entre posts, por isso bastam poucos posts "
+                             "(mínimo prático); com os dados da empresa a conta é refeita",
+                 "posts por grupo": mean_sample_size(df, ENGAGEMENT)})
+    table = pd.DataFrame(rows).dropna(subset=["posts por grupo"]).astype({"posts por grupo": int})
+    table["como tratar"] = np.where(table["posts por grupo"] <= MAX_AB_POSTS, "teste A/B",
+                                    "acompanhar no histórico (A/B exigiria posts demais)")
+    table.index = pd.RangeIndex(1, len(table) + 1, name="#")
+    decision = (f"Só {len(table)} hipóteses merecem teste; o resto das variações encontradas está no nível do acaso. "
+                "Nenhuma vira regra antes do teste: os números de posts mostram o custo de confirmar cada uma.")
+    actions = [f"{r['hipótese']}: {r['como tratar']}; {r['posts por grupo']:,} posts por grupo." for _, r in table.iterrows()]
+    return Recommendation("5. Fila de testes", decision, table, {}, actions)
 
 
 def recommend_all(df: pd.DataFrame) -> list[Recommendation]:

@@ -159,7 +159,7 @@
 
 ## 1. Onde concentrar esforço?
 
-**Decisão:** Plataforma: nenhuma vence (diferenças ≤ 0.01%), então concentre em 1–2 por custo operacional e presença do público-alvo. Formato: text (mesmo engajamento que o melhor e menor custo por resultado, pela premissa de custo de produção). Creators: nano (<10K) (equivalente em engajamento e mais barato). Frequência: postar mais não reduz o desempenho por post em nenhuma plataforma, então o limite é a capacidade de produção.
+**Decisão:** Plataforma: nenhuma vence (diferenças ≤ 0.01%), então concentre em 1–2 por custo operacional e presença do público-alvo. Formato: nenhum engaja mais (diferenças ≤ 0.06%), então vale o mais barato de produzir; pela premissa de custo, text, mas a escolha depende do custo real e do formato que cada plataforma comporta. Creators: o porte não muda o engajamento nem as views, então não há motivo para pagar mais por creators grandes. Frequência: dias com mais posts (mediana de 14 por plataforma, somando todos os creators) não têm pior desempenho por post; o limite é a capacidade de produção, e a cadência da marca deve ser medida com os dados dela.
 
 | platform   |     n |    média |   vs. melhor (%) |   p_value |   q_value | equivalente ao melhor   |   vs. melhor (%) (engajamento) | equivalente ao melhor (engajamento)   |
 |:-----------|------:|---------:|-----------------:|----------:|----------:|:------------------------|-------------------------------:|:--------------------------------------|
@@ -196,8 +196,8 @@
 | YouTube      |                    14 |              -0.01193  |   0.7475  |                            1.01e+04 |                           1.01e+04 |    0.8126 | False       |
 
 **Ações:**
-1. Fixar o mix de produção em text como padrão; formatos mais caros só com hipótese a testar.
-2. Priorizar creators nano (<10K) nas próximas contratações.
+1. Não pagar a mais por formato esperando engajamento: levantar o custo real de produção por formato e usar o mais barato que a plataforma comporta (pela premissa atual, text).
+2. Não pagar prêmio por porte de creator: escolher pelo preço por resultado e pelo público-alvo.
 3. Concentrar o time em 1–2 plataformas (critério: onde está o cliente-alvo e o menor custo operacional).
 4. Aumentar a frequência até o limite da capacidade e reavaliar a saturação mensalmente (`frequency_effect`).
 
@@ -205,7 +205,7 @@
 
 ## 2. Política de patrocínio
 
-**Decisão:** Patrocinar para ganhar desempenho: NÃO. O patrocínio não muda engajamento nem alcance. Nenhuma condição tem efeito. Patrocinar só se o post se pagar como mídia: até ~10,050 seguidores (CPM ≤ US$ 10 e CPE ≤ US$ 0.05, com ~10,100 views e ~2,010 interações por post). Hoje só 1% dos posts patrocinados estão dentro desse limite. Perfil: nano (<10K), em qualquer plataforma ou categoria. O engajamento histórico não serve de critério, porque não diferencia creators.
+**Decisão:** Patrocinar para ganhar desempenho: NÃO. O patrocínio não muda engajamento nem alcance. Nenhuma condição tem efeito. Regra que vale com qualquer preço: como as views não crescem com os seguidores, um cachê proporcional aos seguidores deixa o creator mega (500K+) ~134x mais caro por mil views que o nano (<10K). Por isso, pagar por resultado, não por post. Com as premissas atuais (US$ 10 por mil seguidores, até US$ 10 por mil views e US$ 0.05 por interação), o post de preço fixo se paga até ~10,050 seguidores; com outros preços o teto vai de 1,000 a 40,400 (tabela de sensibilidade). O desempenho histórico do creator não serve de critério, porque não diferencia creators.
 
 |                                |   diferença |   IC95 inf |   IC95 sup |   diferença (%) |   p_value |   estratos |   q_value |
 |:-------------------------------|------------:|-----------:|-----------:|----------------:|----------:|-----------:|----------:|
@@ -226,6 +226,14 @@
 |       250000 |              2500     |              247.5   |              1.244   |                         2.5e+05 |                              4.95    | False          |
 |       500000 |              5000     |              495     |              2.488   |                         5e+05   |                              9.901   | False          |
 |      1000000 |                 1e+04 |              990.1   |              4.975   |                         1e+06   |                             19.8     | False          |
+
+### Teto de seguidores por premissa (sensibilidade)
+| preço do creator          |   CPM-alvo US$ 5 |   CPM-alvo US$ 10 |   CPM-alvo US$ 20 |
+|:--------------------------|-----------------:|------------------:|------------------:|
+| US$ 5 por mil seguidores  |         1.01e+04 |          2.02e+04 |          4.04e+04 |
+| US$ 10 por mil seguidores |      5000        |          1.01e+04 |          2.02e+04 |
+| US$ 20 por mil seguidores |      2500        |       5000        |          1.01e+04 |
+| US$ 50 por mil seguidores |      1000        |       2000        |       4000        |
 
 ### Perfil de influenciador (patrocinados)
 | follower_tier    |   posts |   cpm_mediano |   cpe_mediano |   engajamento | dentro do threshold   |
@@ -253,16 +261,16 @@
 |  0 | platform = Bilibili              |                 -0.01546 |   0.7468  |    0.7934 | False           |
 
 **Ações:**
-1. Teto de contratação: 10,050 seguidores por post (ou pagamento por desempenho acima disso).
-2. Contratos por CPM/CPE garantido (≤ US$ 10/mil views, ≤ US$ 0.05/interação), não por post fixo.
-3. Disclosure sempre explícito: não reduz o engajamento e elimina o risco regulatório.
-4. Todo novo patrocínio entra com grupo de controle (posts orgânicos comparáveis) para medir o uplift real.
+1. Contratar por resultado: até US$ 10 por mil views ou US$ 0.05 por interação, em vez de preço fixo por post (vale com qualquer cachê).
+2. Enquanto o preço for fixo por post: teto de ~10,050 seguidores (sai das premissas; recalcular com o cachê real).
+3. Exigir rótulo de publicidade verificável no próprio texto (#publi/#ad): hoje 47% dos patrocinados usam disclosure implícito (risco regulatório alto) e só 2.3% mostram o rótulo no texto; o tipo de disclosure não muda o engajamento.
+4. Todo novo patrocínio entra com grupo de comparação (posts orgânicos parecidos, ≥ 30 por grupo) para medir o ganho real.
 
 ---
 
 ## 3. O que parar de fazer
 
-**Decisão:** Parar de pagar por alcance que não vem: 22,122 posts patrocinados acima do threshold geram ~US$ 109,335,722 de excedente sobre o preço justo (98% de todo o gasto implícito com patrocínio). Parar de produzir formatos caros sem ganho (economia potencial ~US$ 8,911,450). Parar rotinas de otimização sem efeito (11 práticas testadas sem efeito).
+**Decisão:** Parar de pagar preço fixo por seguidores: as views não acompanham o porte. Pelas premissas de preço, 99% dos posts patrocinados ficam acima do teto e 98% do gasto implícito com patrocínio é excedente sobre o preço justo (~US$ 109 mi neste histórico; valor ilustrativo, não contábil). Parar de pagar a mais por formatos caros esperando engajamento: nenhum formato engaja mais. Parar de usar como regra geral 11 práticas testadas sem efeito (horário, hashtags, legenda, duração...).
 
 | investimento                                                   |       posts |   % dos patrocinados |   gasto implícito (US$) |   excedente sobre preço justo (US$) | evidência                                      |
 |:---------------------------------------------------------------|------------:|---------------------:|------------------------:|------------------------------------:|:-----------------------------------------------|
@@ -295,39 +303,51 @@
 | 10 | Mais views → mais likes                  | likes          |  0.00149   | ρ de Spearman  |    0.7335 |    0.8196 | não            |
 
 **Ações:**
-1. Congelar renovações de creators acima do threshold até renegociar por desempenho.
-2. Migrar a produção padrão para text; formatos caros só com teste A/B aprovado.
-3. Retirar do checklist de publicação: "melhor horário", "número ideal de hashtags" e "legenda longa".
+1. Congelar renovações por preço fixo acima do teto até renegociar por resultado.
+2. Formatos caros só com motivo de marca ou teste A/B aprovado, não por expectativa de engajamento.
+3. Tirar "melhor horário", "número ideal de hashtags" e "legenda longa" do checklist como regra geral; horário só por plataforma e depois de teste (ver fila de testes).
 
 ---
 
 ## 4. Quick wins (esta semana)
 
-**Decisão:** 6 ações executáveis nesta semana, sem nova contratação nem ferramenta: 3 cortam custo (teto, renegociação, mix de produção), 1 reduz risco (disclosure), 1 libera tempo do time (checklist) e 1 cria a medição contínua (A/B).
+**Decisão:** 6 ações para esta semana, sem contratação nem ferramenta nova. As 4 primeiras valem também com os dados reais da empresa; as 2 últimas dependem das premissas de preço e devem ser recalculadas com os preços reais.
 
-|    | ação                                                                            | esforço                 | impacto                                  | dono                        |
-|---:|:--------------------------------------------------------------------------------|:------------------------|:-----------------------------------------|:----------------------------|
-|  0 | Teto de 10,050 seguidores para novos contratos                                  | baixo (regra de compra) | evita ~US$ 109,335,722 de excedente      | Head de Marketing / Compras |
-|  1 | Renegociar contratos ativos acima do teto para CPM/CPE garantido                | médio                   | custo por resultado no nível do mercado  | Parcerias                   |
-|  2 | Disclosure explícito como padrão                                                | baixo                   | compliance sem perda de engajamento      | Social media                |
-|  3 | Mix de produção padrão em text                                                  | baixo                   | economia potencial ~US$ 8,911,450        | Conteúdo                    |
-|  4 | Retirar "melhor horário" e "hashtags ideais" do checklist                       | baixo                   | horas do time liberadas                  | Social media                |
-|  5 | Rodar `answer_questions.py` e o 1º teste A/B (patrocinado vs. orgânico pareado) | médio                   | medir o uplift real com dados da empresa | AI Master / Analytics       |
+|    | ação                                                                                | base                                              | esforço                 | impacto                                                                                                                                                        | dono                  |
+|---:|:------------------------------------------------------------------------------------|:--------------------------------------------------|:------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------|
+|  0 | Novos contratos e renovações por resultado (views ou interações), não por post      | robusta (vale com dados reais)                    | médio                   | o custo por view deixa de crescer com o porte (hoje o maior porte paga ~134x mais por mil views)                                                               | Parcerias / Compras   |
+|  1 | Rótulo de publicidade verificável no texto (#publi/#ad) como padrão                 | robusta (vale com dados reais)                    | baixo                   | hoje 47% dos patrocinados usam disclosure implícito (risco regulatório alto) e só 2.3% mostram o rótulo no texto; o tipo de disclosure não muda o engajamento. | Social media          |
+|  2 | Todo patrocínio novo com grupo de comparação orgânico                               | robusta (vale com dados reais)                    | baixo                   | mede o ganho real; ≥ 30 posts por grupo para ver +5% de engajamento                                                                                            | AI Master / Analytics |
+|  3 | Não pagar a mais por creator "campeão" e tirar horário/hashtags ideais do checklist | robusta (vale com dados reais)                    | baixo                   | desempenho passado e essas regras não mudam o resultado; horas do time liberadas                                                                               | Social media          |
+|  4 | Teto de ~10,050 seguidores para contratos de preço fixo                             | depende de premissa (recalcular com preços reais) | baixo (regra de compra) | pelas premissas, 98% do gasto implícito com patrocínio é excedente                                                                                             | Head de Marketing     |
+|  5 | Formato padrão pelo custo real de produção (pela premissa, text)                    | depende de premissa (recalcular com preços reais) | baixo                   | mesmo engajamento com menor custo por post                                                                                                                     | Conteúdo              |
 
 ### Base: onde concentrar
-|    | decisão                                                                                                                                                                                                                                                                                                                                                                                                                              |
-|---:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|  0 | Plataforma: nenhuma vence (diferenças ≤ 0.01%), então concentre em 1–2 por custo operacional e presença do público-alvo. Formato: text (mesmo engajamento que o melhor e menor custo por resultado, pela premissa de custo de produção). Creators: nano (<10K) (equivalente em engajamento e mais barato). Frequência: postar mais não reduz o desempenho por post em nenhuma plataforma, então o limite é a capacidade de produção. |
-
-### Base: política de patrocínio
-|    | decisão                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|---:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|  0 | Patrocinar para ganhar desempenho: NÃO. O patrocínio não muda engajamento nem alcance. Nenhuma condição tem efeito. Patrocinar só se o post se pagar como mídia: até ~10,050 seguidores (CPM ≤ US$ 10 e CPE ≤ US$ 0.05, com ~10,100 views e ~2,010 interações por post). Hoje só 1% dos posts patrocinados estão dentro desse limite. Perfil: nano (<10K), em qualquer plataforma ou categoria. O engajamento histórico não serve de critério, porque não diferencia creators. |
+|    | decisão                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|---:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|  0 | Plataforma: nenhuma vence (diferenças ≤ 0.01%), então concentre em 1–2 por custo operacional e presença do público-alvo. Formato: nenhum engaja mais (diferenças ≤ 0.06%), então vale o mais barato de produzir; pela premissa de custo, text, mas a escolha depende do custo real e do formato que cada plataforma comporta. Creators: o porte não muda o engajamento nem as views, então não há motivo para pagar mais por creators grandes. Frequência: dias com mais posts (mediana de 14 por plataforma, somando todos os creators) não têm pior desempenho por post; o limite é a capacidade de produção, e a cadência da marca deve ser medida com os dados dela. |
 
 **Ações:**
-1. Teto de 10,050 seguidores para novos contratos
-2. Renegociar contratos ativos acima do teto para CPM/CPE garantido
-3. Disclosure explícito como padrão
-4. Mix de produção padrão em text
-5. Retirar "melhor horário" e "hashtags ideais" do checklist
-6. Rodar `answer_questions.py` e o 1º teste A/B (patrocinado vs. orgânico pareado)
+1. Novos contratos e renovações por resultado (views ou interações), não por post
+2. Rótulo de publicidade verificável no texto (#publi/#ad) como padrão
+3. Todo patrocínio novo com grupo de comparação orgânico
+4. Não pagar a mais por creator "campeão" e tirar horário/hashtags ideais do checklist
+5. Teto de ~10,050 seguidores para contratos de preço fixo
+6. Formato padrão pelo custo real de produção (pela premissa, text)
+
+---
+
+## 5. Fila de testes
+
+**Decisão:** Só 3 hipóteses merecem teste; o resto das variações encontradas está no nível do acaso. Nenhuma vira regra antes do teste: os números de posts mostram o custo de confirmar cada uma.
+
+|   # | tipo       | hipótese                                                      | evidência                                                                                                                                                           |   posts por grupo | como tratar                                         |
+|----:|:-----------|:--------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------:|:----------------------------------------------------|
+|   1 | bolsão     | TikTok · beauty · Spanish aumenta a chance de top 5% em likes | 10.0% vs. 4.9% (2.0x), nos 2 anos; q global = 0.035 entre 14,763 testes                                                                                             |              1430 | teste A/B                                           |
+|   2 | horário    | YouTube: posts até 12h entram mais no top 1% de comentários   | 1.45% vs. 0.85%; hora típica do top 9h vs. 12h (q = 0.02)                                                                                                           |             17049 | acompanhar no histórico (A/B exigiria posts demais) |
+|   3 | patrocínio | Patrocínio aumenta o engajamento em pelo menos 5%             | nenhum efeito neste histórico; aqui as métricas variam só ~1% entre posts, por isso bastam poucos posts (mínimo prático); com os dados da empresa a conta é refeita |                30 | teste A/B                                           |
+
+**Ações:**
+1. TikTok · beauty · Spanish aumenta a chance de top 5% em likes: teste A/B; 1,430 posts por grupo.
+2. YouTube: posts até 12h entram mais no top 1% de comentários: acompanhar no histórico (A/B exigiria posts demais); 17,049 posts por grupo.
+3. Patrocínio aumenta o engajamento em pelo menos 5%: teste A/B; 30 posts por grupo.

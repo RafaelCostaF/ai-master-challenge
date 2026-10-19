@@ -43,3 +43,30 @@ def test_sponsorship_policy_yes_only_with_effect(posts):
 def test_quick_wins_has_owner_and_effort(posts):
     wins = strategy.quick_wins(posts).evidence
     assert {"ação", "esforço", "impacto", "dono"} <= set(wins.columns) and len(wins) >= 5
+
+
+def test_threshold_sensitivity_scales_with_price(posts):
+    grid = strategy.threshold_sensitivity(posts, costs=[0.01, 0.02], cpms=[10.0])
+    assert grid.iloc[0, 0] == pytest.approx(2 * grid.iloc[1, 0], rel=0.02)
+
+
+def test_tier_cost_ratio_does_not_depend_on_price(posts, monkeypatch):
+    ratio = strategy.tier_cost_ratio(posts)
+    monkeypatch.setattr(strategy, "COST_PER_FOLLOWER", 0.05)
+    assert strategy.tier_cost_ratio(posts) == pytest.approx(ratio)
+
+
+def test_ab_sample_size():
+    assert strategy.ab_sample_size(0.05, 0.10) < strategy.ab_sample_size(0.05, 0.07)
+    assert strategy.ab_sample_size(0.05, 0.05) is None
+
+
+def test_quick_wins_list_robust_actions_first(posts):
+    bases = strategy.quick_wins(posts).evidence["base"].tolist()
+    assert bases == sorted(bases, key=lambda b: b != strategy.ROBUST) and strategy.ASSUMED in bases
+
+
+def test_test_queue_is_short_and_sized(posts):
+    queue = strategy.test_queue(posts).evidence
+    assert 1 <= len(queue) <= 3 and (queue["posts por grupo"] >= strategy.MIN_TEST_POSTS).all()
+    assert set(queue["como tratar"]) <= {"teste A/B", "acompanhar no histórico (A/B exigiria posts demais)"}

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_notes.html" import time_note, length_note %}
 {% set r = d.respostas %}
 {% set q1max = r.q1.efeitos | map(attribute='diferença melhor−pior (%)') | max %}
 {% set q1sig = r.q1.efeitos | selectattr('significativo') | list %}
@@ -35,7 +36,7 @@
     <p class="answer">
       {% if eng.p_value < 0.05 and eng['diferença (%)'] > 0 %}<b>Sim:</b> o patrocinado engaja {{ eng['diferença (%)'] | num(2) }}% mais.
       {% else %}<b>Não para ganhar desempenho.</b> Patrocinado e orgânico parecidos têm o mesmo engajamento ({{ eng['diferença (%)'] | num(2) }}% de diferença) e as mesmas views. Vale só quando o preço é justo.{% endif %}</p>
-    <div class="means"><span class="tag">Na prática</span><p>Como as views não crescem com os seguidores, contrate creators de até ~{{ d.estrategia.threshold | num }} seguidores ou pague por resultado (até US$ {{ d.estrategia.premissas.cpm_alvo | num }} por mil views).</p></div>
+    <div class="means"><span class="tag">Na prática</span><p>Como as views não crescem com os seguidores, pague por resultado (até US$ {{ d.estrategia.premissas.cpm_alvo | num }} por mil views), não por post. Se o preço for fixo, o limite com as premissas atuais é de ~{{ d.estrategia.threshold | num }} seguidores (veja a sensibilidade em Estratégia).</p></div>
     <details class="more"><summary>Ver gráfico e dados</summary><div class="more-body">
       <div class="grid-2">
         <div class="panel"><h3>Quanto custam mil views, por tamanho do creator</h3><div class="chart"><canvas id="ch-cpm"></canvas></div>
@@ -75,6 +76,7 @@
     <h2>O que <em>não funciona</em></h2>
     <p class="answer"><b>{{ myths | length }} de {{ r.q4.crencas | length }} "verdades" de social media não se confirmam</b>, entre elas "mais seguidores = mais alcance", "vídeo engaja mais" e "postar à noite dá mais alcance".</p>
     <div class="means"><span class="tag">Pare de</span><p>pagar mais por creators grandes, otimizar "melhor horário" e "nº ideal de hashtags" sem teste e investir em formatos caros "porque engajam mais".</p></div>
+    {{ time_note() }}{{ length_note(d) }}
     <details class="more"><summary>Ver todas as crenças testadas</summary><div class="more-body">
       <div class="table-wrap"><table><thead><tr><th>O que se costuma dizer</th><th>O que os dados mostram</th><th>Vale?</th></tr></thead><tbody>
         {% for c in r.q4.crencas %}<tr><td>{{ c['crença de mercado'] }}</td>
@@ -85,6 +87,7 @@
     <details class="more"><summary>Ver duração do vídeo × views</summary><div class="more-body">
       <div class="chart tall"><canvas id="ch-duracao"></canvas></div>
       <p class="caption">{{ d.duracao.faixas | sum(attribute='size') | num }} vídeos. A linha do meio (valor típico) é reta: vídeos curtos e longos têm as mesmas views. Os recordes oscilam com a quantidade de vídeos em cada faixa, não com a duração.</p>
+      {{ length_note(d) }}
     </div></details>
   </section>
 </main>

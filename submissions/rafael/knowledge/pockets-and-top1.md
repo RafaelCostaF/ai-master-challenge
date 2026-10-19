@@ -25,7 +25,7 @@ Pedido: tratar variações como a de "vídeos > 480 s" como **insights** e busca
 - Sobrevive à correção entre os 12 testes numéricos do top 1% (q ≈ 0,02) e **se repete nas duas metades** (p = 0,013 e 0,047).
 - Taxa de entrada no top 1% de comentários: **madrugada 1,33% · manhã 1,20% · tarde 0,96% · noite 1,01%**. Por hora, de 0h a 8h fica acima de 1% e entre 15h e 20h fica abaixo.
 - Coerente com o bolsão exploratório "hora 0–4h → 1,13x mais top 5% de comentários".
-- **Ação:** teste A/B postando conteúdo que busca conversa **antes do meio-dia**.
+- **Ação:** o padrão é puxado pelo YouTube (`pockets-by-platform.md`) e não muda a média de comentários. Confirmar por A/B exigiria ~17 mil posts por grupo (`strategy.test_queue`), então: usar como desempate de agenda no YouTube e acompanhar no histórico. A regra geral continua "sem melhor horário".
 
 ## Insights replicados (hipóteses fortes para A/B)
 | Métrica | Bolsão | Top 5% | Lift (1ª · 2ª metade) |

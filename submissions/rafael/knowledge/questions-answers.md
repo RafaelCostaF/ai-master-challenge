@@ -27,12 +27,12 @@ Estrutura pensada para virar seções de site: cada pergunta tem **manchete**, *
   - diferença em engajamento: **+0,008%** (IC95 inclui zero; p = 0,72)
   - diferença em alcance (views): **+0,004%** (p = 0,63)
   - **0 de 17** condições (plataforma, porte, formato, categoria) com efeito
-  - CPM implícito: **US$ 5,55 (nano) → US$ 29 (micro) → US$ 75 (mid) → US$ 296 (macro) → US$ 744 (mega)**, ou seja, **134x** mais caro por mil views no mega
+  - CPM implícito: **US$ 5,55 (nano) → US$ 29 (micro) → US$ 75 (mid) → US$ 296 (macro) → US$ 744 (mega)**, ou seja, **134x** mais caro por mil views no mega. Os valores em US$ vêm da premissa; a razão de 134x não, porque vale para qualquer cachê proporcional aos seguidores
 - **Comparação justa:** diferença estratificada em 269 estratos idênticos (plataforma × formato × categoria × porte), confirmada por regressão com controles.
 - **Recomendação (política de patrocínio):**
   1. Não pagar prêmio por seguidores: views não crescem com o porte.
   2. Se patrocinar, usar **nano/micro** e negociar **por resultado** (CPM/CPE), não por post.
-  3. Disclosure explícito não prejudica o engajamento (+0,02% vs. orgânico), então pode ser sempre explícito (compliance sem custo).
+  3. Disclosure explícito não prejudica o engajamento (+0,02% vs. orgânico), então exigir rótulo verificável no texto (#publi/#ad) não tem custo de desempenho. O rótulo da base não aparece no texto (ver `audits.md`), então não prova compliance.
   4. Categoria do patrocinador não muda nada (de −0,08% a +0,05%).
 - **Premissa:** custo = US$ 10 por mil seguidores por post (`COST_PER_FOLLOWER`). Trocar pelo preço real.
 - **Gráfico sugerido:** CPM implícito por porte (barras) + diferença patrocinado − orgânico com IC (forest plot).

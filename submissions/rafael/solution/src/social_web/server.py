@@ -22,9 +22,10 @@ from .state import AppState, load_state
 HERE = Path(__file__).resolve().parent
 PAGES = {"/": ("inicio.html", "Resumo"), "/perguntas": ("perguntas.html", "As 4 perguntas"), "/estrategia": ("estrategia.html", "Estratégia"),
          "/descobertas": ("descobertas.html", "Descobertas"), "/explorar": ("explorar.html", "Explorar dados"),
-         "/simular": ("simular.html", "Simular post"), "/metodo": ("metodo.html", "Como chegamos lá")}
+         "/simular": ("simular.html", "Simular post"), "/auditorias": ("auditorias.html", "Auditorias"), "/metodo": ("metodo.html", "Como chegamos lá")}
 MAIN_PAGES = ["/", "/explorar", "/simular"]
-DEEP_PAGES = ["/perguntas", "/estrategia", "/descobertas", "/metodo"]
+DEEP_PAGES = ["/perguntas", "/estrategia", "/descobertas", "/auditorias", "/metodo"]
+TIME_NOTE = "Horários assumem um relógio único (a base não informa fuso horário)."
 LABELS = {"platform": "Plataforma", "content_type": "Formato", "content_category": "Tema", "language": "Idioma", "follower_tier": "Tamanho do creator",
           "is_sponsored": "Patrocinado", "sponsor_category": "Setor do patrocinador", "daypart": "Período do dia", "weekday": "Dia da semana",
           "length_bin": "Duração", "n_hashtags": "Nº de hashtags", "month_name": "Mês", "hour": "Hora",
@@ -34,7 +35,10 @@ VALUES = {"video": "vídeo", "image": "imagem", "text": "texto", "mixed": "misto
           "Thursday": "quinta", "Friday": "sexta", "Saturday": "sábado", "Sunday": "domingo", "female": "feminino", "male": "masculino",
           "non-binary": "não binário", "unknown": "não identificado", "views": "views", "likes": "likes", "comments_count": "comentários",
           "January": "janeiro", "February": "fevereiro", "March": "março", "April": "abril", "May": "maio", "June": "junho", "July": "julho",
-          "August": "agosto", "September": "setembro", "October": "outubro", "November": "novembro", "December": "dezembro"}
+          "August": "agosto", "September": "setembro", "October": "outubro", "November": "novembro", "December": "dezembro",
+          "Portuguese": "português", "German": "alemão", "Russian": "russo", "French": "francês", "USA": "EUA", "UK": "Reino Unido",
+          "India": "Índia", "Japan": "Japão", "Brazil": "Brasil", "Germany": "Alemanha", "Russia": "Rússia", "China": "China",
+          "cosmetics": "cosméticos", "electronics": "eletrônicos", "fashion": "moda", "food": "alimentação", "gaming": "games", "travel": "viagem"}
 
 
 def num(value, digits: int = 0) -> str:
@@ -58,14 +62,24 @@ def media_words(text: str) -> str:
     return MEDIA_WORDS.sub(lambda m: VALUES[m.group(1)], text)
 
 
+VALUE_WORDS = re.compile(r"\b(" + "|".join(re.escape(k) for k in VALUES if k[0].isupper()) + r")\b")
+
+
+def value_words(text: str) -> str:
+    """Translate raw category values (languages, countries, weekdays...) inside generated sentences."""
+    return VALUE_WORDS.sub(lambda m: VALUES[m.group(1)], media_words(text))
+
+
 def create_app(state: AppState) -> FastAPI:
     app = FastAPI(title="G4 Marketing", description="Análise de social media, painel exploratório e previsão antes de postar.",
                   version="1.0.0")
     app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
     templates = Jinja2Templates(directory=HERE / "templates")
     templates.env.filters.update(num=num, pct=lambda v, d=1: "—" if v is None else f"{num(v, d)}%", pt=pt_text,
-                                 label=lambda k: LABELS.get(k, k), val=lambda v: VALUES.get(str(v), str(v)), words=media_words)
-    templates.env.globals.update(PAGES=PAGES, MAIN_PAGES=MAIN_PAGES, DEEP_PAGES=DEEP_PAGES, LABELS=LABELS, VALUES=VALUES)
+                                 label=lambda k: LABELS.get(k, k), val=lambda v: VALUES.get(str(v), str(v)), words=media_words,
+                                 values=value_words)
+    templates.env.globals.update(PAGES=PAGES, MAIN_PAGES=MAIN_PAGES, DEEP_PAGES=DEEP_PAGES, LABELS=LABELS, VALUES=VALUES,
+                                 TIME_NOTE=TIME_NOTE)
 
     def page(path: str):
         template, title = PAGES[path]

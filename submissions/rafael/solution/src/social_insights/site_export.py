@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from statsmodels.stats.multitest import multipletests
 
-from . import (attribute_scan, creators, discovery, engagement_model, focus, hit_probability, questions, strategy, validation,
+from . import (attribute_scan, audits, creators, discovery, engagement_model, focus, hit_probability, questions, strategy, validation,
                views_forecast)
 from .data import FOLLOWER_TIERS, LENGTH_BINS, METRICS, PLATFORMS
 
@@ -98,11 +98,19 @@ def answers(df: pd.DataFrame) -> dict:
     }
 
 
-def strategy_section(df: pd.DataFrame) -> dict:
+def platform_pockets(df: pd.DataFrame) -> pd.DataFrame:
+    """Pockets scanned inside each platform for the three targets (shared by the insights and the test queue)."""
+    return pd.concat([discovery.scan_by_platform(df, m, platforms=PLATFORMS) for m in TARGETS], ignore_index=True)
+
+
+def strategy_section(df: pd.DataFrame, by_platform: pd.DataFrame) -> dict:
     recs = strategy.recommend_all(df)
     be = strategy.break_even(df)
+    tests = strategy.test_queue(df, by_platform)
     return {"recomendacoes": [{"pergunta": r.question, "decisao": r.verdict, "acoes": r.actions} for r in recs],
             "quick_wins": records(recs[3].evidence), "break_even": records(be["grade"].rename_axis("seguidores"), index=True),
+            "sensibilidade": records(strategy.threshold_sensitivity(df), index=True),
+            "testes": {"decisao": tests.verdict, "itens": records(tests.evidence)},
             "threshold": be["threshold"], "premissas": {"custo_por_seguidor": strategy.COST_PER_FOLLOWER, "cpm_alvo": strategy.TARGET_CPM,
                                                          "cpe_alvo": strategy.TARGET_CPE, "custo_producao": strategy.PRODUCTION_COST}}
 
@@ -129,9 +137,9 @@ def _pocket_records(table: pd.DataFrame, platform: str | None = None) -> list[di
     return _clean(rows)
 
 
-def insights(df: pd.DataFrame) -> dict:
+def insights(df: pd.DataFrame, by_platform: pd.DataFrame) -> dict:
     global_tables = {m: discovery.scan_pockets(df, m) for m in TARGETS}
-    by_platform = pd.concat([discovery.scan_by_platform(df, m, platforms=PLATFORMS) for m in TARGETS], ignore_index=True)
+    by_platform = by_platform.copy()
     by_platform["q_global"] = multipletests(by_platform["p_value"], method="fdr_bh")[1]
     best = by_platform.sort_values("p_value").iloc[0]
     daypart = discovery.daypart_top_rate(df, "comments_count").reindex(PLATFORMS)
@@ -168,6 +176,79 @@ def models(df: pd.DataFrame, views_eval: pd.DataFrame, light: bool = False) -> d
 
 
 HIST_BINS = 40
+
+
+def _pct(mask: pd.Series) -> float:
+    return float(100 * mask.mean())
+
+
+def audits_section(df: pd.DataFrame) -> dict:
+    """The 5 audits (disclosure, sponsor fit, market coherence, length per format, power): cards, chart data and rules."""
+    disclosure, fit, market, length, power = audits.audit_all(df)
+    sponsored = df[df["is_sponsored"].astype(bool)]
+    risk = audits.disclosure_risk(sponsored)
+    high, visible = _pct(risk == "alto"), _pct(audits.has_ad_marker(sponsored))
+    disclosure_cost = bool(disclosure.details["Disclosure × engajamento"]["significativo"].any())
+    in_niche = _pct(audits.sponsor_fits(sponsored).astype(bool))
+    fit_matters = bool(fit.evidence["significativo"].any())
+    flags = audits.market_coherence_flags(df)
+    by_market = market.evidence
+    no_language = [m for m in by_market.index if by_market.loc[m, "idiomas do mercado no dataset"] == "nenhum"]
+    coherence_matters = bool(market.details["Coerentes × incoerentes"]["significativo"].any())
+    corr = length.evidence
+    no_unit = _pct(~df["content_type"].isin(audits.LENGTH_UNIT))
+    length_matters = bool(corr["significativo"].any())
+    power_table = power.evidence
+    inconclusive = int((~power_table["conclusivo"]).sum())
+    relevant = 100 * audits.RELEVANT_EFFECT
+    cards = [
+        {"id": "disclosure", "pergunta": "Os patrocínios se identificam como publicidade?", "tom": "stop",
+         "manchete": f"{high:.0f}% dos posts patrocinados não se identificam claramente como publicidade",
+         "numero": high, "sufixo": "%", "rotulo": "com disclosure implícito (risco regulatório alto)",
+         "pratica": "Exigir rótulo verificável no próprio texto (#publi/#ad)"
+                    + ("." if disclosure_cost else ": o tipo de disclosure não muda o engajamento, então não custa desempenho."),
+         "veredito": disclosure.verdict},
+        {"id": "fit", "pergunta": "O patrocinador combina com o nicho do creator?", "tom": "info",
+         "manchete": f"{100 - in_niche:.0f}% dos patrocínios estão fora do nicho do creator",
+         "numero": in_niche, "sufixo": "%", "rotulo": "no nicho (ex.: cosméticos em beauty)",
+         "pratica": "Usar o fit como critério de marca na escolha do creator" + (" e de desempenho." if fit_matters else "; aqui ele não muda o resultado."),
+         "veredito": fit.verdict},
+        {"id": "mercado", "pergunta": "O post fala a língua do público, numa rede que ele usa?", "tom": "stop",
+         "manchete": f"Só {_pct(flags['coerente']):.0f}% dos posts estão no idioma do mercado e numa rede disponível lá",
+         "numero": _pct(flags["coerente"]), "sufixo": "%", "rotulo": f"coerentes · {len(no_language)} mercados sem nenhum post no idioma local",
+         "pratica": "Checar idioma e plataforma por mercado antes de publicar"
+                    + ("." if coherence_matters else "; aqui não muda o resultado, mas é checagem de qualidade dos dados reais."),
+         "veredito": market.verdict},
+        {"id": "duracao", "pergunta": "A duração importa, medida na unidade certa?", "tom": "info",
+         "manchete": "Duração só tem sentido em vídeo (segundos) e texto (palavras)"
+                     + (", e nesses formatos ela muda o resultado" if length_matters else ", e em nenhum dos dois muda o resultado"),
+         "numero": no_unit, "sufixo": "%", "rotulo": "dos posts (imagem e misto) têm 'duração' sem unidade",
+         "pratica": "Escolher a duração pelo formato e pela produção, não pelo alcance esperado.", "veredito": length.verdict},
+        {"id": "poder", "pergunta": "Quando dizemos \"não há diferença\", é conclusivo?", "tom": "good",
+         "manchete": ("Sim: os testes enxergam diferenças bem menores que 5%" if not inconclusive else
+                      f"Em {inconclusive} comparações, faltam dados para afirmar"),
+         "numero": float(power_table["MDE (%)"].max()), "sufixo": "%", "rotulo": "maior diferença que poderia passar despercebida",
+         "pratica": f"Tratar como 'sem diferença relevante' tudo que não chega a {relevant:.0f}%.", "veredito": power.verdict},
+    ]
+    by_market_risk = disclosure.evidence.reset_index()
+    return _clean({
+        "cartoes": cards,
+        "risco_mercado": records(by_market_risk.rename(columns={"audience_location": "mercado"})),
+        "rotulo_local": records(disclosure.details["Rótulo visível no texto × local declarado"].rename_axis("local"), index=True),
+        "nicho": {"linhas": fit.details["Mix nicho × patrocinador (%)"].index.tolist(), "colunas": fit.details["Mix nicho × patrocinador (%)"].columns.tolist(),
+                  "valores": fit.details["Mix nicho × patrocinador (%)"].values.tolist(),
+                  "encaixe": {k: sorted(v) for k, v in audits.SPONSOR_FIT.items()}},
+        "mercado": records(by_market.rename_axis("mercado"), index=True),
+        "bloqueadas": records(market.details["Plataformas bloqueadas no mercado"]),
+        "duracao": {"formatos": records(length.details["Distribuição por formato"].rename_axis("formato"), index=True), "correlacoes": records(corr)},
+        "poder": {"pontos": records(power_table), "relevante": relevant, "inconclusivos": inconclusive},
+        "regras": {"anuncio": audits.AD_RULES, "encaixe": {k: sorted(v) for k, v in audits.SPONSOR_FIT.items()},
+                   "idiomas": {k: sorted(v) for k, v in audits.MARKET_LANGUAGES.items()},
+                   "bloqueios": {k: sorted(v) for k, v in audits.UNAVAILABLE_PLATFORMS.items()}, "unidades": audits.LENGTH_UNIT},
+        "nota_duracao": (f"Duração só tem unidade em vídeo (segundos) e texto (palavras); {no_unit:.0f}% dos posts (imagem e misto) não têm unidade. "
+                         + ("Medida na unidade certa, ela muda o resultado: ver Auditorias." if length_matters else
+                            "Medida na unidade certa, ela não muda o resultado.")),
+    })
 
 
 def creators_section(df: pd.DataFrame) -> dict:
@@ -221,8 +302,10 @@ def build_payload(df: pd.DataFrame, light: bool = False, hit_predictor: hit_prob
     views_eval = views_forecast.evaluate(df) if views_eval is None else views_eval
     hit_predictor = hit_probability.HitPredictor.train(df) if hit_predictor is None else hit_predictor
     views_fc = views_forecast.ViewsForecaster.train(df, views_eval) if views_fc is None else views_fc
-    payload = {"meta": meta(df), "dados": data_quality(df), "respostas": answers(df), "estrategia": strategy_section(df),
-               "insights": insights(df), "modelos": models(df, views_eval, light), "duracao": video_length(df), "criadores": creators_section(df),
+    by_platform = platform_pockets(df)
+    payload = {"meta": meta(df), "dados": data_quality(df), "respostas": answers(df), "estrategia": strategy_section(df, by_platform),
+               "insights": insights(df, by_platform), "modelos": models(df, views_eval, light), "duracao": video_length(df), "criadores": creators_section(df),
+               "auditorias": audits_section(df),
                "simulador": simulator(df, hit_predictor, views_fc)}
     payload["kpis"] = headline_kpis(payload)
     return _clean(payload)

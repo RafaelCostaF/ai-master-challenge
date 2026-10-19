@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_notes.html" import time_note, length_note %}
 {% set r = d.respostas %}
 {% set q2 = r.q2 %}
 {% set cost = q2.custo_por_porte %}
@@ -13,11 +14,13 @@
 {% set q3max = r.q3.efeitos | map(attribute='diferença melhor−pior (%)') | max %}
 {% set myths = r.q4.crencas | selectattr('se sustenta?', 'equalto', 'não') | list %}
 {% set s = d.estrategia %}
+{% set t_pocket = s.testes.itens | selectattr('tipo', 'equalto', 'bolsão') | first %}
+{% set t_hour = s.testes.itens | selectattr('tipo', 'equalto', 'horário') | list %}
 {% block body %}
 <div class="hero">
   <div class="wrap">
     <span class="eyebrow">Resumo para o time de marketing · {{ d.meta.posts | num }} posts · {{ d.meta.plataformas | length }} plataformas</span>
-    <h1>Tema, formato e tamanho do creator não mudam o resultado. <em>O preço muda.</em></h1>
+    <h1>Tema, formato e tamanho do creator não mudam o resultado. <em>A decisão é de preço.</em></h1>
     <p class="lede">O que {{ d.meta.posts | num }} posts publicados entre {{ d.meta.inicio[:7] }} e {{ d.meta.fim[:7] }} dizem sobre onde investir, o que parar e o que testar.</p>
     <details class="more data-note"><summary>Sobre os dados</summary><div class="more-body">
       <p>Os dados do desafio são simulados: os números de cada post foram gerados quase ao acaso. Por isso a maioria das respostas é "não faz diferença". Os métodos usados encontram diferenças reais quando elas existem (testamos isso de propósito). Com os dados da empresa, o site é recalculado e mostra o que de fato funciona para vocês.</p></div></details>
@@ -40,10 +43,10 @@
       <article class="qcard stop">
         <span class="q">Vale a pena patrocinar?</span>
         <p class="headline">Não para ganhar desempenho. Só quando o preço for justo.</p>
-        <div class="kpi-line"><b>{{ (cpm_max / cpm_min) | round | int }}x</b><span>mais caro por mil views no creator grande do que no pequeno</span></div>
+        <div class="kpi-line"><b>{{ (cpm_max / cpm_min) | round | int }}x</b><span>mais caro por mil views no creator grande do que no pequeno, se o cachê acompanha os seguidores</span></div>
         <details class="more"><summary>Ver detalhes</summary><div class="more-body">
-          <p>Comparando posts parecidos, o patrocinado tem {{ eng['diferença (%)'] | num(2) }}% de diferença no engajamento, o que é praticamente zero. Como as views não crescem com os seguidores, mil views custam US$ {{ cpm_min | num(2) }} com creators pequenos e US$ {{ cpm_max | num(0) }} com os grandes.</p>
-          <p><b>Na prática:</b> teto de ~{{ s.threshold | num }} seguidores ou pagamento por resultado.</p>
+          <p>Comparando posts parecidos, o patrocinado tem {{ eng['diferença (%)'] | num(2) }}% de diferença no engajamento, o que é praticamente zero. Como as views não crescem com os seguidores, mil views custam US$ {{ cpm_min | num(2) }} com creators pequenos e US$ {{ cpm_max | num(0) }} com os grandes (premissa: US$ {{ (s.premissas.custo_por_seguidor * 1000) | num }} por mil seguidores).</p>
+          <p><b>Na prática:</b> pague por resultado (views ou interações), não por post. Essa proporção vale para qualquer preço por seguidor. Se o preço for fixo, o limite com as premissas atuais é de ~{{ s.threshold | num }} seguidores, e ele muda com o cachê real.</p>
           <a href="/perguntas#patrocinio">Ver custo por tamanho de creator →</a></div></details>
       </article>
       <article class="qcard info">
@@ -61,6 +64,7 @@
         <div class="kpi-line"><b>{{ myths | length }}/{{ r.q4.crencas | length }}</b><span>mitos derrubados</span></div>
         <details class="more"><summary>Ver a lista</summary><div class="more-body">
           <ul>{% for m in myths %}<li>{{ m['crença de mercado'] }}</li>{% endfor %}</ul>
+          {{ time_note() }}{{ length_note(d) }}
           <a href="/perguntas#nao-funciona">Ver números de cada mito →</a></div></details>
       </article>
     </div>
@@ -75,14 +79,15 @@
         <div class="kpi-line"><b>{{ hl.lift | num(1) }}x</b><span>{{ hl.taxa | num(1) }}% chegam ao top 5%, contra ~5% do resto</span></div>
         <details class="more"><summary>Ver detalhes</summary><div class="more-body">
           <p>Foram {{ hl.posts | num }} posts. O padrão apareceu nos dois anos ({{ hl.lift_1 | num(1) }}x e {{ hl.lift_2 | num(1) }}x) e foi o único que passou em todas as checagens.</p>
-          <p><b>Ação:</b> priorizar e testar o mesmo conteúdo em {{ hl_vals[1] | val }} e em inglês.</p></div></details>
+          <p><b>Ação:</b> testar antes de mudar o mix: o mesmo conteúdo em {{ hl_vals[1] | val }} e em inglês, ~{{ t_pocket["posts por grupo"] | num }} posts em cada versão.</p></div></details>
       </article>
       <article class="qcard good">
         <span class="chip repetiu" style="justify-self:start">se repetiu nos 2 anos</span>
-        <p class="headline">No {{ hour.plataforma }}, posts publicados cedo recebem mais comentários.</p>
+        <p class="headline">No {{ hour.plataforma }}, posts publicados cedo entram mais no top 1% de comentários.</p>
         <div class="kpi-line"><b>{{ hour['hora mediana top'] | num }}h</b><span>horário típico dos posts mais comentados (resto: {{ hour['hora mediana demais'] | num }}h)</span></div>
         <details class="more"><summary>Ver detalhes</summary><div class="more-body">
-          <p>Madrugada e manhã concentram mais posts entre os 1% mais comentados. No TikTok, o horário não faz diferença. Por isso a regra de horário deve ser feita por plataforma.</p>
+          <p>Madrugada e manhã concentram mais posts entre os 1% mais comentados, mas a média de comentários não muda. No TikTok, o horário não faz diferença.{% if t_hour %}{% if t_hour[0]['como tratar'] == 'teste A/B' %} Teste A/B com ~{{ t_hour[0]["posts por grupo"] | num }} posts por grupo antes de mudar a agenda.{% else %} Confirmar por teste exigiria ~{{ t_hour[0]["posts por grupo"] | num }} posts por grupo: use como desempate de agenda e acompanhe no histórico.{% endif %}{% endif %}</p>
+          {{ time_note() }}
           <a href="/descobertas#horario">Ver gráfico por plataforma →</a></div></details>
       </article>
     </div>
@@ -103,7 +108,7 @@
       </article>
       <article class="qcard">
         <span class="q">Teste</span>
-        <ul><li>{{ hl_vals[0] | val | capitalize }} em {{ hl_vals[1] | val }} no {{ hl.plataforma }}</li><li>Posts de conversa de manhã no {{ hour.plataforma }}</li><li>Patrocínio sempre com grupo de comparação</li></ul>
+        <ul>{% for t in s.testes.itens %}<li>{{ t['hipótese'] | values | pt }} <span class="muted">({{ t['como tratar'] }})</span></li>{% endfor %}</ul>
       </article>
     </div>
   </section>

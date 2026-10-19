@@ -11,7 +11,8 @@ Método do `pockets-and-top1.md`, rodado **dentro** de cada plataforma (top 5% e
 - **10,0%** dos 451 posts chegam ao top 5% de likes do TikTok (**2,02x**). Nas metades: 2,23x e 1,83x.
 - q (TikTok) = 0,002 · **q global (14,7 mil testes) = 0,035**.
 - O efeito está na **cauda**: a média de likes quase não muda (1.516 vs. 1.510, +0,4%), mas a chance de bombar dobra.
-- **Ação:** priorizar beauty em espanhol no TikTok. A/B: mesmo conteúdo em espanhol × inglês.
+- **Ressalvas:** não aparece nas outras plataformas (beauty·espanhol: 4,5–5,5%) nem em views/shares do TikTok (4,7% / 4,4%); o desvio de likes no segmento é um pouco maior (42,6 vs. 38,9; Levene p = 0,045).
+- **Ação:** hipótese nº 1 da fila de testes (`strategy.test_queue`): A/B com o mesmo conteúdo em espanhol × inglês, ~1.430 posts por grupo. Não mudar o mix antes do resultado.
 
 ## Horário × comentários (top 1%) por plataforma
 | Plataforma | madrugada | manhã | tarde | noite | hora mediana top vs. resto | evidência |

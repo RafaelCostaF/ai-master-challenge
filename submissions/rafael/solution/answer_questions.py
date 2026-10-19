@@ -1,4 +1,4 @@
-"""CLI: answers the four Challenge 004 questions + the four strategy decisions and writes a Markdown report.
+"""CLI: answers the four Challenge 004 questions + the four strategy decisions + the test queue and writes a Markdown report.
 
 Usage (from submissions/rafael): .venv/bin/python solution/answer_questions.py [--out docs/respostas.md]
 """
@@ -17,7 +17,7 @@ def main() -> None:
     args = parser.parse_args()
 
     df = data.load_posts()
-    sections = [*questions.answer_all(df), *strategy.recommend_all(df)]
+    sections = [*questions.answer_all(df), *strategy.recommend_all(df), strategy.test_queue(df)]
     report = "# Respostas e estratégia — Challenge 004\n\n" + "\n\n---\n\n".join(s.to_markdown() for s in sections)
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
