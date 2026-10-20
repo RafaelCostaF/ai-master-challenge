@@ -117,18 +117,21 @@ Narrativa completa: [`process-log/README.md`](process-log/README.md) · conversa
 |---|---|
 | Claude Code (Opus) | Toda a execução: dados, estatística, modelos, site e documentação |
 | Sessões paralelas do Claude Code | Revisão independente dos achados e da entrega |
-| Outra IA (chat) | Plano de análise ([`knowledge/action-plan.md`](knowledge/action-plan.md)) |
-| Jupyter + pytest | Verificação: notebooks e 131 testes |
+| ChatGPT | Plano de análise de dados diferente do Claude, com o objetivo de tentar identificar lacunas na proposta de análise do Claude ([`knowledge/action-plan.md`](knowledge/action-plan.md)) |
+| Jupyter | Análise manual dos dados |
+| pytest | Testes automatizados para <preencher> |
+
 
 ### Workflow
 
-1. Regras em `instructions/` antes de qualquer código.
-2. EDA → as métricas são sorteadas.
-3. Análises gerais e por plataforma, sempre descontando o acaso.
-4. Modelos (14 abordagens), sempre comparados com um modelo de controle.
-5. Perguntas do desafio viraram funções: os textos se recalculam com novos dados.
-6. Site, com rodadas de simplificação.
-7. Duas revisões independentes → auditorias e correção de contradições.
+1. Criação das regras gerais em `instructions/` antes de qualquer código (instruções de código, como submeter, regras do repositório, valores importantes para a entrega, etc).
+2. EDA <preencha melhor>.
+3. Análises gerais e por plataforma. + processo de auditoria com sessão limpa, para validar as análises (agir como crítico para validar e também buscar novos insights)
+5. Adaptação das perguntas do desafio e transformação destas em funções: os textos se recalculam com novos dados. <explique brevemente o motivo pelo qual isso é necessário, vendendo o peixe>
+6. Criação do site
+7. Limpeza de conteúdo textual excessivo
+8. Melhorias em UI e UX para facilitar o uso pela equipe de marketing
+9. Duas revisões independentes → auditorias e correção de contradições.
 
 33 prompts ([`process-log/prompts.md`](process-log/prompts.md)), 3 sessões e 39 decisões registradas ([`DEVELOPMENT_PROCESS.md`](DEVELOPMENT_PROCESS.md)).
 
@@ -143,12 +146,12 @@ Narrativa completa: [`process-log/README.md`](process-log/README.md) · conversa
 
 ### O que eu adicionei que a IA sozinha não faria
 
-- Exigi entender os dados antes da estratégia: foi assim que descobri que a base é simulada.
+- Exigi entender os dados antes da estratégia: foi assim que descobri que a base é simulada. Execução de diversas sessões com abordagens diferentes e não contaminadas para a análise do dataset.
 - Levantei as hipóteses de negócio: análise por plataforma, "quem posta importa?", "o que se sabe antes de postar?".
-- Contestei a IA com um gráfico, o que mostrou a diferença entre quantidade e taxa.
+- Contestação constante das afirmações sobre os dados, muitas vezes sensacionalistas ou sem valor real para o negócio.
 - Pedi que as variações virassem insights com nível de evidência, o que gerou a fila de testes.
-- Usei revisores independentes, que pegaram os erros mais graves.
-- Defini o produto para leigos: resumo primeiro, detalhes sob demanda.
+- Usei revisores independentes (sempre com dupla checagem sobre os dados e as análises), que pegaram os erros mais graves.
+- Transformação das informações obtidas em formato executivo e simples para a equipe de marketing
 
 ---
 
