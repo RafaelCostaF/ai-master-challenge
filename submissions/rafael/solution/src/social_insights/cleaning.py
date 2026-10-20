@@ -55,3 +55,8 @@ def target_profile(df: pd.DataFrame, targets: list[str]) -> pd.DataFrame:
                    "p90": s.quantile(0.90), "p99": s.quantile(0.99), "desvio": s.std(),
                    "CV (desvio/média)": s.std() / s.mean(), "assimetria": stats.skew(s), "curtose": stats.kurtosis(s)}
     return pd.DataFrame(rows).T
+
+
+def survivorship_check(df: pd.DataFrame, metrics: tuple[str, ...] = ("views", "likes", "shares", "comments_count")) -> pd.DataFrame:
+    """Posts with zero in each outcome metric, and its range: a dataset without failures cannot show what fails."""
+    return pd.DataFrame({m: {"posts com zero": int((df[m] == 0).sum()), "mínimo": df[m].min(), "máximo": df[m].max()} for m in metrics}).T

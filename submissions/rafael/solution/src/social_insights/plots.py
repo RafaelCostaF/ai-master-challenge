@@ -36,3 +36,20 @@ def heatmap(ax, matrix: pd.DataFrame, title: str, cmap: str = "RdBu_r", vmin=Non
     ax.grid(False)
     ax.set_title(title)
     plt.colorbar(im, ax=ax, shrink=0.8)
+
+
+def tier_views_chart(table: pd.DataFrame) -> plt.Figure:
+    """Median views per creator tier on a zero-based axis: the flat line behind 'pay by result'."""
+    apply_style()
+    views = table["views (mediana)"]
+    fig, ax = plt.subplots(figsize=(6.4, 3.4))
+    ax.plot(range(len(views)), views.values, marker="o", color=BLUE, linewidth=2)
+    for i, v in enumerate(views.values):
+        ax.annotate(f"{v:,.0f}".replace(",", "."), (i, v), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=8, color=INK)
+    ax.set_xticks(range(len(views)), views.index, fontsize=8)
+    ax.set_ylim(0, views.max() * 1.25)
+    ax.yaxis.set_major_formatter(lambda v, _: f"{v:,.0f}".replace(",", "."))
+    ax.set_ylabel("views por post (mediana)")
+    ax.set_title("Views medianas por faixa de creator")
+    fig.tight_layout()
+    return fig

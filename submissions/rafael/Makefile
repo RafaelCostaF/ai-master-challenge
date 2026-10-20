@@ -20,7 +20,7 @@ test:                                    ## testes automatizados (efeitos planta
 	$(PY) -m pytest -q
 
 report:                                  ## regenera docs/respostas.md (4 perguntas + estratégia + fila de testes)
-	$(PY) solution/cli/answer_questions.py --out docs/respostas.md
+	$(PY) solution/cli/answer_questions.py --out docs/respostas.md --figures docs/figures
 
 notebooks:                               ## regenera e executa os 14 notebooks
 	for b in $(NOTEBOOK_BUILDERS); do \

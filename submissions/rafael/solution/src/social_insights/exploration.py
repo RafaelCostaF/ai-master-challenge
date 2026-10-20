@@ -74,3 +74,22 @@ def spurious_ratio_demo(df: pd.DataFrame, rng_seed: int = 0) -> pd.DataFrame:
         "likes EMBARALHADOS/seguidor × seguidores": [stats.spearmanr(random_metric / df["follower_count"], df["follower_count"])[0]],
         "likes × seguidores": [stats.spearmanr(df["likes"], df["follower_count"])[0]],
     }, index=["Spearman ρ"]).T
+
+
+def engagement_rate_by_tier(df: pd.DataFrame) -> pd.DataFrame:
+    """Median interactions per follower vs. per view, and median views, per creator tier.
+
+    Per follower, small creators look far better only because views are flat across tiers (shared-denominator artifact)."""
+    rates = df.assign(per_follower=df["interactions"] / df["follower_count"], per_view=df["interactions"] / df["views"])
+    return (rates.groupby("follower_tier", observed=True)
+            .agg(posts=("views", "size"), per_follower=("per_follower", "median"), per_view=("per_view", "median"),
+                 views=("views", "median"))
+            .rename(columns={"per_follower": "interações por seguidor (mediana)", "per_view": "interações por view (mediana)",
+                             "views": "views (mediana)"}))
+
+
+def engagement_by_quarter(df: pd.DataFrame, target: str = "eng_rate_views") -> tuple[pd.DataFrame, dict]:
+    """Mean engagement per calendar quarter, plus a Kruskal-Wallis test across quarters (seasonality check)."""
+    quarters = df.assign(trimestre=df["post_date"].dt.to_period("Q").astype(str))
+    table = quarters.groupby("trimestre")[target].agg(posts="size", engajamento="mean")
+    return table, kruskal_effect(quarters, "trimestre", target)

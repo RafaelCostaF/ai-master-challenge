@@ -12,7 +12,7 @@ from statsmodels.stats.multitest import multipletests
 from statsmodels.stats.power import NormalIndPower
 from statsmodels.stats.proportion import proportion_effectsize
 
-from . import audits, discovery, questions
+from . import audits, cleaning, discovery, exploration, questions
 from .data import PLATFORMS
 from .questions import ALPHA, ENGAGEMENT, REACH, Answer
 
@@ -347,8 +347,105 @@ def test_queue(df: pd.DataFrame, by_platform: pd.DataFrame | None = None) -> Rec
     decision = (f"Só {len(table)} hipóteses merecem teste; o resto das variações encontradas está no nível do acaso. "
                 "Nenhuma vira regra antes do teste: os números de posts mostram o custo de confirmar cada uma.")
     actions = [f"{r['hipótese']}: {r['como tratar']}; {r['posts por grupo']:,} posts por grupo." for _, r in table.iterrows()]
-    return Recommendation("5. Fila de testes", decision, table, {}, actions)
+    brief = test_brief(df, best, rest_rate, target, int(table.iloc[0]["posts por grupo"]))
+    return Recommendation("5. Fila de testes", decision, table, {"Brief do teste 1": brief}, actions)
+
+
+WINDOW_SUFFIX = " (janela)"
+
+
+def pocket_mask(df: pd.DataFrame, pocket: pd.Series) -> pd.Series:
+    """Posts of a categorical pocket found by discovery.scan_by_platform (e.g. TikTok · beauty · Spanish)."""
+    mask = df["platform"] == pocket["plataforma"]
+    for column, value in zip(pocket["dimensão"].split(" × "), pocket["bolsão"].split(" · ")):
+        if column.endswith(WINDOW_SUFFIX):  # numeric window, e.g. "hour (janela)" = "6–9"
+            low, high = (float(v.replace(",", "")) for v in value.split("–"))
+            mask &= df[column.removesuffix(WINDOW_SUFFIX)].between(low, high)
+        else:
+            mask &= df[column].astype(str) == value
+    return mask
+
+
+def _dominant(values: pd.Series) -> tuple[str, float]:
+    shares = values.value_counts(normalize=True)
+    return shares.index[0], shares.iloc[0]
+
+
+def test_brief(df: pd.DataFrame, pocket: pd.Series, control_rate: float, target_rate: float, posts_per_group: int) -> pd.DataFrame:
+    """Everything a team needs to run the pocket test: groups, format, creator tier, audience, time, length and success rule."""
+    segment = df[pocket_mask(df, pocket)]
+    platform, metric = pocket["plataforma"], pocket["alvo"]
+    dims = dict(zip(pocket["dimensão"].split(" × "), pocket["bolsão"].split(" · ")))
+    language = dims.get("language")
+    on_platform = df[df["platform"] == platform]
+    control = on_platform.loc[on_platform["language"] != language, "language"].mode()[0] if language else None
+    fmt = segment["content_type"].mode()[0]
+    cpm = implied_costs(df).groupby("follower_tier", observed=True)["cpm"].median()
+    hour = discovery.daypart_top_rate(on_platform, metric, q=discovery.TOP_Q).loc[platform, "q (hora)"]
+    length_matters = bool(audits.length_by_format(df).evidence["significativo"].any())
+    unit = audits.LENGTH_UNIT.get(fmt, "")
+    rows = {
+        "Grupos": f"{pocket['bolsão']} no {platform} (teste) × o mesmo conteúdo em {control} (controle)" if control else pocket["bolsão"],
+        "Formato": f"{fmt} ({_dominant(segment['content_type'])[1]:.0%} do segmento); o mesmo nos dois grupos",
+        "Faixa de creator": f"{cpm.idxmin()} (menor custo por mil views); a mesma nos dois grupos",
+        "Público-alvo": "{} ({:.0%} do segmento) e {} anos ({:.0%}): os mais frequentes".format(*_dominant(segment["audience_location"]),
+                                                                                         *_dominant(segment["audience_age_distribution"])),
+        "Horário": (f"sem evidência de horário para {metric} no {platform} (q = {hour:.2f}): distribuir os horários igualmente entre os grupos"
+                    if hour >= ALPHA else f"horário com efeito no {platform} (q = {hour:.2f}): fixar o mesmo horário nos dois grupos"),
+        "Duração": (f"~{segment.loc[segment['content_type'] == fmt, 'content_length'].median():.0f} {unit} (mediana do segmento); "
+                    + ("a duração mudou o resultado: manter igual nos grupos" if length_matters else "a duração não mudou o resultado em nenhum formato")),
+        "Critério de sucesso": (f"taxa de top 5% em {metric} ≥ {target_rate:.1%} no grupo {language or 'teste'} (resto do {platform}: {control_rate:.1%}), "
+                                f"p < {ALPHA}, com {posts_per_group:,} posts por grupo (poder de {POWER:.0%})"),
+    }
+    return pd.DataFrame({"campo": rows.keys(), "valor": rows.values()}).set_index("campo")
+
+
+# Claims a generic LLM analysis would make from these beliefs (questions.what_does_not_work).
+AI_CLAIMS = {
+    "Mais seguidores → mais alcance": "Creators maiores entregam mais alcance: priorize macro e mega.",
+    "Vídeo engaja mais que imagem/texto": "Vídeo é o formato que mais engaja: migre o mix para vídeo.",
+    "Postar à noite (18–24h) dá mais alcance": "Publique à noite (18–24h), quando o alcance é maior.",
+}
+
+
+def claims_vs_data(df: pd.DataFrame, queue: Recommendation | None = None) -> pd.DataFrame:
+    """'What an AI would say × what the data shows': the biggest raw segment, common beliefs and the one pocket that survived."""
+    segments = questions.what_drives_engagement(df).details["Segmentos com maior índice (aparente)"]
+    top = segments.iloc[0]
+    rows = [{"o que a IA diria": f"{top['segmento']} é o segmento que mais engaja: concentre o investimento nele.",
+             "o que os dados mostram": f"índice {top['índice']:.1f} (média = 100), n = {top['n']}, p = {top['p_value']:.2f}, q = {top['q_value']:.2f}",
+             "veredito": "maior diferença bruta entre centenas de segmentos; some após a correção" if not top["significativo"] else "se sustenta"}]
+    beliefs = questions.what_does_not_work(df).evidence.set_index("crença de mercado")
+    for belief, claim in AI_CLAIMS.items():
+        b = beliefs.loc[belief]
+        effect = f"ρ = {b['efeito']:.3f}" if b["unidade"].startswith("ρ") else f"{b['efeito']:+.2f}%"
+        rows.append({"o que a IA diria": claim, "o que os dados mostram": f"{effect} ({b['métrica']}), q = {b['q_value']:.2f}",
+                     "veredito": "não se sustenta" if b["se sustenta?"] == "não" else "se sustenta"})
+    queue = queue or test_queue(df)
+    pocket = queue.evidence.iloc[0]
+    rows.append({"o que a IA diria": f"{pocket['hipótese']}.", "o que os dados mostram": pocket["evidência"],
+                 "veredito": f"único que passou no filtro: vai para {pocket['como tratar']} com {pocket['posts por grupo']:,} posts por grupo"})
+    return pd.DataFrame(rows)
 
 
 def recommend_all(df: pd.DataFrame) -> list[Recommendation]:
     return [where_to_focus(df), sponsorship_policy(df), stop_doing(df), quick_wins(df)]
+
+
+def deliverable_evidence(df: pd.DataFrame, queue: Recommendation | None = None) -> Answer:
+    """The proofs the executive summary relies on: rate per follower vs. per view, survivorship, stability over time, AI claims vs. data."""
+    tiers = exploration.engagement_rate_by_tier(df)
+    per_follower, per_view = tiers["interações por seguidor (mediana)"], tiers["interações por view (mediana)"]
+    zeros = cleaning.survivorship_check(df)
+    quarters, seasonality = exploration.engagement_by_quarter(df)
+    verdict = (f"Medida por seguidor, o {tiers.index[0]} parece ~{per_follower.iloc[0] / per_follower.iloc[-1]:.0f}x melhor que o "
+               f"{tiers.index[-1]} ({per_follower.iloc[0]:.3f} × {per_follower.iloc[-1]:.4f}). É efeito da conta: por view, todas as faixas "
+               f"ficam em ~{per_view.median():.3f}, com ~{tiers['views (mediana)'].median():,.0f} views medianas. "
+               f"{int(zeros['posts com zero'].sum())} posts com zero em views, likes, compartilhamentos "
+               f"ou comentários (mínimo de {zeros.loc['likes', 'mínimo']:,} likes; views de {zeros.loc['views', 'mínimo']:,} a "
+               f"{zeros.loc['views', 'máximo']:,}): a base não tem posts que fracassaram. Engajamento médio entre "
+               f"{quarters['engajamento'].min():.4f} e {quarters['engajamento'].max():.4f} nos {len(quarters)} trimestres "
+               f"({quarters.index[0]} a {quarters.index[-1]}; p = {seasonality['p_value']:.2f}): estável, sem sazonalidade.")
+    return Answer("6. Provas do resumo executivo", verdict, claims_vs_data(df, queue),
+                  {"Engajamento por seguidor × por view, por faixa de creator": tiers, "Posts sem resultado (survivorship)": zeros,
+                   "Engajamento por trimestre": quarters})

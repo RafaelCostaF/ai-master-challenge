@@ -347,7 +347,62 @@
 |   2 | horário    | YouTube: posts até 12h entram mais no top 1% de comentários   | 1.45% vs. 0.85%; hora típica do top 9h vs. 12h (q = 0.02)                                                                                                           |             17049 | acompanhar no histórico (A/B exigiria posts demais) |
 |   3 | patrocínio | Patrocínio aumenta o engajamento em pelo menos 5%             | nenhum efeito neste histórico; aqui as métricas variam só ~1% entre posts, por isso bastam poucos posts (mínimo prático); com os dados da empresa a conta é refeita |                30 | teste A/B                                           |
 
+### Brief do teste 1
+| campo               | valor                                                                                                                       |
+|:--------------------|:----------------------------------------------------------------------------------------------------------------------------|
+| Grupos              | beauty · Spanish no TikTok (teste) × o mesmo conteúdo em English (controle)                                                 |
+| Formato             | video (61% do segmento); o mesmo nos dois grupos                                                                            |
+| Faixa de creator    | nano (<10K) (menor custo por mil views); a mesma nos dois grupos                                                            |
+| Público-alvo        | Japan (15% do segmento) e 19-25 anos (36%): os mais frequentes                                                              |
+| Horário             | sem evidência de horário para likes no TikTok (q = 0.97): distribuir os horários igualmente entre os grupos                 |
+| Duração             | ~172 segundos (mediana do segmento); a duração não mudou o resultado em nenhum formato                                      |
+| Critério de sucesso | taxa de top 5% em likes ≥ 7.5% no grupo Spanish (resto do TikTok: 4.9%), p < 0.05, com 1,430 posts por grupo (poder de 80%) |
+
 **Ações:**
 1. TikTok · beauty · Spanish aumenta a chance de top 5% em likes: teste A/B; 1,430 posts por grupo.
 2. YouTube: posts até 12h entram mais no top 1% de comentários: acompanhar no histórico (A/B exigiria posts demais); 17,049 posts por grupo.
 3. Patrocínio aumenta o engajamento em pelo menos 5%: teste A/B; 30 posts por grupo.
+
+---
+
+## 6. Provas do resumo executivo
+
+**Resposta:** Medida por seguidor, o nano (<10K) parece ~138x melhor que o mega (500K+) (0.368 × 0.0027). É efeito da conta: por view, todas as faixas ficam em ~0.199, com ~10,100 views medianas. 0 posts com zero em views, likes, compartilhamentos ou comentários (mínimo de 1,354 likes; views de 9,676 a 10,551): a base não tem posts que fracassaram. Engajamento médio entre 0.1990 e 0.1991 nos 9 trimestres (2023Q2 a 2025Q2; p = 0.99): estável, sem sazonalidade.
+
+|    | o que a IA diria                                                                                           | o que os dados mostram                                                  | veredito                                                                 |
+|---:|:-----------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------|:-------------------------------------------------------------------------|
+|  0 | Bilibili · video · lifestyle · micro (10–50K) é o segmento que mais engaja: concentre o investimento nele. | índice 100.5 (média = 100), n = 109, p = 0.02, q = 0.88                 | maior diferença bruta entre centenas de segmentos; some após a correção  |
+|  1 | Creators maiores entregam mais alcance: priorize macro e mega.                                             | ρ = 0.005 (views), q = 0.53                                             | não se sustenta                                                          |
+|  2 | Vídeo é o formato que mais engaja: migre o mix para vídeo.                                                 | -0.03% (eng_rate_views), q = 0.53                                       | não se sustenta                                                          |
+|  3 | Publique à noite (18–24h), quando o alcance é maior.                                                       | -0.01% (views), q = 0.53                                                | não se sustenta                                                          |
+|  4 | TikTok · beauty · Spanish aumenta a chance de top 5% em likes.                                             | 10.0% vs. 4.9% (2.0x), nos 2 anos; q global = 0.035 entre 14,763 testes | único que passou no filtro: vai para teste A/B com 1,430 posts por grupo |
+
+### Engajamento por seguidor × por view, por faixa de creator
+| follower_tier    |        posts |   interações por seguidor (mediana) |   interações por view (mediana) |   views (mediana) |
+|:-----------------|-------------:|------------------------------------:|--------------------------------:|------------------:|
+| nano (<10K)      |  454         |                            0.3683   |                          0.1988 |         1.009e+04 |
+| micro (10–50K)   | 2110         |                            0.06649  |                          0.199  |         1.01e+04  |
+| mid (50–100K)    | 2596         |                            0.02661  |                          0.1991 |         1.01e+04  |
+| macro (100–500K) |    2.102e+04 |                            0.006698 |                          0.199  |         1.01e+04  |
+| mega (500K+)     |    2.603e+04 |                            0.002676 |                          0.1989 |         1.01e+04  |
+
+### Posts sem resultado (survivorship)
+|                |   posts com zero |   mínimo |   máximo |
+|:---------------|-----------------:|---------:|---------:|
+| views          |                0 |     9676 |    10551 |
+| likes          |                0 |     1354 |     1668 |
+| shares         |                0 |      227 |      380 |
+| comments_count |                0 |      140 |      258 |
+
+### Engajamento por trimestre
+| trimestre   |   posts |   engajamento |
+|:------------|--------:|--------------:|
+| 2023Q2      |    2429 |        0.199  |
+| 2023Q3      |    6546 |        0.1991 |
+| 2023Q4      |    6531 |        0.1991 |
+| 2024Q1      |    6501 |        0.1991 |
+| 2024Q2      |    6481 |        0.199  |
+| 2024Q3      |    6715 |        0.1991 |
+| 2024Q4      |    6591 |        0.1991 |
+| 2025Q1      |    6273 |        0.199  |
+| 2025Q2      |    4147 |        0.1991 |
