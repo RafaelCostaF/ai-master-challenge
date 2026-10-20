@@ -165,6 +165,15 @@ O processo ficou registrado em **33 prompts**, **3 sessões principais** e **39 
 - **Experiência de navegação pouco eficiente.** Ao testar o site como usuário final, percebi que informações importantes estavam distribuídas em páginas extensas e exigiam navegação e rolagem excessivas. Reorganizei a aplicação para mostrar primeiro as principais respostas e recomendações, deixando detalhes e evidências disponíveis sob demanda.
 
 - **Painel de BI e nomenclatura pouco claros.** Durante o uso da aplicação, notei que o painel ainda exigia esforço desnecessário para explorar os dados e que nomes como “Prever um post” não representavam bem a funcionalidade. Simplifiquei os controles, reorganizei a exploração visual e renomeei a função para **“Simular post”**, deixando mais claro o que o usuário pode fazer.
+
+### O que eu adicionei que a IA sozinha não faria
+
+- **Mudei a pergunta quando os dados não sustentavam a hipótese original.** Em vez de forçar insights, passei a testar o que era sinal, ruído ou hipótese.
+- **Questionei resultados “bons demais”.** Exigi efeito real, replicação e utilidade de negócio antes de transformar qualquer padrão em recomendação.
+- **Separei quem produz de quem revisa.** Usei sessões independentes para reduzir viés de confirmação e procurar falhas nas conclusões.
+- **Conectei análise com decisão.** Transformei achados técnicos em ações para marketing, descartando métricas e visualizações sem valor operacional.
+- **Reduzi complexidade na entrega.** Reestruturei o site até que respostas, recomendações e próximos passos aparecessem de forma clara e útil para a equipe de marketing.
+
 ### Minha contribuição no processo
 
 Minha principal contribuição foi controlar o processo estratégico e de decisão.
