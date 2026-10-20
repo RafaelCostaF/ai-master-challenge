@@ -36,18 +36,38 @@ Estruturei o projeto em etapas, organizando o repositório, preparando o dataset
 
 ### Resultados / Findings
 
-| Pergunta | Resposta | Evidência |
-|---|---|---|
-| O que gera engajamento? | Nenhum fator testado | 450 combinações (até plataforma × formato × tema × porte): 22 com p < 0,05, o esperado por acaso; 0 após correção |
-| Patrocínio funciona? | Não para desempenho; depende do custo por resultado | +0,008% de engajamento e +0,004% de views em 269 estratos comparáveis; 0 de 17 condições com efeito |
-| Que público engaja mais? | Nenhum | 36 contextos (plataforma, formato, tema) × gênero, idade e país: 0 efeitos |
-| O que não funciona? | 11 de 11 crenças de mercado | ex.: seguidores × views ρ = 0,005; vídeo vs. imagem/texto −0,03% |
-| Modelos de previsão | Nenhum bate a média, e a ferramenta avisa | 14 abordagens de engajamento, previsão de views com validação temporal, chance de top 5% (0 de 12 combinações adotadas); com efeito plantado, o mesmo protocolo adota o modelo certo |
-| Quem posta importa? | Não: o desempenho passado não se repete além do acaso | 8,8% dos top 10% do 1º ano continuam no top no 2º (acaso: 10%) |
-| Único padrão robusto | TikTok · beauty · espanhol: 2x mais chance de top 5% em likes | 10,0% vs. 4,9%, nos dois anos; q global = 0,035 entre ~14,7 mil testes. Vai para teste, não para regra |
-| Auditorias de carteira | Lacunas que valem mesmo sem efeito no engajamento | 47% dos patrocínios com disclosure implícito; só 2,3% com #ad no texto; 60% fora do nicho do creator; só 22% dos posts no idioma do mercado |
+**O que construí.** Uma ferramenta que o time usa sem analista e que se recalcula com os dados reais da empresa (`social-web --rebuild`):
 
-**O que a IA diria × o que os dados mostram** (gerado por `strategy.claims_vs_data`):
+<p>
+<img src="docs/screenshots/inicio.png" width="32%" alt="Resumo: as 4 respostas, os destaques e o que fazer agora">
+<img src="docs/screenshots/explorar.png" width="32%" alt="Explorar dados: painel com filtros e selo de diferença real">
+<img src="docs/screenshots/simular.png" width="32%" alt="Simular post: chance de top 5% antes de publicar e sugestão de melhoria">
+</p>
+
+| Entrega | Valor para o time | Onde |
+|---|---|---|
+| **Resumo** | As 4 respostas, os 2 destaques e o que começar, parar e testar, em uma tela | `/` |
+| **Explorar dados** | Painel com filtros que marca só as diferenças reais (corrigidas para muitos testes), para ninguém decidir com base em ruído | `/explorar` |
+| **Simular post** | Chance de top 5% antes de publicar e uma versão próxima mais forte, com selo de evidência | `/simular` |
+| **Auditorias e estratégia** | Riscos de carteira (disclosure, nicho, idioma), sensibilidade do teto de seguidores e fila de testes com o nº de posts por grupo | `/auditorias`, `/estrategia` |
+| **Reprodutibilidade** | Docker que falha se qualquer número divergir da referência; 131 testes com efeitos plantados | [Como rodar](#como-rodar) |
+
+**O que encontrei** (52.214 posts, 5 plataformas, mai/2023 → mai/2025):
+
+| Pergunta | Resposta | Número-chave |
+|---|---|---|
+| O que gera engajamento? | Nenhum fator que o time controla | 450 combinações testadas: 22 com p < 0,05 (o esperado por acaso), 0 após correção; maior diferença 0,07% |
+| Patrocínio funciona? | Não para desempenho: a decisão é de preço | +0,008% de engajamento em 269 estratos comparáveis (p = 0,72); mega custa **~134x mais por mil views** que nano com cachê por seguidor |
+| Que público engaja mais? | Nenhum | 36 contextos × gênero, idade e país: 0 efeitos |
+| O que não funciona? | 11 de 11 crenças de mercado | seguidores × views ρ = 0,005; vídeo vs. outros −0,03% |
+| Vale pagar por "creator campeão"? | Não | 8,8% dos top 10% do 1º ano continuam no top no 2º (acaso: 10%) |
+| Algum padrão real? | Um: TikTok · beauty · espanhol | 10,0% vs. 4,9% de chance de top 5% em likes, nos 2 anos; q = 0,035 entre ~14,7 mil testes → teste A/B com 1.430 posts por grupo |
+| Riscos de carteira | Valem mesmo sem efeito no engajamento | 47% dos patrocínios com disclosure implícito (só 2,3% com #ad no texto); 60% fora do nicho do creator; só 22% dos posts no idioma do mercado |
+
+"Não faz diferença" é resultado, não falta de dados: os testes enxergam efeitos a partir de 0,3%, e efeitos de 2–5% plantados na base são encontrados.
+
+<details>
+<summary><b>O que uma IA diria × o que os dados mostram</b> (gerado por <code>strategy.claims_vs_data</code>)</summary>
 
 | "Insight" típico | O que os dados mostram | Veredito |
 |---|---|---|
@@ -56,6 +76,8 @@ Estruturei o projeto em etapas, organizando o repositório, preparando o dataset
 | "Vídeo é o formato que mais engaja: migre o mix para vídeo." | −0,03% de engajamento (q = 0,53) | não se sustenta |
 | "Publique à noite (18–24h), quando o alcance é maior." | −0,01% de views (q = 0,53) | não se sustenta |
 | TikTok · beauty · espanhol: mais posts no top 5% de likes | 10,0% vs. 4,9% (2,0x), nos 2 anos; q global = 0,035 entre 14.763 testes | **único que passou no filtro:** vai para teste A/B |
+
+</details>
 
 Detalhe completo, gerado por código: [`docs/respostas.md`](docs/respostas.md) · achados por tema: [`knowledge/`](knowledge/) · 14 notebooks executados: [`solution/notebooks/`](solution/notebooks/).
 
@@ -152,7 +174,7 @@ Narrativa completa, tabela de erros da IA e evidências: [`process-log/README.md
 | Claude Code (Opus) | Execução de ponta a ponta: dados, EDA, estatística, modelos, pacote + testes, site, documentação |
 | Sessões paralelas do Claude Code | Checagem independente: descrição do dataset × conclusões; revisão crítica × requisitos |
 | Outra IA (chat) | Plano de ação de análise ([`knowledge/action-plan.md`](knowledge/action-plan.md)), executado e criticado |
-| Jupyter + pytest | Verificação: notebooks executados e 116 testes |
+| Jupyter + pytest | Verificação: notebooks executados e 131 testes |
 
 ### Workflow
 

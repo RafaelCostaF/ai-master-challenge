@@ -9,7 +9,7 @@ Período: 18/10/2026 17:45 → 19/10/2026 · 33 prompts com conteúdo ([`prompts
 | **Claude Code** (Opus, terminal) | Toda a execução: download do dataset, EDA, testes estatísticos, modelos, pacote Python + testes, site FastAPI, documentação |
 | Sessões paralelas do Claude Code | Checagem independente: (1) conferir a descrição oficial do Kaggle contra os dados e as conclusões; (2) revisão crítica da entrega contra os requisitos do desafio |
 | Outra IA (chat) | Montar um plano de ação de análise ([`knowledge/action-plan.md`](../knowledge/action-plan.md)) quando a primeira rodada não trouxe resultado |
-| Jupyter + pytest | Verificação: 14 notebooks executados e 116 testes com efeitos plantados |
+| Jupyter + pytest | Verificação: 14 notebooks executados e 131 testes com efeitos plantados |
 
 ## Como decompus o problema antes de pedir código
 
