@@ -19,7 +19,7 @@ def payload() -> dict:
 
 
 def test_payload_has_every_section(payload):
-    assert {"meta", "dados", "respostas", "estrategia", "insights", "modelos", "duracao", "simulador", "kpis"} <= set(payload)
+    assert {"meta", "dados", "respostas", "estrategia", "insights", "modelos", "duracao", "simulador", "kpis", "provas"} <= set(payload)
     assert {"q1", "q2", "q3", "q4"} <= set(payload["respostas"]) and len(payload["kpis"]) == 4
     assert len(payload["estrategia"]["recomendacoes"]) == 4
 
@@ -59,3 +59,10 @@ def test_audits_section(payload):
     assert all(c["manchete"] and c["veredito"] and c["numero"] is not None for c in a["cartoes"])
     assert a["risco_mercado"] and a["mercado"] and a["poder"]["pontos"] and a["nota_duracao"]
     assert {"anuncio", "encaixe", "idiomas", "bloqueios", "unidades"} <= set(a["regras"])
+
+
+def test_evidence_section_and_test_brief(payload):
+    proofs = payload["provas"]
+    assert len(proofs["por_porte"]) == 5 and proofs["razao_por_seguidor"] > 1 and proofs["posts_com_zero"] == 0
+    assert proofs["trimestres"]["n"] >= 1 and proofs["trimestres"]["min"] <= proofs["trimestres"]["max"]
+    assert [b["campo"] for b in payload["estrategia"]["testes"]["brief"]][-1] == "Critério de sucesso"

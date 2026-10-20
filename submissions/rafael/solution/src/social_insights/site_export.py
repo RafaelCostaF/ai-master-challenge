@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 from statsmodels.stats.multitest import multipletests
 
-from . import (attribute_scan, audits, creators, discovery, engagement_model, focus, hit_probability, questions, strategy, validation,
-               views_forecast)
+from . import (attribute_scan, audits, cleaning, creators, discovery, engagement_model, exploration, focus, hit_probability, questions,
+               strategy, validation, views_forecast)
 from .data import FOLLOWER_TIERS, LENGTH_BINS, METRICS, PLATFORMS
 
 TARGETS = ["views", "likes", "comments_count"]
@@ -110,9 +110,23 @@ def strategy_section(df: pd.DataFrame, by_platform: pd.DataFrame) -> dict:
     return {"recomendacoes": [{"pergunta": r.question, "decisao": r.verdict, "acoes": r.actions} for r in recs],
             "quick_wins": records(recs[3].evidence), "break_even": records(be["grade"].rename_axis("seguidores"), index=True),
             "sensibilidade": records(strategy.threshold_sensitivity(df), index=True),
-            "testes": {"decisao": tests.verdict, "itens": records(tests.evidence)},
+            "testes": {"decisao": tests.verdict, "itens": records(tests.evidence), "brief": records(tests.details["Brief do teste 1"], index=True)},
             "threshold": be["threshold"], "premissas": {"custo_por_seguidor": strategy.COST_PER_FOLLOWER, "cpm_alvo": strategy.TARGET_CPM,
                                                          "cpe_alvo": strategy.TARGET_CPE, "custo_producao": strategy.PRODUCTION_COST}}
+
+
+def evidence_section(df: pd.DataFrame) -> dict:
+    """Proofs shown next to the headline claims: rate per follower vs. per view, survivorship and quarterly stability."""
+    tiers = exploration.engagement_rate_by_tier(df)
+    per_follower = tiers["interações por seguidor (mediana)"]
+    zeros = cleaning.survivorship_check(df)
+    quarters, seasonality = exploration.engagement_by_quarter(df)
+    return {"por_porte": records(tiers.rename_axis("porte"), index=True), "razao_por_seguidor": per_follower.iloc[0] / per_follower.iloc[-1],
+            "por_view": tiers["interações por view (mediana)"].median(), "views": tiers["views (mediana)"].median(),
+            "posts_com_zero": int(zeros["posts com zero"].sum()), "min_likes": zeros.loc["likes", "mínimo"],
+            "views_min": zeros.loc["views", "mínimo"], "views_max": zeros.loc["views", "máximo"],
+            "trimestres": {"n": len(quarters), "inicio": quarters.index[0], "fim": quarters.index[-1], "min": quarters["engajamento"].min(),
+                           "max": quarters["engajamento"].max(), "p": seasonality["p_value"]}}
 
 
 def _pocket_conditions(dimension: str, value: str) -> dict:
@@ -305,7 +319,7 @@ def build_payload(df: pd.DataFrame, light: bool = False, hit_predictor: hit_prob
     by_platform = platform_pockets(df)
     payload = {"meta": meta(df), "dados": data_quality(df), "respostas": answers(df), "estrategia": strategy_section(df, by_platform),
                "insights": insights(df, by_platform), "modelos": models(df, views_eval, light), "duracao": video_length(df), "criadores": creators_section(df),
-               "auditorias": audits_section(df),
+               "auditorias": audits_section(df), "provas": evidence_section(df),
                "simulador": simulator(df, hit_predictor, views_fc)}
     payload["kpis"] = headline_kpis(payload)
     return _clean(payload)

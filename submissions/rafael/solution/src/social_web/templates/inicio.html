@@ -14,6 +14,7 @@
 {% set q3max = r.q3.efeitos | map(attribute='diferença melhor−pior (%)') | max %}
 {% set myths = r.q4.crencas | selectattr('se sustenta?', 'equalto', 'não') | list %}
 {% set s = d.estrategia %}
+{% set pv = d.provas %}
 {% set t_pocket = s.testes.itens | selectattr('tipo', 'equalto', 'bolsão') | first %}
 {% set t_hour = s.testes.itens | selectattr('tipo', 'equalto', 'horário') | list %}
 {% block body %}
@@ -23,7 +24,9 @@
     <h1>Nesta base, tema, formato e tamanho do creator não mostraram efeito no resultado. <em>O que varia é o custo.</em></h1>
     <p class="lede">O que {{ d.meta.posts | num }} posts publicados entre {{ d.meta.inicio[:7] }} e {{ d.meta.fim[:7] }} dizem sobre onde investir, o que parar e o que testar.</p>
     <details class="more data-note"><summary>Sobre os dados</summary><div class="more-body">
-      <p>Os dados do desafio são simulados: os números de cada post foram gerados quase ao acaso. Por isso a maioria das respostas é "não faz diferença". Os métodos usados encontram diferenças reais quando elas existem (testamos isso de propósito). Com os dados da empresa, o site é recalculado e mostra o que os dados da empresa indicam.</p></div></details>
+      <p>Os dados do desafio são simulados: os números de cada post foram gerados quase ao acaso. Por isso a maioria das respostas é "não faz diferença". Os métodos usados encontram diferenças reais quando elas existem (testamos isso de propósito). Com os dados da empresa, o site é recalculado e mostra o que os dados da empresa indicam.</p>
+      <p>{% if pv.posts_com_zero == 0 %}Nenhum post tem zero views, likes, compartilhamentos ou comentários (mínimo de {{ pv.min_likes | num }} likes; views de {{ pv.views_min | num }} a {{ pv.views_max | num }}): a base não mostra posts que fracassaram.{% else %}{{ pv.posts_com_zero | num }} registros com zero em alguma métrica.{% endif %}
+        O engajamento médio ficou entre {{ (pv.trimestres.min * 100) | num(2) }}% e {{ (pv.trimestres.max * 100) | num(2) }}% nos {{ pv.trimestres.n }} trimestres ({{ pv.trimestres.inicio }} a {{ pv.trimestres.fim }}){% if pv.trimestres.p >= 0.05 %}, sem sazonalidade{% endif %}.</p></div></details>
   </div>
 </div>
 <main class="wrap compact">
@@ -46,6 +49,7 @@
         <div class="kpi-line"><b>{{ (cpm_max / cpm_min) | round | int }}x</b><span>mais caro por mil views no creator grande do que no pequeno, se o cachê acompanha os seguidores</span></div>
         <details class="more"><summary>Ver detalhes</summary><div class="more-body">
           <p>Comparando posts parecidos, o patrocinado tem {{ eng['diferença (%)'] | num(2) }}% de diferença no engajamento, uma diferença desprezível. Como as views não crescem com os seguidores, mil views custam US$ {{ cpm_min | num(2) }} com creators pequenos e US$ {{ cpm_max | num(0) }} com os grandes (premissa: US$ {{ (s.premissas.custo_por_seguidor * 1000) | num }} por mil seguidores).</p>
+          <p>Medida por seguidor, o creator nano parece ~{{ pv.razao_por_seguidor | round | int }}x melhor que o mega. É efeito da conta: as views são iguais em todos os portes (~{{ pv.views | num }} por post).</p>
           <p><b>Na prática:</b> pague por resultado (views ou interações), não por post. Essa proporção vale para qualquer preço por seguidor. Se o preço for fixo, o limite com as premissas atuais é de ~{{ s.threshold | num }} seguidores, e ele muda com o cachê real.</p>
           <a href="/perguntas#patrocinio">Ver custo por tamanho de creator →</a></div></details>
       </article>
@@ -109,6 +113,7 @@
       <article class="qcard">
         <span class="q">Teste</span>
         <ul>{% for t in s.testes.itens %}<li>{{ t['hipótese'] | values | pt }} <span class="muted">({{ t['como tratar'] }})</span></li>{% endfor %}</ul>
+        <a href="/estrategia#testes">Brief do teste 1 →</a>
       </article>
     </div>
   </section>

@@ -32,6 +32,11 @@
       {% for t in s.testes.itens %}<tr><td class="n">{{ loop.index }}</td><td>{{ t['hipótese'] | values | pt }}</td><td>{{ t['evidência'] | pt }}</td><td class="n">{{ t['posts por grupo'] | num }}</td><td>{{ t['como tratar'] }}</td></tr>{% endfor %}
     </tbody></table></div>
     <p class="caption">Posts por grupo: o necessário para confirmar ao menos metade da diferença observada (80% de chance, 5% de erro). A diferença achada numa busca costuma ser maior que a real.</p>
+    <details class="more" id="brief"><summary>Brief do teste 1: como rodar</summary><div class="more-body">
+      <div class="table-wrap"><table><tbody>
+        {% for b in s.testes.brief %}<tr><th scope="row">{{ b.campo }}</th><td>{{ b.valor | values | pt }}</td></tr>{% endfor %}
+      </tbody></table></div>
+    </div></details>
   </section>
 
   <section>

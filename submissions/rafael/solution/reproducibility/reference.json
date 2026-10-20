@@ -1880,6 +1880,36 @@
     }
    ],
    "testes": {
+    "brief": [
+     {
+      "campo": "Grupos",
+      "valor": "beauty · Spanish no TikTok (teste) × o mesmo conteúdo em English (controle)"
+     },
+     {
+      "campo": "Formato",
+      "valor": "video (61% do segmento); o mesmo nos dois grupos"
+     },
+     {
+      "campo": "Faixa de creator",
+      "valor": "nano (<10K) (menor custo por mil views); a mesma nos dois grupos"
+     },
+     {
+      "campo": "Público-alvo",
+      "valor": "Japan (15% do segmento) e 19-25 anos (36%): os mais frequentes"
+     },
+     {
+      "campo": "Horário",
+      "valor": "sem evidência de horário para likes no TikTok (q = 0.97): distribuir os horários igualmente entre os grupos"
+     },
+     {
+      "campo": "Duração",
+      "valor": "~172 segundos (mediana do segmento); a duração não mudou o resultado em nenhum formato"
+     },
+     {
+      "campo": "Critério de sucesso",
+      "valor": "taxa de top 5% em likes ≥ 7.5% no grupo Spanish (resto do TikTok: 4.9%), p < 0.05, com 1,430 posts por grupo (poder de 80%)"
+     }
+    ],
     "decisao": "Só 3 hipóteses merecem teste; o resto das variações encontradas está no nível do acaso. Nenhuma vira regra antes do teste: os números de posts mostram o custo de confirmar cada uma.",
     "itens": [
      {
@@ -18343,7 +18373,7 @@
     "text",
     "video"
    ],
-   "gerado_em": "2026-10-19 20:29",
+   "gerado_em": "2026-10-19 21:23",
    "inicio": "2023-05-29",
    "plataformas": [
     "Instagram",
@@ -18879,6 +18909,60 @@
      "supera a média": false
     }
    ]
+  },
+  "provas": {
+   "min_likes": 1354,
+   "por_porte": [
+    {
+     "interações por seguidor (mediana)": 0.368268,
+     "interações por view (mediana)": 0.198765,
+     "porte": "nano (<10K)",
+     "posts": 454,
+     "views (mediana)": 10090.5
+    },
+    {
+     "interações por seguidor (mediana)": 0.066493,
+     "interações por view (mediana)": 0.199009,
+     "porte": "micro (10–50K)",
+     "posts": 2110,
+     "views (mediana)": 10100.0
+    },
+    {
+     "interações por seguidor (mediana)": 0.026611,
+     "interações por view (mediana)": 0.1991,
+     "porte": "mid (50–100K)",
+     "posts": 2596,
+     "views (mediana)": 10099.0
+    },
+    {
+     "interações por seguidor (mediana)": 0.006698,
+     "interações por view (mediana)": 0.19904,
+     "porte": "macro (100–500K)",
+     "posts": 21025,
+     "views (mediana)": 10100.0
+    },
+    {
+     "interações por seguidor (mediana)": 0.002676,
+     "interações por view (mediana)": 0.198936,
+     "porte": "mega (500K+)",
+     "posts": 26029,
+     "views (mediana)": 10101.0
+    }
+   ],
+   "por_view": 0.199009,
+   "posts_com_zero": 0,
+   "razao_por_seguidor": 137.598776,
+   "trimestres": {
+    "fim": "2025Q2",
+    "inicio": "2023Q2",
+    "max": 0.199094,
+    "min": 0.199013,
+    "n": 9,
+    "p": 0.990212
+   },
+   "views": 10100.0,
+   "views_max": 10551,
+   "views_min": 9676
   },
   "respostas": {
    "q1": {
