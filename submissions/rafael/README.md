@@ -151,12 +151,12 @@ O processo ficou registrado em **33 prompts**, **3 sessões principais** e **39 
 
 ### Onde a IA errou e como corrigi
 
-- **Encontrou clusters onde havia apenas ruído.** Substituí a métrica por uma comparação contra dados embaralhados.
-- **Apontou features “importantes” sem ganho real de generalização.** Passei a comparar importância e desempenho contra controles e validação.
-- **Tratou resultados com `p < 0,05` como insights isolados.** Tornei obrigatória a correção para múltiplas comparações.
-- **Interpretou disclosure como compliance sem verificar o conteúdo.** Criei uma auditoria específica para validar se o rótulo aparecia de fato no post.
-- **Misturou unidades em `content_length`.** Separei a análise por formato.
-- **Transformou sinais exploratórios em recomendações.** Reclassifiquei esses casos como hipóteses para teste ou conclusões dependentes de premissas.
+- **Apontou clusters que não existiam.** A estatística de Hopkins deu 0,88–0,94 ("há grupos"). *Como percebi:* o teste com efeito plantado mostrou que ela dá o mesmo valor em dados sem grupos. *Correção:* comparação com dados embaralhados.
+- **Ranking de SHAP lido como "fatores de engajamento"** (pedido no plano da outra IA). *Como percebi:* o R² caiu de 0,09 no treino para ~0 na validação, e o modelo com alvo embaralhado teve as mesmas importâncias. *Correção:* toda importância aparece ao lado desse controle.
+- **Disse que disclosure explícito era compliance sem risco.** *Como percebi:* pedi, numa sessão separada, que a descrição do Kaggle fosse confrontada com as conclusões. Os posts marcados "disclosure em hashtags" têm #ad só em 0,23% dos casos, quase o mesmo que os orgânicos (0,21%). *Correção:* auditoria de disclosure.
+- **Misturou segundos e palavras em `content_length`** ("conteúdo curto engaja mais"). *Como percebi:* na mesma sessão; a descrição diz que o campo é em segundos para vídeo e em palavras para texto. *Correção:* análise só por formato.
+- **Recomendou horários fixos ("10h", "YouTube antes do meio-dia").** *Como percebi:* na mesma sessão; `post_date` não tem fuso e o público está em 8 países. *Correção:* decidi assumir um relógio único e mostrar um aviso no site.
+- **Contradisse a própria tese.** Dizia que os dados eram ruído, mas mandava "priorizar beauty em espanhol no TikTok". Também apresentava o teto de 10.050 seguidores e "US$ 109 mi" como achados, quando saíam das premissas de custo. *Como percebi:* pedi uma revisão crítica contra os requisitos, também em sessão separada. *Correção:* esses casos viraram testes com tamanho de amostra ou cálculos dependentes de preço, com tabela de sensibilidade.
 
 ### Minha contribuição no processo
 
