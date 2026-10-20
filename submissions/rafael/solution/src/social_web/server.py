@@ -5,6 +5,7 @@ Run (from submissions/rafael): .venv/bin/social-web            → http://127.0.
 """
 import argparse
 import math
+from functools import lru_cache
 import re
 from pathlib import Path
 
@@ -13,17 +14,19 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from social_insights import audience_segments
 from social_insights.site_export import _clean
 
 from . import explore
-from .schemas import ExploreQuery, PostInput
+from .schemas import AudienceQuery, ExploreQuery, PostInput
 from .state import AppState, load_state
 
 HERE = Path(__file__).resolve().parent
 PAGES = {"/": ("inicio.html", "Resumo"), "/perguntas": ("perguntas.html", "As 4 perguntas"), "/estrategia": ("estrategia.html", "Estratégia"),
          "/descobertas": ("descobertas.html", "Descobertas"), "/explorar": ("explorar.html", "Explorar dados"),
-         "/simular": ("simular.html", "Simular post"), "/auditorias": ("auditorias.html", "Auditorias"), "/metodo": ("metodo.html", "Como chegamos lá")}
-MAIN_PAGES = ["/", "/explorar", "/simular"]
+         "/simular": ("simular.html", "Simular post"), "/audiencia": ("audiencia.html", "Agrupamento de audiência"),
+         "/auditorias": ("auditorias.html", "Auditorias"), "/metodo": ("metodo.html", "Como chegamos lá")}
+MAIN_PAGES = ["/", "/explorar", "/simular", "/audiencia"]
 DEEP_PAGES = ["/perguntas", "/estrategia", "/descobertas", "/auditorias", "/metodo"]
 TIME_NOTE = "Horários assumem um relógio único (a base não informa fuso horário)."
 LABELS = {"platform": "Plataforma", "content_type": "Formato", "content_category": "Tema", "language": "Idioma", "follower_tier": "Tamanho do creator",
@@ -115,6 +118,15 @@ def create_app(state: AppState) -> FastAPI:
         except ValueError as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
         return _clean(result)
+
+    @lru_cache(maxsize=256)
+    def audience(platform: str | None, content_type: str | None, content_category: str | None, k: int | None) -> dict:
+        filtros = {"platform": platform, "content_type": content_type, "content_category": content_category}
+        return _clean(audience_segments.segment(state.posts, filtros, k))
+
+    @app.post("/api/audience", tags=["audiência"])
+    def audience_segments_api(query: AudienceQuery) -> dict:
+        return audience(query.platform, query.content_type, query.content_category, query.k)
 
     @app.post("/api/predict", tags=["prever"])
     def predict(post: PostInput) -> dict:

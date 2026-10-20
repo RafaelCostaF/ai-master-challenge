@@ -54,7 +54,7 @@ def test_pocket_matching():
     assert not predict.pocket_matches({"plataforma": "YouTube", "condicoes": {"content_category": "beauty"}}, row)
 
 
-@pytest.mark.parametrize("path", ["/", "/perguntas", "/estrategia", "/descobertas", "/explorar", "/simular", "/auditorias", "/metodo"])
+@pytest.mark.parametrize("path", ["/", "/perguntas", "/estrategia", "/descobertas", "/explorar", "/simular", "/audiencia", "/auditorias", "/metodo"])
 def test_pages_render(client, path):
     res = client.get(path)
     assert res.status_code == 200 and "G4 Marketing" in res.text and "{{" not in res.text
@@ -151,3 +151,25 @@ def test_predict_flags_market_mismatch(client):
     assert off == {"mercado": "Russia", "idioma_ok": False, "plataforma_ok": False, "idiomas": ["Russian"]}
     ok = client.post("/api/predict", json={"platform": "TikTok", "language": "English", "audience_location": "USA"}).json()["mercado"]
     assert ok["idioma_ok"] and ok["plataforma_ok"]
+
+
+def test_audience_segments_api(client):
+    body = client.post("/api/audience", json={"content_type": "video"}).json()
+    assert body["filtros"] == {"content_type": "video"} and "erro" in body  # fixture has only 8 profiles: explain, don't cluster
+    assert client.post("/api/audience", json={"platform": "Orkut"}).status_code == 422
+    assert client.post("/api/audience", json={"k": 9}).status_code == 422
+
+
+def test_audience_segments_cluster_profiles():
+    from social_insights import audience_segments
+    rng = np.random.default_rng(0)
+    levels = {"audience_age_distribution": ["13-18", "19-25", "26-35"], "audience_gender_distribution": ["female", "male"],
+              "audience_location": ["USA", "Brazil", "India"], "platform": ["TikTok", "YouTube"], "content_type": ["video", "image"],
+              "content_category": ["beauty", "tech"], "language": ["English", "Spanish"]}
+    df = pd.DataFrame({c: rng.choice(v, 6000) for c, v in levels.items()}).assign(is_sponsored=rng.random(6000) < 0.4)
+    df.loc[df.audience_location == "Brazil", "language"] = "Spanish"  # planted: one country consumes a different language
+    r = audience_segments.segment(df, {"content_type": "video"}, 2)
+    assert r["k"] == 2 and r["perfis"] == 18 and sum(g["perfis"] for g in r["grupos"]) == len(r["mapa"]) == 18
+    assert all(c["campo"] != "content_type" for c in r["colunas"])  # filtered field is constant, so it is not clustered on
+    spanish = next(g for g in r["grupos"] if g["consumo"][0]["valor"] == "Spanish")
+    assert spanish["traco"]["valor"] == "Brazil" and spanish["perfis"] == 6

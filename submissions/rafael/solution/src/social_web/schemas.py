@@ -5,13 +5,14 @@ from pydantic import BaseModel, Field, model_validator
 
 Platform = Literal["Instagram", "TikTok", "YouTube", "Bilibili", "RedNote"]
 MediaType = Literal["video", "image", "text", "mixed"]
+Category = Literal["beauty", "lifestyle", "tech"]
 
 
 class PostInput(BaseModel):
     """A planned post, described only with what is known before publishing."""
     platform: Platform = "TikTok"
     content_type: MediaType = "video"
-    content_category: Literal["beauty", "lifestyle", "tech"] = "beauty"
+    content_category: Category = "beauty"
     language: Literal["English", "Spanish", "Chinese", "Hindi", "Japanese"] = "Spanish"
     is_sponsored: bool = False
     sponsor_category: str = "Not sponsors"
@@ -48,3 +49,11 @@ class ExploreQuery(BaseModel):
     de: str | None = None
     ate: str | None = None
     graficos: list[str] | None = None
+
+
+class AudienceQuery(BaseModel):
+    """Audience clustering: optional platform/format/theme filter and number of groups (None = automatic)."""
+    platform: Platform | None = None
+    content_type: MediaType | None = None
+    content_category: Category | None = None
+    k: int | None = Field(None, ge=2, le=6, description="nº de grupos; vazio = automático")
