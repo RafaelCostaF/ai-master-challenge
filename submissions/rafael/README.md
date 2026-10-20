@@ -151,15 +151,20 @@ O processo ficou registrado em **33 prompts**, **3 sessões principais** e **39 
 
 ### Onde a IA errou e como corrigi
 
-- **Conclusões que a descrição do dataset não sustentava.** *Como percebi:* abri uma sessão separada, passei a descrição oficial do Kaggle e pedi para checar resultados enganosos. *Correção:* mandei corrigir os textos errados: "disclosure explícito = compliance" virou exigência de #ad/#publi verificável no texto, e "conteúdo curto (<60) engaja mais" ganhou o aviso de que `content_length` mistura segundos e palavras.
-- **Horários tratados como se tivessem fuso.** *Como percebi:* na mesma checagem. *Correção:* decidi assumir a data como normalizada, sem converter fuso, e manter só um aviso no site.
-- **Entrega contraditória.** *Como percebi:* pedi, em outra sessão, uma crítica da entrega contra os requisitos. *Correção:* "corrija as contradições [...] porém verdadeiros, baseados nos dados".
-- **Site difícil de usar.** *Como percebi:* ao navegar, tudo exigia abrir página a página e rolar todo o conteúdo. *Correção:* pedi as informações principais primeiro e os detalhes só sob demanda.
-- **Painel de BI ruim e nome "Prever um post" pouco claro.** *Como percebi:* ao usar o site. *Correção:* pedi um painel mais interativo e simples e um nome mais claro (virou "Simular post").
+- **Exploração dos dados superficial.** As primeiras análises ficaram restritas a relações mais óbvias e não aprofundaram suficientemente as combinações entre atributos. Eu complementei essa etapa com inspeção manual do dataset, definição de relações específicas a testar e exploração guiada para buscar padrões adicionais e possíveis inconsistências.
 
+- **Excesso de texto e baixa objetividade na apresentação.** As primeiras versões da entrega traziam muita explicação e pouca priorização, o que dificultava o uso por um time de marketing que precisa interpretar rapidamente os dados e tomar decisões. Reestruturei a apresentação algumas vezes, reduzindo texto, priorizando conclusões e reorganizando as áreas de clusterização, predição e exploração dos dados.
+
+- **Horários tratados sem evidência de fuso.** Durante a validação do dataset, não encontrei informação confiável sobre timezone. Para evitar uma precisão inexistente, assumi as datas como já normalizadas, não apliquei conversão de fuso e mantive essa limitação explicitada no site.
+
+- **Afirmativas errôneas sobre os dados.** Tive a impressão que as afirmativas poderiam não ser 100% validadas pelos dados, então, em uma sessão separada, submeti as análises a revisões críticas contra os requisitos do desafio e contra os próprios dados. As inconsistências encontradas foram corrigidas mantendo apenas afirmações sustentadas pelas análises.
+
+- **Experiência de navegação pouco eficiente.** Ao testar o site como usuário final, percebi que informações importantes estavam distribuídas em páginas extensas e exigiam navegação e rolagem excessivas. Reorganizei a aplicação para mostrar primeiro as principais respostas e recomendações, deixando detalhes e evidências disponíveis sob demanda.
+
+- **Painel de BI e nomenclatura pouco claros.** Durante o uso da aplicação, notei que o painel ainda exigia esforço desnecessário para explorar os dados e que nomes como “Prever um post” não representavam bem a funcionalidade. Simplifiquei os controles, reorganizei a exploração visual e renomeei a função para **“Simular post”**, deixando mais claro o que o usuário pode fazer.
 ### Minha contribuição no processo
 
-Minha principal contribuição foi controlar o processo de decisão, não apenas gerar análises.
+Minha principal contribuição foi controlar o processo estratégico e de decisão.
 
 - Defini que nenhuma recomendação seria aceita antes de entender a estrutura do dataset.
 - Mantive achados e decisões documentados para evitar perda de contexto entre sessões.
