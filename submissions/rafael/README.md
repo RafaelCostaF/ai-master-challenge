@@ -106,52 +106,70 @@ Relatório completo: [`docs/respostas.md`](docs/respostas.md) · achados por tem
 - **Datas sem fuso horário:** os horários assumem um relógio único.
 - **`content_length` mistura segundos e palavras:** só é analisado por formato.
 - **`creator_id` instável** (vários nomes por id): não deu para medir frequência de postagem por creator.
+## Process Log — Como usei IA
+
+Narrativa completa: [`process-log/README.md`](process-log/README.md) · prompts: [`process-log/prompts.md`](process-log/prompts.md) · conversas: [`evidencias/`](evidencias/).
+
+A IA foi utilizada ao longo de todo o projeto, mas com funções separadas entre **execução, exploração e revisão**. O objetivo não foi apenas gerar análises, mas criar um processo em que os resultados pudessem ser questionados, reproduzidos e revisados por sessões que não carregavam as conclusões das etapas anteriores.
+
 
 ## Process Log — Como usei IA
 
-Narrativa completa: [`process-log/README.md`](process-log/README.md) · conversas: [`evidencias/`](evidencias/).
+Narrativa completa: [`process-log/README.md`](process-log/README.md) · prompts: [`process-log/prompts.md`](process-log/prompts.md) · conversas: [`evidencias/`](evidencias/).
+
+Usei IA como ferramenta de execução e análise, mas mantive separadas as funções de desenvolvimento, exploração e revisão. Meu objetivo foi reduzir vieses de confirmação: quem produzia a análise não era necessariamente quem validava os resultados.
 
 ### Ferramentas usadas
 
-| Ferramenta | Para que usou |
+| Ferramenta | Uso |
 |---|---|
-| Claude Code (Opus) | Toda a execução: dados, estatística, modelos, site e documentação |
-| Sessões paralelas do Claude Code | Revisão independente dos achados e da entrega |
-| ChatGPT | Plano de análise de dados diferente do Claude, com o objetivo de tentar identificar lacunas na proposta de análise do Claude ([`knowledge/action-plan.md`](knowledge/action-plan.md)) |
-| Jupyter | Análise manual dos dados |
-| pytest | Testes automatizados para <preencher> |
-
+| **Claude Code (Opus)** | Desenvolvimento principal: dados, estatística, modelos, aplicação e documentação |
+| **Sessões independentes do Claude Code** | Revisão crítica dos achados e da entrega, sem carregar o contexto completo das sessões anteriores |
+| **ChatGPT** | Geração de um plano de análise independente para confrontar a estratégia inicial e identificar lacunas |
+| **Jupyter** | Exploração dos dados e inspeção dos resultados |
+| **pytest** | Testes automatizados das funções analíticas, controles e componentes da aplicação |
 
 ### Workflow
 
-1. Criação das regras gerais em `instructions/` antes de qualquer código (instruções de código, como submeter, regras do repositório, valores importantes para a entrega, etc).
-2. EDA <preencha melhor>.
-3. Análises gerais e por plataforma. + processo de auditoria com sessão limpa, para validar as análises (agir como crítico para validar e também buscar novos insights)
-5. Adaptação das perguntas do desafio e transformação destas em funções: os textos se recalculam com novos dados. <explique brevemente o motivo pelo qual isso é necessário, vendendo o peixe>
-6. Criação do site
-7. Limpeza de conteúdo textual excessivo
-8. Melhorias em UI e UX para facilitar o uso pela equipe de marketing
-9. Duas revisões independentes → auditorias e correção de contradições.
+1. **Estruturei o projeto antes de analisar os dados.** Fiz o download do dataset, defini padrões de código, critérios de entrega e regras de reprodutibilidade em `instructions/`. Também criei `knowledge/` para consolidar achados e mantive um registro de decisões para documentar mudanças de direção relevantes.
 
-33 prompts ([`process-log/prompts.md`](process-log/prompts.md)), 3 sessões e 39 decisões registradas ([`DEVELOPMENT_PROCESS.md`](DEVELOPMENT_PROCESS.md)).
+2. **Comecei pela EDA para validar as premissas da base.** Identifiquei que o dataset era sintético e que as métricas de desempenho tinham pouca ou nenhuma relação com as características dos posts. A partir disso, deixei de procurar “insights” por força e passei a testar explicitamente se os padrões encontrados eram reais ou apenas ruído.
+
+3. **Separei análise e revisão.** Executei análises gerais, por plataforma, creator, audiência, conteúdo e patrocínio, e usei sessões independentes para tentar refutar os resultados, encontrar erros metodológicos e buscar relações que a análise principal pudesse ter ignorado.
+
+4. **Exigi evidência estatística antes de transformar um padrão em conclusão.** Usei correção para múltiplos testes, efeito mínimo detectável, validação temporal, análises estratificadas e controles positivos com sinais artificiais conhecidos. Isso permitiu diferenciar ausência real de efeito de falha metodológica.
+
+5. **Transformei as perguntas do desafio em funções.** Implementei respostas e recomendações em `questions.py` e `strategy.py`, para que textos e números fossem recalculados a partir dos dados. Isso reduz inconsistência entre análise, documentação e aplicação.
+
+6. **Organizei os resultados em uma aplicação web.** Estruturei o site para que o time de marketing pudesse consultar conclusões, explorar dados e simular cenários sem depender dos notebooks. A interface foi adaptada à identidade visual da G4 Company.
+
+7. **Revisei a aplicação com foco no usuário final.** A primeira versão tinha excesso de texto, métricas e painéis. Reorganizei a navegação, reduzi conteúdo redundante e simplifiquei os dashboards para priorizar decisões e perguntas de negócio.
+
+8. **Fiz uma revisão final independente.** Revalidei achados, documentação e requisitos do desafio antes da entrega e corrigi as contradições encontradas.
+
+O processo ficou registrado em **33 prompts**, **3 sessões principais** e **39 decisões de desenvolvimento** ([`DEVELOPMENT_PROCESS.md`](DEVELOPMENT_PROCESS.md)).
 
 ### Onde a IA errou e como corrigi
 
-- **Disse que havia grupos naturais de posts**, com uma métrica que dá o mesmo resultado em ruído → troquei por um teste contra dados embaralhados.
-- **Apresentou "fatores importantes" do modelo** que também apareciam com dados embaralhados → toda importância agora é mostrada ao lado desse controle.
-- **Tratou 22 resultados "significativos" como insights**, exatamente o esperado por acaso em 450 testes → correção para muitos testes obrigatória.
-- **Disse que o disclosure explícito estava em dia**, mas o rótulo nem aparece no texto → auditoria de disclosure.
-- **Misturou segundos e palavras na mesma faixa de duração** → análise por formato.
-- **Recomendou "priorizar TikTok em espanhol" e o limite de 10 mil seguidores como fatos** → viraram teste e cálculo dependente de preço.
+- **Encontrou clusters onde havia apenas ruído.** Substituí a métrica por uma comparação contra dados embaralhados.
+- **Apontou features “importantes” sem ganho real de generalização.** Passei a comparar importância e desempenho contra controles e validação.
+- **Tratou resultados com `p < 0,05` como insights isolados.** Tornei obrigatória a correção para múltiplas comparações.
+- **Interpretou disclosure como compliance sem verificar o conteúdo.** Criei uma auditoria específica para validar se o rótulo aparecia de fato no post.
+- **Misturou unidades em `content_length`.** Separei a análise por formato.
+- **Transformou sinais exploratórios em recomendações.** Reclassifiquei esses casos como hipóteses para teste ou conclusões dependentes de premissas.
 
-### O que eu adicionei que a IA sozinha não faria
+### Minha contribuição no processo
 
-- Exigi entender os dados antes da estratégia: foi assim que descobri que a base é simulada. Execução de diversas sessões com abordagens diferentes e não contaminadas para a análise do dataset.
-- Levantei as hipóteses de negócio: análise por plataforma, "quem posta importa?", "o que se sabe antes de postar?".
-- Contestação constante das afirmações sobre os dados, muitas vezes sensacionalistas ou sem valor real para o negócio.
-- Pedi que as variações virassem insights com nível de evidência, o que gerou a fila de testes.
-- Usei revisores independentes (sempre com dupla checagem sobre os dados e as análises), que pegaram os erros mais graves.
-- Transformação das informações obtidas em formato executivo e simples para a equipe de marketing
+Minha principal contribuição foi controlar o processo de decisão, não apenas gerar análises.
+
+- Defini que nenhuma recomendação seria aceita antes de entender a estrutura do dataset.
+- Mantive achados e decisões documentados para evitar perda de contexto entre sessões.
+- Formulei perguntas adicionais de negócio, como persistência de desempenho dos creators e previsibilidade antes da publicação.
+- Questionei conclusões fortes quando o efeito estatístico ou o valor de negócio era baixo.
+- Separei achados em **robustos**, **hipóteses para teste** e **variações compatíveis com acaso**.
+- Usei agentes independentes para revisar resultados e documentação.
+- Converti a análise técnica em uma ferramenta orientada a decisão para o time de marketing.
+- Fiz uma etapa específica de redução do conteúdo gerado por IA, removendo texto, métricas e gráficos sem valor operacional.
 
 ---
 
@@ -159,9 +177,12 @@ Narrativa completa: [`process-log/README.md`](process-log/README.md) · conversa
 
 - [ ] Screenshots das conversas com IA
 - [ ] Screen recording do workflow
-- [x] Chat exports — [`evidencias/`](evidencias/) (3 sessões completas) e prompts em [`process-log/prompts.md`](process-log/prompts.md)
+- [x] Chat exports — [`evidencias/`](evidencias/)
+- [x] Prompts — [`process-log/prompts.md`](process-log/prompts.md)
 - [x] Git history — branch `submission/rafael`
-- [x] Outro: screenshots do site em [`docs/screenshots/`](docs/screenshots/), [`DEVELOPMENT_PROCESS.md`](DEVELOPMENT_PROCESS.md) e [`review/critica-entrega.md`](review/critica-entrega.md)
+- [x] Registro de decisões — [`DEVELOPMENT_PROCESS.md`](DEVELOPMENT_PROCESS.md)
+- [x] Revisão independente — [`review/critica-entrega.md`](review/critica-entrega.md)
+- [x] Screenshots da aplicação — [`docs/screenshots/`](docs/screenshots/)
 
 ---
 
