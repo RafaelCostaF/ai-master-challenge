@@ -81,14 +81,13 @@ Relatório completo: [`docs/respostas.md`](docs/respostas.md) · achados por tem
 
 **Fazer já (valem também com os dados reais):**
 1. **Contratar creators por resultado** (por mil views ou por interação). As views não crescem com os seguidores, então pagar por seguidor encarece os creators grandes.
-2. **Exigir #publi/#ad no texto** do post patrocinado. Reduz o risco regulatório sem perder engajamento.
-3. **Comparar todo patrocínio com posts orgânicos** para medir o ganho real.
-4. **Não pagar a mais pelo histórico do creator** e tirar "melhor horário" e "nº ideal de hashtags" do checklist.
+2. **Comparar todo patrocínio com posts orgânicos** para medir o ganho real.
+3. **Não pagar a mais pelo histórico do creator** e tirar "melhor horário" e "nº ideal de hashtags" do checklist.
 
 **Recalcular com os preços reais antes de aplicar:**
 
-5. Limite de ~10 mil seguidores em contratos de preço fixo (entre 1 mil e 40 mil, conforme os preços).
-6. Escolher o formato mais barato de produzir, já que nenhum engaja mais.
+4. Limite de ~10 mil seguidores em contratos de preço fixo (entre 1 mil e 40 mil, conforme os preços).
+5. Escolher o formato mais barato de produzir, já que nenhum engaja mais.
 
 **Testar:**
 1. TikTok · beauty: mesmo conteúdo em espanhol × inglês, 1.430 posts por grupo. Detalhes no [resumo](docs/resumo-executivo.md#o-que-testar-e-quanto-custa-confirmar).
