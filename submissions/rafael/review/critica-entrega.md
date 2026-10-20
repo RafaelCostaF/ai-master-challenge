@@ -194,7 +194,7 @@ Verificação: `pytest` com 116 passed (+5 testes novos em `test_strategy.py`); 
 
 **Material de entrega (2026-10-19, noite):**
 - README no template, com executive summary, recomendações priorizadas, limitações, process log e "como rodar" → `README.md`.
-- Process log narrativo (ferramentas, decomposição, 16 iterações, 10 erros da IA com correção, contribuição humana) → `process-log/README.md`. Os prompts de todas as sessões estão em `process-log/prompts.md` e as conversas exportadas em `process-log/conversas/`.
+- Process log narrativo (ferramentas, decomposição, 16 iterações, 10 erros da IA com correção, contribuição humana) → `process-log/README.md`. Os prompts de todas as sessões estão em `process-log/prompts.md` e as conversas exportadas em `evidencias/`.
 - Resumo executivo de 1 página → `docs/resumo-executivo.md`.
 - Reprodutibilidade: `scripts/get_data.sh` (Kaggle + sha256, testado) e `Makefile`; `catboost_info/` no `.gitignore`.
 

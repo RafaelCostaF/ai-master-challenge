@@ -1,6 +1,6 @@
 # Process log — como usei IA
 
-Período: 18/10/2026 17:45 → 19/10/2026 · 30 prompts com conteúdo ([`prompts.md`](prompts.md)) · 3 sessões de trabalho (1 principal + 2 paralelas de checagem) · histórico completo em `git log` · 39 decisões registradas com motivo e alternativa descartada em [`../DEVELOPMENT_PROCESS.md`](../DEVELOPMENT_PROCESS.md).
+Período: 18/10/2026 17:45 → 19/10/2026 · 33 prompts com conteúdo ([`prompts.md`](prompts.md)) · 3 sessões de trabalho (1 principal + 2 paralelas de checagem) · histórico completo em `git log` · 39 decisões registradas com motivo e alternativa descartada em [`../DEVELOPMENT_PROCESS.md`](../DEVELOPMENT_PROCESS.md).
 
 ## Ferramentas
 
@@ -70,7 +70,7 @@ Período: 18/10/2026 17:45 → 19/10/2026 · 30 prompts com conteúdo ([`prompts
 | Evidência | Onde |
 |---|---|
 | Prompts do autor, em ordem | [`prompts.md`](prompts.md) |
-| Conversas exportadas das 3 sessões (principal + 2 checagens) | [`conversas/`](conversas/) |
+| Conversas exportadas das 3 sessões (principal + 2 checagens) | [`../evidencias/`](../evidencias/) |
 | Decisões e alternativas descartadas | [`../DEVELOPMENT_PROCESS.md`](../DEVELOPMENT_PROCESS.md) |
 | Revisão crítica e status das correções | [`../review/critica-entrega.md`](../review/critica-entrega.md) |
 | Scripts de sondagem e saídas | [`probe_eda.py`](probe_eda.py) · [`probe_description_gaps.py`](probe_description_gaps.py) (+ `_output.txt`) |

@@ -12,6 +12,8 @@
 
 A recomendação principal é **contratar creators por resultado, não por post**: as views não crescem com os seguidores, então o creator mega paga ~134x mais por mil views que o nano, qualquer que seja o cachê. O motivo: em 52.214 posts, **nenhum dos fatores que o time controla (plataforma, formato, tema, porte do creator, horário, hashtags, patrocínio) mostrou efeito no engajamento ou no alcance**. Só um padrão resistiu ao acaso (TikTok · beauty · espanhol) e vai para teste, não para regra. A base é simulada, segundo o próprio Kaggle; por isso entreguei também um **site para o time de marketing** (resumo, painel, simulador de post e auditorias) que recalcula todos os textos e números com os dados reais da empresa.
 
+Separei o projeto em partes. Fiz o download do dataset e o setup inicial com instruções gerais (organização do repositório, arquivos `.md` com instruções para cada tipo de atividade a ser executada). Mantive agentes não "contaminados" com o problema para atividades como a validação dos resultados encontrados nos dados e a revisão da entrega. O resultado prático é uma decisão de preço, não uma "receita de post": **pagar creators por mil views ou por interação, medir todo patrocínio contra um grupo orgânico e testar antes de mudar o mix.**
+
 **Leitura de 5 minutos:** [`docs/resumo-executivo.md`](docs/resumo-executivo.md)
 
 ---
@@ -131,7 +133,8 @@ submissions/rafael/
 ├── data/raw/                              CSV do Kaggle (baixado, fora do git)
 ├── docs/                                  resumo executivo, relatório completo e figuras
 ├── knowledge/                             achados por tema e notas de ambiente
-├── process-log/                           uso de IA: narrativa, prompts, sessões e sondas
+├── process-log/                           uso de IA: narrativa, prompts e sondas
+├── evidencias/                            conversas com IA exportadas (3 sessões, completas)
 ├── review/                                revisão crítica da entrega
 └── instructions/                          regras seguidas na entrega
 ```
@@ -140,7 +143,7 @@ submissions/rafael/
 
 ## Process Log — Como usei IA
 
-Narrativa completa, tabela de erros da IA e evidências: [`process-log/README.md`](process-log/README.md).
+Narrativa completa, tabela de erros da IA e evidências: [`process-log/README.md`](process-log/README.md). Conversas completas com a IA: [`evidencias/`](evidencias/).
 
 ### Ferramentas usadas
 
@@ -162,7 +165,7 @@ Narrativa completa, tabela de erros da IA e evidências: [`process-log/README.md
 7. Site com servidor e iterações de UX (resumo primeiro, painel simples, simulador, identidade G4).
 8. Duas checagens independentes → auditorias e correção de contradições.
 
-São 30 prompts com conteúdo ([`process-log/prompts.md`](process-log/prompts.md)), 3 sessões e 39 decisões registradas ([`DEVELOPMENT_PROCESS.md`](DEVELOPMENT_PROCESS.md)).
+São 33 prompts com conteúdo ([`process-log/prompts.md`](process-log/prompts.md)), 3 sessões e 39 decisões registradas ([`DEVELOPMENT_PROCESS.md`](DEVELOPMENT_PROCESS.md)).
 
 ### Onde a IA errou e como corrigi
 
@@ -188,7 +191,7 @@ São 30 prompts com conteúdo ([`process-log/prompts.md`](process-log/prompts.md
 
 - [ ] Screenshots das conversas com IA
 - [ ] Screen recording do workflow
-- [x] Chat exports — [`process-log/conversas/`](process-log/conversas/) + prompts de todas as sessões em [`process-log/prompts.md`](process-log/prompts.md)
+- [x] Chat exports — pasta [`evidencias/`](evidencias/): conversas completas das 3 sessões (principal + 2 checagens), com índice; prompts de todas as sessões em [`process-log/prompts.md`](process-log/prompts.md)
 - [x] Git history — branch `submission/rafael` (commits pequenos por etapa)
 - [x] Outro: [`DEVELOPMENT_PROCESS.md`](DEVELOPMENT_PROCESS.md) (decisões e alternativas descartadas), [`review/critica-entrega.md`](review/critica-entrega.md), notebooks comentados, scripts de sondagem em `process-log/`
 

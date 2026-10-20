@@ -2,7 +2,7 @@
 
 Extraídos das transcrições locais do Claude Code (só as mensagens do autor, na ordem em que foram enviadas; horário de Brasília).
 Comandos operacionais sem conteúdo (abrir notebook, confirmar arquivo salvo, liberar porta, "status?") foram omitidos.
-Conversas completas exportadas (sessão principal e as 2 checagens): [`conversas/`](conversas/).
+Conversas completas exportadas (sessão principal e as 2 checagens): [`../evidencias/`](../evidencias/).
 
 ## Sessão principal (análise, modelos e site)
 
@@ -298,3 +298,15 @@ Faça um crítico com base nos requisitos de entrega (desafio 4) para validar se
 ### 19/10 16:16
 
 Corrija as contradições e aplique, trazendo informações e insights valiosos para o time de marketing, porém verdadeiros, baseados nos dados.
+
+### 19/10 17:38
+
+I exported all the conversations. Now prepare the deliver material (all portuguese)
+
+### 19/10 17:51
+
+linkedin: https://www.linkedin.com/in/rafaelcostaf/  (faça o commit e push, mas não abra pr ainda)
+
+### 19/10 22:23
+
+Coloque os exports das conversas em um campo de evidências (pasta) e referencie no readme da submission
