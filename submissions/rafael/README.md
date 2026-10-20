@@ -27,7 +27,7 @@ Link do website: https://ai-master-challenge-static.vercel.app
 <img src="docs/screenshots/audiencia.png" width="24%" alt="Agrupamento de audiência: grupos de perfis de público e confiabilidade">
 </p>
 
-Depois de [rodar](#como-rodar), abra http://127.0.0.1:8000. O menu do topo tem 4 páginas principais e o menu "Aprofundar", com os detalhes.
+Depois de [rodar](HowToRun.md), abra http://127.0.0.1:8000. O menu do topo tem 4 páginas principais e o menu "Aprofundar", com os detalhes.
 
 | Página | O que mostra | Quando usar |
 |---|---|---|
@@ -109,12 +109,12 @@ Relatório completo: [`docs/respostas.md`](docs/respostas.md) · achados por tem
 - **Datas sem fuso horário:** os horários assumem um relógio único.
 - **`content_length` mistura segundos e palavras:** só é analisado por formato.
 - **`creator_id` instável** (vários nomes por id): não deu para medir frequência de postagem por creator.
-## Process Log — Como usei IA
 
-Narrativa completa: [`process-log/README.md`](process-log/README.md) · prompts: [`process-log/prompts.md`](process-log/prompts.md) · conversas: [`evidencias/`](evidencias/).
+### Como rodar
 
-A IA foi utilizada ao longo de todo o projeto, mas com funções separadas entre **execução, exploração e revisão**. O objetivo não foi apenas gerar análises, mas criar um processo em que os resultados pudessem ser questionados, reproduzidos e revisados por sessões que não carregavam as conclusões das etapas anteriores.
+Instruções de setup (Docker ou venv): [`HowToRun.md`](HowToRun.md).
 
+---
 
 ## Process Log — Como usei IA
 
