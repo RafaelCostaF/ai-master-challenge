@@ -62,8 +62,6 @@ Cada número do site é reproduzível: o Docker falha se algum valor divergir da
 | Há algum padrão real? | Um, para testar | TikTok · beauty · espanhol: 10% dos posts entre os 5% com mais likes, contra 4,9% no resto, nos 2 anos |
 | Riscos da carteira | Independem do engajamento | 47% dos patrocínios sem rótulo claro de publicidade; 60% fora do nicho do creator; só 22% dos posts no idioma do mercado |
 
-"Não faz diferença" é um resultado, não falta de dados: os testes detectam diferenças a partir de 0,3%.
-
 <details>
 <summary><b>O que uma IA diria × o que os dados mostram</b></summary>
 
