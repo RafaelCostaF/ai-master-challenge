@@ -38,12 +38,15 @@ O dataset é sintético: as métricas de engajamento não dependem das caracter�
 <img src="docs/screenshots/simular.png" width="32%" alt="Simular post: chance de top 5% antes de publicar e sugestão de melhoria">
 </p>
 
-| Página | Para que serve |
-|---|---|
-| **Resumo** (`/`) | As 4 respostas e o que começar, parar e testar, em uma tela |
-| **Explorar dados** (`/explorar`) | Painel com filtros que só marca diferenças reais, para não decidir com base em acaso |
-| **Simular post** (`/simular`) | Chance de o post ficar entre os 5% melhores, antes de publicar, e uma variação mais forte |
-| **Auditorias e Estratégia** | Riscos da carteira e fila de testes com o tamanho de cada teste |
+Depois de [rodar](#como-rodar), abra http://127.0.0.1:8000. O menu do topo tem 4 páginas principais e o menu "Aprofundar", com os detalhes.
+
+| Página | O que mostra | Quando usar |
+|---|---|---|
+| **Resumo** | As respostas às 4 perguntas do desafio, os 2 padrões que merecem teste e uma lista do que começar, parar e testar | Para entender o resultado em 2 minutos |
+| **Explorar dados** | Painel com filtros (plataforma, formato, tema, período…). Gráficos mostram quanto cada grupo fica acima ou abaixo da média, e um selo indica se a diferença é real ou acaso | Para tirar uma dúvida própria, ex.: "vídeo vai melhor no TikTok?" |
+| **Simular post** | Você descreve um post (plataforma, formato, tema, idioma, dia, hora, creator). A página mostra a chance de ele ficar entre os 5% com mais views, likes ou comentários e sugere uma mudança que aumentaria essa chance | Antes de publicar ou aprovar um post |
+| **Agrupamento de audiência** | Junta perfis de público (idade × gênero × país) que consomem conteúdo parecido e mostra o que cada grupo consome a mais. Um selo diz se os grupos são confiáveis o bastante para segmentar campanhas (nesta base, não são) | Para definir segmentos de público |
+| **Aprofundar** → 4 perguntas, Estratégia, Descobertas, Auditorias, Como chegamos lá | Respostas com gráficos, as ações com o motivo de cada uma, os grupos fora da média com nível de evidência, os riscos da carteira (rótulo de publicidade, nicho, idioma) e o método | Para conferir o porquê de uma recomendação |
 
 Cada número do site é reproduzível: o Docker falha se algum valor divergir da referência, e há 131 testes automatizados.
 
