@@ -36,10 +36,13 @@ Estruturei o projeto em etapas, organizando o repositório, preparando o dataset
 
 **O que construí:** um site que o time usa sem analista. Com os dados da empresa, basta trocar o CSV e rodar `social-web --rebuild`.
 
+Link do website: https://ai-master-challenge-static.vercel.app
+
 <p>
-<img src="docs/screenshots/inicio.png" width="32%" alt="Resumo: as 4 respostas, os destaques e o que fazer agora">
-<img src="docs/screenshots/explorar.png" width="32%" alt="Explorar dados: painel com filtros e selo de diferença real">
-<img src="docs/screenshots/simular.png" width="32%" alt="Simular post: chance de top 5% antes de publicar e sugestão de melhoria">
+<img src="docs/screenshots/inicio.png" width="24%" alt="Resumo: as 4 respostas, os destaques e o que fazer agora">
+<img src="docs/screenshots/explorar.png" width="24%" alt="Explorar dados: painel com filtros e selo de diferença real">
+<img src="docs/screenshots/simular.png" width="24%" alt="Simular post: chance de top 5% antes de publicar e sugestão de melhoria">
+<img src="docs/screenshots/audiencia.png" width="24%" alt="Agrupamento de audiência: grupos de perfis de público e confiabilidade">
 </p>
 
 Depois de [rodar](#como-rodar), abra http://127.0.0.1:8000. O menu do topo tem 4 páginas principais e o menu "Aprofundar", com os detalhes.
