@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-Separei o projeto em partes. Fiz o download do dataset e o setup inicial com instruções gerais (organização do repositório, arquivos `.md` com instruções para cada tipo de atividade a ser executada). Mantive agentes não "contaminados" com o problema para atividades como a validação dos resultados encontrados nos dados e a revisão da entrega. A recomendação principal é a **contratação de creators por resultado, não por post** (ex.: pagar creators por mil views ou por interação, medir todo patrocínio contra um grupo orgânico e testar antes de mudar a combinação.)
+Estruturei o projeto em etapas, organizando o repositório, preparando o dataset e definindo instruções específicas para análise, modelagem, validação e revisão independente dos resultados. A análise mostrou que o dataset é sintético e que as métricas de engajamento são essencialmente independentes das características dos posts, fazendo com que diferenças entre formatos, plataformas, creators e patrocínio sejam, em sua maioria, ruído. A recomendação principal é a **contratação de creators por resultado, não por post** (ex.: pagar creators por mil views ou por interação, medir todo patrocínio contra um grupo orgânico e testar antes de mudar a combinação.)
 
 **Leitura de 5 minutos:** [`docs/resumo-executivo.md`](docs/resumo-executivo.md)
 
