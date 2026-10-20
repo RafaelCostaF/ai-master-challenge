@@ -16,24 +16,6 @@ Estruturei o projeto em etapas, organizando o repositório, preparando o dataset
 
 ## Solução
 
-### Abordagem
-
-1. **Preparação e organização do projeto.** O trabalho começou pelo download do dataset, configuração do ambiente e criação das instruções gerais do projeto, incluindo padrões de código, critérios de entrega e regras de reprodutibilidade. Também foi criada uma pasta de `knowledge` para centralizar os achados ao longo da análise e um registro específico para decisões tomadas em pontos críticos, evitando que mudanças de direção ficassem apenas implícitas no histórico de desenvolvimento.
-
-2. **Análise orientada por evidência.** Antes de buscar conclusões, a EDA foi usada para entender a natureza dos dados. Como o dataset se mostrou sintético e com métricas de desempenho praticamente independentes das características dos posts, a abordagem passou a priorizar a separação entre sinal e ruído, evitando transformar pequenas variações aleatórias em recomendações de negócio.
-
-3. **Revisões independentes e agentes não contaminados.** Parte importante do processo foi manter agentes separados do desenvolvimento principal para revisar a documentação, verificar os achados sobre os dados e confrontar as conclusões com a descrição original do dataset e com os requisitos do desafio. Esses agentes recebiam apenas o material necessário para a revisão, reduzindo o risco de simplesmente reproduzir as interpretações já formadas durante a análise.
-
-4. **Rigor estatístico e validação.** As conclusões foram submetidas a múltiplas verificações: correção para muitos testes, análises estratificadas, efeito mínimo detectável, validação temporal e controles positivos com sinais sintéticos conhecidos. Com isso, cada recomendação precisava estar ligada a um resultado reproduzível e suficientemente sustentado pelos dados.
-
-5. **Transformação da análise em produto.** Depois da etapa analítica, os resultados foram organizados em uma aplicação web, com identidade visual inspirada na G4 Company e estrutura voltada à navegação por perguntas de negócio, recomendações, descobertas e painéis de análise.
-
-6. **Simplificação da experiência.** A primeira versão da aplicação ainda refletia o volume de informações produzido durante a análise. Por isso, o site passou por uma nova rodada de revisão visual e de conteúdo, com remoção de textos e métricas excessivas, reorganização dos painéis de BI e priorização das informações realmente úteis para o time de marketing. O objetivo foi transformar uma análise tecnicamente extensa em uma ferramenta simples, direta e acionável, evitando o excesso de conteúdo normalmente gerado por IA.
-
-7. **Revisão final e entrega.** A última etapa foi uma revisão completa da solução, cobrindo consistência entre dados, análises e recomendações, qualidade da documentação, organização da aplicação e aderência aos requisitos do desafio, antes da preparação da entrega final.
-
-### Resultados / Findings
-
 **O que construí:** um site que o time usa sem analista. Com os dados da empresa, basta trocar o CSV e rodar `social-web --rebuild`.
 
 Link do website: https://ai-master-challenge-static.vercel.app
@@ -56,6 +38,24 @@ Depois de [rodar](#como-rodar), abra http://127.0.0.1:8000. O menu do topo tem 4
 | **Aprofundar** → 4 perguntas, Estratégia, Descobertas, Auditorias, Como chegamos lá | Respostas com gráficos, as ações com o motivo de cada uma, os grupos fora da média com nível de evidência, os riscos da carteira (rótulo de publicidade, nicho, idioma) e o método | Para conferir o porquê de uma recomendação |
 
 Cada número do site é reproduzível: o Docker falha se algum valor divergir da referência, e há 131 testes automatizados.
+
+### Abordagem
+
+1. **Preparação e organização do projeto.** O trabalho começou pelo download do dataset, configuração do ambiente e criação das instruções gerais do projeto, incluindo padrões de código, critérios de entrega e regras de reprodutibilidade. Também foi criada uma pasta de `knowledge` para centralizar os achados ao longo da análise e um registro específico para decisões tomadas em pontos críticos, evitando que mudanças de direção ficassem apenas implícitas no histórico de desenvolvimento.
+
+2. **Análise orientada por evidência.** Antes de buscar conclusões, a EDA foi usada para entender a natureza dos dados. Como o dataset se mostrou sintético e com métricas de desempenho praticamente independentes das características dos posts, a abordagem passou a priorizar a separação entre sinal e ruído, evitando transformar pequenas variações aleatórias em recomendações de negócio.
+
+3. **Revisões independentes e agentes não contaminados.** Parte importante do processo foi manter agentes separados do desenvolvimento principal para revisar a documentação, verificar os achados sobre os dados e confrontar as conclusões com a descrição original do dataset e com os requisitos do desafio. Esses agentes recebiam apenas o material necessário para a revisão, reduzindo o risco de simplesmente reproduzir as interpretações já formadas durante a análise.
+
+4. **Rigor estatístico e validação.** As conclusões foram submetidas a múltiplas verificações: correção para muitos testes, análises estratificadas, efeito mínimo detectável, validação temporal e controles positivos com sinais sintéticos conhecidos. Com isso, cada recomendação precisava estar ligada a um resultado reproduzível e suficientemente sustentado pelos dados.
+
+5. **Transformação da análise em produto.** Depois da etapa analítica, os resultados foram organizados em uma aplicação web, com identidade visual inspirada na G4 Company e estrutura voltada à navegação por perguntas de negócio, recomendações, descobertas e painéis de análise.
+
+6. **Simplificação da experiência.** A primeira versão da aplicação ainda refletia o volume de informações produzido durante a análise. Por isso, o site passou por uma nova rodada de revisão visual e de conteúdo, com remoção de textos e métricas excessivas, reorganização dos painéis de BI e priorização das informações realmente úteis para o time de marketing. O objetivo foi transformar uma análise tecnicamente extensa em uma ferramenta simples, direta e acionável, evitando o excesso de conteúdo normalmente gerado por IA.
+
+7. **Revisão final e entrega.** A última etapa foi uma revisão completa da solução, cobrindo consistência entre dados, análises e recomendações, qualidade da documentação, organização da aplicação e aderência aos requisitos do desafio, antes da preparação da entrega final.
+
+### Resultados / Findings
 
 **O que encontrei** (52.214 posts, 5 plataformas, mai/2023 a mai/2025):
 
