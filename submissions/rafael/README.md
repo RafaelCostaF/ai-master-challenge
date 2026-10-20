@@ -2,7 +2,7 @@
 
 ## Sobre mim
 
-- **Nome:** Rafael
+- **Nome:** Rafael da Costa Fonsêca
 - **LinkedIn:** https://www.linkedin.com/in/rafaelcostaf/
 - **Challenge escolhido:** 004 — Estratégia Social Media
 
