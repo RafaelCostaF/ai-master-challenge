@@ -10,9 +10,7 @@
 
 ## Executive Summary
 
-O dataset é sintético: as métricas de engajamento não dependem das características do post. Por isso, as diferenças entre plataforma, formato, creator e patrocínio são ruído. A recomendação principal é **contratar creators por resultado (por mil views ou por interação), não por post**, medir todo patrocínio contra um grupo orgânico e testar antes de mudar o mix. Entreguei também um site que o time usa sem analista e que recalcula tudo com os dados reais da empresa.
-
-**Leitura de 5 minutos:** [`docs/resumo-executivo.md`](docs/resumo-executivo.md)
+Estruturei o projeto em etapas, organizando o repositório, preparando o dataset e definindo instruções específicas para análise, modelagem, validação e revisão independente dos resultados. A análise mostrou que o dataset é sintético e que as métricas de engajamento são essencialmente independentes das características dos posts, fazendo com que diferenças entre formatos, plataformas, creators e patrocínio sejam, em sua maioria, ruído. A recomendação principal é a **contratação de creators por resultado, não por post** (ex.: pagar creators por mil views ou por interação, medir todo patrocínio contra um grupo orgânico e testar antes de mudar a combinação.)
 
 ---
 
