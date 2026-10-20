@@ -10,9 +10,7 @@
 
 ## Executive Summary
 
-A recomendação principal é **contratar creators por resultado, não por post**: as views não crescem com os seguidores, então o creator mega paga ~134x mais por mil views que o nano, qualquer que seja o cachê. O motivo: em 52.214 posts, **nenhum dos fatores que o time controla (plataforma, formato, tema, porte do creator, horário, hashtags, patrocínio) mostrou efeito no engajamento ou no alcance**. Só um padrão resistiu ao acaso (TikTok · beauty · espanhol) e vai para teste, não para regra. A base é simulada, segundo o próprio Kaggle; por isso entreguei também um **site para o time de marketing** (resumo, painel, simulador de post e auditorias) que recalcula todos os textos e números com os dados reais da empresa.
-
-Separei o projeto em partes. Fiz o download do dataset e o setup inicial com instruções gerais (organização do repositório, arquivos `.md` com instruções para cada tipo de atividade a ser executada). Mantive agentes não "contaminados" com o problema para atividades como a validação dos resultados encontrados nos dados e a revisão da entrega. O resultado prático é uma decisão de preço, não uma "receita de post": **pagar creators por mil views ou por interação, medir todo patrocínio contra um grupo orgânico e testar antes de mudar o mix.**
+Separei o projeto em partes. Fiz o download do dataset e o setup inicial com instruções gerais (organização do repositório, arquivos `.md` com instruções para cada tipo de atividade a ser executada). Mantive agentes não "contaminados" com o problema para atividades como a validação dos resultados encontrados nos dados e a revisão da entrega. A recomendação principal é a **contratação de creators por resultado, não por post** (ex.: pagar creators por mil views ou por interação, medir todo patrocínio contra um grupo orgânico e testar antes de mudar a combinação.)
 
 **Leitura de 5 minutos:** [`docs/resumo-executivo.md`](docs/resumo-executivo.md)
 
