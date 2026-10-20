@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-Analisei os 52.214 posts com um protocolo que só aceita uma diferença como real depois de corrigir para os milhares de testes feitos e de provar, com efeitos plantados, que o método a detectaria. O resultado central: **nenhum dos fatores que o time controla (plataforma, formato, tema, porte do creator, horário, hashtags, patrocínio) mostrou efeito no engajamento ou no alcance nesta base**, que o próprio Kaggle descreve como simulada. A recomendação principal é **contratar creators por resultado, não por post**: como as views não crescem com os seguidores, o creator mega paga ~134x mais por mil views que o nano, qualquer que seja o cachê. Entreguei também um **site para o time de marketing** (resumo, painel, simulador de post e auditorias) que recalcula todos os textos e números com os dados reais da empresa.
+A recomendação principal é **contratar creators por resultado, não por post**: as views não crescem com os seguidores, então o creator mega paga ~134x mais por mil views que o nano, qualquer que seja o cachê. O motivo: em 52.214 posts, **nenhum dos fatores que o time controla (plataforma, formato, tema, porte do creator, horário, hashtags, patrocínio) mostrou efeito no engajamento ou no alcance**. Só um padrão resistiu ao acaso (TikTok · beauty · espanhol) e vai para teste, não para regra. A base é simulada, segundo o próprio Kaggle; por isso entreguei também um **site para o time de marketing** (resumo, painel, simulador de post e auditorias) que recalcula todos os textos e números com os dados reais da empresa.
 
 **Leitura de 5 minutos:** [`docs/resumo-executivo.md`](docs/resumo-executivo.md)
 
@@ -45,12 +45,22 @@ Analisei os 52.214 posts com um protocolo que só aceita uma diferença como rea
 | Único padrão robusto | TikTok · beauty · espanhol: 2x mais chance de top 5% em likes | 10,0% vs. 4,9%, nos dois anos; q global = 0,035 entre ~14,7 mil testes. Vai para teste, não para regra |
 | Auditorias de carteira | Lacunas que valem mesmo sem efeito no engajamento | 47% dos patrocínios com disclosure implícito; só 2,3% com #ad no texto; 60% fora do nicho do creator; só 22% dos posts no idioma do mercado |
 
+**O que a IA diria × o que os dados mostram** (gerado por `strategy.claims_vs_data`):
+
+| "Insight" típico | O que os dados mostram | Veredito |
+|---|---|---|
+| "Bilibili · vídeo · lifestyle · micro é o segmento que mais engaja: concentre o investimento nele." | índice 100,5 (média = 100), n = 109, p = 0,02, q = 0,88 | maior diferença bruta entre 450 segmentos; some após a correção |
+| "Creators maiores entregam mais alcance: priorize macro e mega." | correlação seguidores × views = 0,005 (q = 0,53) | não se sustenta |
+| "Vídeo é o formato que mais engaja: migre o mix para vídeo." | −0,03% de engajamento (q = 0,53) | não se sustenta |
+| "Publique à noite (18–24h), quando o alcance é maior." | −0,01% de views (q = 0,53) | não se sustenta |
+| TikTok · beauty · espanhol: mais posts no top 5% de likes | 10,0% vs. 4,9% (2,0x), nos 2 anos; q global = 0,035 entre 14.763 testes | **único que passou no filtro:** vai para teste A/B |
+
 Detalhe completo, gerado por código: [`docs/respostas.md`](docs/respostas.md) · achados por tema: [`knowledge/`](knowledge/) · 14 notebooks executados: [`solution/notebooks/`](solution/notebooks/).
 
 ### Recomendações
 
 **Esta semana. Valem também com os dados reais:**
-1. Contratar creators **por resultado** (CPM/CPE), não por post: a diferença de ~134x por mil views entre mega e nano independe do valor do cachê.
+1. Contratar creators **por resultado** (CPM/CPE), não por post: a diferença de ~134x por mil views entre mega e nano independe do valor do cachê. Medida por seguidor, o nano parece ~138x melhor (0,368 × 0,0027); é efeito da conta, porque as views são iguais em todos os portes (~10.100).
 2. **Rótulo de publicidade verificável no texto** (#publi/#ad): reduz o risco regulatório (47% em risco alto) sem custo de engajamento.
 3. **Grupo de comparação orgânico em todo patrocínio**, para medir o ganho real.
 4. **Não pagar a mais pelo histórico de desempenho do creator** e tirar "melhor horário" e "hashtags ideais" do checklist.
@@ -61,7 +71,7 @@ Detalhe completo, gerado por código: [`docs/respostas.md`](docs/respostas.md) �
 6. Formato padrão pelo custo real de produção.
 
 **Fila de testes** (com o custo de confirmar cada hipótese):
-1. TikTok · beauty · espanhol × inglês: A/B com ~1.430 posts por grupo.
+1. TikTok · beauty · espanhol × inglês: A/B com 1.430 posts por grupo; sucesso = taxa de top 5% em likes ≥ 7,5% no grupo espanhol (resto do TikTok: 4,9%), p < 0,05. Brief completo (formato, creator, público, horário, duração) no [resumo](docs/resumo-executivo.md#o-que-testar-e-quanto-custa-confirmar).
 2. Horário no YouTube: acompanhar no histórico (um A/B exigiria ~17 mil posts por grupo).
 3. Uplift do patrocínio: A/B com os contratos da empresa.
 
@@ -71,6 +81,7 @@ Detalhe completo, gerado por código: [`docs/respostas.md`](docs/respostas.md) �
 
 - **A base é simulada** (Kaggle: "views simulated via a Poisson distribution"). Os achados descrevem esta base. O que se transfere são o método e a ferramenta, validados com efeitos plantados.
 - **Não há preços.** Custos e teto de seguidores vêm de premissas editáveis (`strategy.py`), mostradas com tabela de sensibilidade. Os valores em US$ são ordem de grandeza, não contábeis.
+- **Sem posts que fracassaram:** 0 posts com zero views, likes, compartilhamentos ou comentários (mínimo de 1.354 likes; views de 9.676 a 10.551). A base não mostra o que fracassa.
 - **`post_date` sem fuso:** os horários assumem um relógio único. `content_length` mistura segundos e palavras e só é analisado por formato.
 - **`creator_id` instável** (~10 nomes e contagens de seguidores por id): a frequência de postagem não pôde ser medida por creator.
 - Os rótulos de disclosure da base não aparecem no texto dos posts: a auditoria mede a composição declarada, não a prática real.

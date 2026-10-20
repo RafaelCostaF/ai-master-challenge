@@ -136,3 +136,11 @@ strategy.recommend_all(df)  # as 4 decisões
 
 ### Qualidade
 `solution/tests/test_strategy.py` testa a fórmula do threshold e a regra "mais barato entre equivalentes". Também testa, com efeitos plantados, que o formato melhor vence mesmo sendo caro, que a saturação é detectada e que o patrocínio vira "SIM" quando há efeito.
+
+## Provas do resumo executivo (2026-10-19)
+Fonte: `strategy.deliverable_evidence`, `strategy.claims_vs_data`, `strategy.test_brief` (seção 6 e brief da seção 5 de `docs/respostas.md`).
+- **Taxa por seguidor × por view** (`exploration.engagement_rate_by_tier`): mediana de interações por seguidor 0,368 (nano) × 0,002676 (mega) = **137,6x**. Os ~136x da nota anterior vêm de dividir valores arredondados (0,368 / 0,0027). Por view, todas as faixas ficam em ~0,199; views medianas de 10.090 a 10.101.
+- **Survivorship** (`cleaning.survivorship_check`): 0 posts com zero em views, likes, shares ou comentários; mínimos de 9.676 views, 1.354 likes, 227 shares e 140 comentários.
+- **Trimestres** (`exploration.engagement_by_quarter`): 0,19901–0,19909 em 9 trimestres (2023Q2–2025Q2), Kruskal p = 0,99.
+- **Maior diferença bruta entre segmentos (Q1):** Bilibili · video · lifestyle · micro, índice 100,5, n = 109, p = 0,02, q = 0,88. TikTok · video · beauty · mid (100,4, n = 120, p = 0,09) é o 5º; as notas anteriores citavam este.
+- **Brief do teste 1** (TikTok · beauty · Spanish × English): vídeo (61% do segmento); nano (menor CPM); Japão 15% e 19–25 anos 36% (distribuição quase uniforme); horário sem evidência para likes no TikTok (q = 0,97); duração ~172 s; sucesso = top 5% em likes ≥ 7,5% (resto do TikTok 4,9%), p < 0,05, 1.430 posts por grupo, poder de 80%.

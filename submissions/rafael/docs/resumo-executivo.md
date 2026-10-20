@@ -2,18 +2,34 @@
 
 Para: Head de Marketing · Base: 52.214 posts (mai/2023 → mai/2025), 5 plataformas · Leitura: 5 minutos.
 
-## A conclusão em uma frase
+## A ação principal
 
-**Nos dados entregues, nenhum dos fatores que o time controla (plataforma, formato, tema, tamanho do creator, horário, hashtags, patrocínio) mostrou efeito no engajamento ou no alcance. Por isso, as decisões recomendadas são de custo e de medição, não de formato do post.**
+**Pague creators por resultado (por mil views ou por interação), não por post: o mega custa ~134x mais por mil views que o nano.**
 
-Antes de qualquer conclusão, verificamos se os testes enxergariam um efeito real: eles detectariam diferenças de até 0,3%. Por isso, "não faz diferença" aqui é um resultado, não falta de dados. O próprio Kaggle descreve a base como **simulada** (views sorteadas). Com os dados da empresa, o mesmo site e as mesmas funções recalculam tudo.
+O motivo: nenhum fator que o time controla (plataforma, formato, tema, tamanho do creator, horário, hashtags, patrocínio) mostrou efeito no engajamento ou no alcance. As views ficam em ~10.100 por post em todos os portes, então o preço por seguidor vira custo sem retorno.
+
+![Views medianas por faixa de creator: linha plana em ~10.100](figures/views_por_faixa_de_creator.png)
+
+- **Medida por seguidor, o nano parece ~138x melhor** (0,368 × 0,0027 interação por seguidor). É efeito da conta: as views são iguais em todos os portes, e por view o engajamento fica em ~0,199 em todas as faixas.
+- **Estável em todos os trimestres:** engajamento médio entre 0,1990 e 0,1991 nos 9 trimestres (2023T2 a 2025T2). Sem sazonalidade.
+- Os testes detectariam diferenças de até 0,3%. Por isso, "não faz diferença" aqui é um resultado, não falta de dados. O próprio Kaggle descreve a base como **simulada** (views sorteadas). Com os dados da empresa, o mesmo site e as mesmas funções recalculam tudo.
+
+## O que a IA diria × o que os dados mostram
+
+| "Insight" típico | O que os dados mostram | Veredito |
+|---|---|---|
+| "Bilibili · vídeo · lifestyle · micro é o segmento que mais engaja: concentre o investimento nele." | índice 100,5 (média = 100), n = 109, p = 0,02, q = 0,88 | maior diferença bruta entre 450 segmentos; some após a correção |
+| "Creators maiores entregam mais alcance: priorize macro e mega." | correlação seguidores × views = 0,005 (q = 0,53) | não se sustenta |
+| "Vídeo é o formato que mais engaja: migre o mix para vídeo." | −0,03% de engajamento (q = 0,53) | não se sustenta |
+| "Publique à noite (18–24h), quando o alcance é maior." | −0,01% de views (q = 0,53) | não se sustenta |
+| TikTok · beauty · espanhol: mais posts no top 5% de likes | 10,0% vs. 4,9% (2,0x), nos 2 anos; q global = 0,035 entre 14.763 testes | **único que passou no filtro:** vai para teste A/B |
 
 ## As 4 perguntas
 
 | Pergunta | Resposta | Número-chave |
 |---|---|---|
 | O que gera engajamento? | Nenhuma plataforma, formato, tema, porte de creator ou combinação | 450 combinações testadas, 0 com efeito real; maior diferença 0,07% |
-| Patrocínio funciona? | Não para ganhar desempenho. Comparando posts parecidos (mesma plataforma, formato, tema e porte), o patrocinado engaja igual | +0,008% de engajamento (p = 0,72) |
+| Patrocínio funciona? | Não para ganhar desempenho. Comparando posts parecidos (mesma plataforma, formato, tema e porte), o patrocinado engaja igual | +0,008% de engajamento: diferença indistinguível de zero |
 | Que público engaja mais? | Nenhum: gênero, idade e país engajam igual em todo contexto | 36 contextos testados, 0 com efeito |
 | O que não funciona? | 11 de 11 crenças de mercado testadas | ex.: "mais seguidores = mais alcance" (correlação 0,005) |
 
@@ -36,6 +52,15 @@ Antes de qualquer conclusão, verificamos se os testes enxergariam um efeito rea
 | 1 | TikTok · beauty · espanhol: mais chance de top 5% em likes | 10,0% vs. 4,9% (2x), nos dois anos; único padrão que passou na correção entre ~14,7 mil testes | ~1.430 | teste A/B (mesmo conteúdo em espanhol × inglês) |
 | 2 | YouTube: posts até 12h entram mais no top 1% de comentários | 1,45% vs. 0,85%; a média de comentários não muda | ~17.000 | acompanhar no histórico; usar como desempate de agenda |
 | 3 | Patrocínio aumenta o engajamento em ≥ 5% | nenhum efeito nesta base | 30 | teste A/B com os contratos da empresa |
+
+**Brief do teste 1** (calculado dos dados):
+- **Grupos:** TikTok · beauty em espanhol (teste) × o mesmo conteúdo em inglês (controle).
+- **Formato:** vídeo (61% do segmento), igual nos dois grupos.
+- **Faixa de creator:** nano (<10K), a de menor custo por mil views, igual nos dois grupos.
+- **Público-alvo:** Japão (15% do segmento) e 19–25 anos (36%), os mais frequentes. A distribuição é quase uniforme.
+- **Horário:** não há evidência de horário para likes no TikTok (q = 0,97). Distribuir os horários igualmente entre os grupos.
+- **Duração:** ~172 segundos (mediana do segmento). A duração não mudou o resultado em nenhum formato.
+- **Critério de sucesso:** taxa de top 5% em likes ≥ 7,5% no grupo espanhol (resto do TikTok: 4,9%), p < 0,05, com 1.430 posts por grupo (poder de 80%).
 
 ## O que parar
 
@@ -62,4 +87,5 @@ Para usar com os dados da empresa: trocar o CSV e rodar `social-web --rebuild`. 
 
 - A base é simulada: os achados descrevem esta base. O valor que se transfere são o método e a ferramenta, validados com efeitos plantados.
 - Não há preços na base. Todos os valores em US$ vêm de premissas editáveis.
+- Sem posts que fracassaram: 0 posts com zero views, likes, compartilhamentos ou comentários (mínimo de 1.354 likes; views de 9.676 a 10.551). A base não mostra o que fracassa.
 - `post_date` não tem fuso: os horários assumem um relógio único.
