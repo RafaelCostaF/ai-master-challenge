@@ -20,10 +20,10 @@
 <div class="hero">
   <div class="wrap">
     <span class="eyebrow">Resumo para o time de marketing · {{ d.meta.posts | num }} posts · {{ d.meta.plataformas | length }} plataformas</span>
-    <h1>Tema, formato e tamanho do creator não mudam o resultado. <em>A decisão é de preço.</em></h1>
+    <h1>Nesta base, tema, formato e tamanho do creator não mostraram efeito no resultado. <em>O que varia é o custo.</em></h1>
     <p class="lede">O que {{ d.meta.posts | num }} posts publicados entre {{ d.meta.inicio[:7] }} e {{ d.meta.fim[:7] }} dizem sobre onde investir, o que parar e o que testar.</p>
     <details class="more data-note"><summary>Sobre os dados</summary><div class="more-body">
-      <p>Os dados do desafio são simulados: os números de cada post foram gerados quase ao acaso. Por isso a maioria das respostas é "não faz diferença". Os métodos usados encontram diferenças reais quando elas existem (testamos isso de propósito). Com os dados da empresa, o site é recalculado e mostra o que de fato funciona para vocês.</p></div></details>
+      <p>Os dados do desafio são simulados: os números de cada post foram gerados quase ao acaso. Por isso a maioria das respostas é "não faz diferença". Os métodos usados encontram diferenças reais quando elas existem (testamos isso de propósito). Com os dados da empresa, o site é recalculado e mostra o que os dados da empresa indicam.</p></div></details>
   </div>
 </div>
 <main class="wrap compact">
@@ -33,25 +33,25 @@
     <div class="board-grid">
       <article class="qcard info">
         <span class="q">O que gera engajamento?</span>
-        <p class="headline">Nada do que testamos: plataforma, formato, tema ou tamanho do creator.</p>
+        <p class="headline">Nenhum dos fatores testados (plataforma, formato, tema e tamanho do creator) mostrou diferença relevante.</p>
         <div class="kpi-line"><b>{{ q1max | num(2) }}%</b><span>maior diferença entre grupos</span></div>
         <details class="more"><summary>Ver detalhes</summary><div class="more-body">
-          <p>O engajamento fica em ~20% (1 interação a cada 5 views) em todos os grupos. Testamos também {{ r.q1.segmentos_testados }} combinações (ex.: vídeo de tech no TikTok com creator pequeno). Nenhuma se destacou de verdade.</p>
+          <p>O engajamento fica em ~20% (1 interação a cada 5 views) em todos os grupos. Testamos também {{ r.q1.segmentos_testados }} combinações (ex.: vídeo de tech no TikTok com creator pequeno). Nenhuma ficou acima da variação esperada pelo acaso.</p>
           <p><b>Na prática:</b> não troque de formato ou tema esperando mais interação.</p>
           <a href="/perguntas#engajamento">Ver gráficos →</a></div></details>
       </article>
       <article class="qcard stop">
         <span class="q">Vale a pena patrocinar?</span>
-        <p class="headline">Não para ganhar desempenho. Só quando o preço for justo.</p>
+        <p class="headline">Não houve ganho de desempenho. A decisão depende do custo por resultado.</p>
         <div class="kpi-line"><b>{{ (cpm_max / cpm_min) | round | int }}x</b><span>mais caro por mil views no creator grande do que no pequeno, se o cachê acompanha os seguidores</span></div>
         <details class="more"><summary>Ver detalhes</summary><div class="more-body">
-          <p>Comparando posts parecidos, o patrocinado tem {{ eng['diferença (%)'] | num(2) }}% de diferença no engajamento, o que é praticamente zero. Como as views não crescem com os seguidores, mil views custam US$ {{ cpm_min | num(2) }} com creators pequenos e US$ {{ cpm_max | num(0) }} com os grandes (premissa: US$ {{ (s.premissas.custo_por_seguidor * 1000) | num }} por mil seguidores).</p>
+          <p>Comparando posts parecidos, o patrocinado tem {{ eng['diferença (%)'] | num(2) }}% de diferença no engajamento, uma diferença desprezível. Como as views não crescem com os seguidores, mil views custam US$ {{ cpm_min | num(2) }} com creators pequenos e US$ {{ cpm_max | num(0) }} com os grandes (premissa: US$ {{ (s.premissas.custo_por_seguidor * 1000) | num }} por mil seguidores).</p>
           <p><b>Na prática:</b> pague por resultado (views ou interações), não por post. Essa proporção vale para qualquer preço por seguidor. Se o preço for fixo, o limite com as premissas atuais é de ~{{ s.threshold | num }} seguidores, e ele muda com o cachê real.</p>
           <a href="/perguntas#patrocinio">Ver custo por tamanho de creator →</a></div></details>
       </article>
       <article class="qcard info">
         <span class="q">Qual público engaja mais?</span>
-        <p class="headline">Nenhum: homens, mulheres, todas as idades e países engajam igual.</p>
+        <p class="headline">Nenhum se destacou: gênero, idade e país têm engajamento semelhante.</p>
         <div class="kpi-line"><b>{{ q3max | num(2) }}%</b><span>maior diferença entre públicos</span></div>
         <details class="more"><summary>Ver detalhes</summary><div class="more-body">
           <p>Vale em todas as plataformas, formatos e temas, e o mesmo público consome vídeo, imagem e texto.</p>
@@ -60,12 +60,12 @@
       </article>
       <article class="qcard stop">
         <span class="q">O que não funciona?</span>
-        <p class="headline">{{ myths | length }} de {{ r.q4.crencas | length }} "verdades" comuns de social media não se confirmam.</p>
-        <div class="kpi-line"><b>{{ myths | length }}/{{ r.q4.crencas | length }}</b><span>mitos derrubados</span></div>
+        <p class="headline">{{ myths | length }} de {{ r.q4.crencas | length }} crenças comuns de social media não foram confirmadas nesta base.</p>
+        <div class="kpi-line"><b>{{ myths | length }}/{{ r.q4.crencas | length }}</b><span>crenças não confirmadas</span></div>
         <details class="more"><summary>Ver a lista</summary><div class="more-body">
           <ul>{% for m in myths %}<li>{{ m['crença de mercado'] }}</li>{% endfor %}</ul>
           {{ time_note() }}{{ length_note(d) }}
-          <a href="/perguntas#nao-funciona">Ver números de cada mito →</a></div></details>
+          <a href="/perguntas#nao-funciona">Ver os números de cada crença →</a></div></details>
       </article>
     </div>
   </section>
@@ -75,8 +75,8 @@
     <div class="board-grid">
       <article class="qcard good">
         <span class="chip confirmado" style="justify-self:start">confirmado</span>
-        <p class="headline">{{ hl.plataforma }}: {{ hl_vals[0] | val }} em {{ hl_vals[1] | val }} dobra a chance de bombar em {{ hl.metrica | val }}.</p>
-        <div class="kpi-line"><b>{{ hl.lift | num(1) }}x</b><span>{{ hl.taxa | num(1) }}% chegam ao top 5%, contra ~5% do resto</span></div>
+        <p class="headline">{{ hl.plataforma }}: {{ hl_vals[0] | val }} em {{ hl_vals[1] | val }} tem mais posts no top 5% de {{ hl.metrica | val }}.</p>
+        <div class="kpi-line"><b>{{ hl.lift | num(1) }}x</b><span>{{ hl.taxa | num(1) }}% desses posts chegam ao top 5%, contra ~5% nos demais</span></div>
         <details class="more"><summary>Ver detalhes</summary><div class="more-body">
           <p>Foram {{ hl.posts | num }} posts. O padrão apareceu nos dois anos ({{ hl.lift_1 | num(1) }}x e {{ hl.lift_2 | num(1) }}x) e foi o único que passou em todas as checagens.</p>
           <p><b>Ação:</b> testar antes de mudar o mix: o mesmo conteúdo em {{ hl_vals[1] | val }} e em inglês, ~{{ t_pocket["posts por grupo"] | num }} posts em cada versão.</p></div></details>
@@ -104,7 +104,7 @@
       </article>
       <article class="qcard">
         <span class="q">Pare</span>
-        <ul><li>Pagar mais por creators grandes ou "campeões" (o histórico deles é sorte)</li><li>Otimizar "melhor horário" e "nº ideal de hashtags" sem teste</li><li>Produzir formatos caros "porque engajam mais"</li></ul>
+        <ul><li>Pagar mais por creators grandes ou pelo histórico de desempenho (ele não previu o desempenho seguinte)</li><li>Ajustar horário e nº de hashtags sem teste</li><li>Escolher formatos mais caros esperando mais engajamento</li></ul>
       </article>
       <article class="qcard">
         <span class="q">Teste</span>
@@ -115,7 +115,7 @@
 
   <section>
     <div class="cta">
-      <a href="/simular"><b>Simular um post</b><span>Monte o próximo post e veja, antes de publicar, a chance de ele bombar e como melhorá-lo.</span></a>
+      <a href="/simular"><b>Simular um post</b><span>Monte o próximo post e veja, antes de publicar, a chance de ele chegar ao top 5% e o que pode melhorá-la.</span></a>
       <a href="/explorar"><b>Explorar os dados →</b><span>Filtre por plataforma, formato, tema e público.</span></a>
     </div>
   </section>

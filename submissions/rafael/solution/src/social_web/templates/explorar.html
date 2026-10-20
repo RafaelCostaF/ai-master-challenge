@@ -70,12 +70,12 @@ const HIT_METRIC = { views: "top5_views", likes: "top5_likes", comments_count: "
 const S = { filtros: {}, base: "views", modo: "chance", livre: "language", linha: "platform", coluna: "content_type", de: null, ate: null };
 /* Ready-made views, built from the analysis results (the confirmed highlight and the strongest posting-time pattern). */
 const SUGGESTIONS = [
-  { icon: "★", label: "{{ hl.plataforma }} · {{ hl_vals[0] | val }}: qual idioma bomba em {{ hl.metrica | val }}?",
+  { icon: "★", label: "{{ hl.plataforma }} · {{ hl_vals[0] | val }}: qual idioma chega mais ao top 5% em {{ hl.metrica | val }}?",
     state: { base: "{{ hl.metrica }}", modo: "chance", livre: "{{ hl_dims[1] }}", filtros: { platform: ["{{ hl.plataforma }}"], "{{ hl_dims[0] }}": ["{{ hl_vals[0] }}"] } } },
   { label: "{{ hour.plataforma }}: melhor horário para comentários",
     state: { base: "comments_count", modo: "chance", livre: "daypart", filtros: { platform: ["{{ hour.plataforma }}"] } } },
   { label: "Patrocinado × orgânico", state: { base: "views", modo: "chance", livre: "is_sponsored", filtros: {} } },
-  { label: "Qual público bomba mais em likes?", state: { base: "likes", modo: "chance", livre: "audience_location", filtros: {} } },
+  { label: "Qual público chega mais ao top 5% em likes?", state: { base: "likes", modo: "chance", livre: "audience_location", filtros: {} } },
   { label: "Creators grandes × pequenos", state: { base: "views", modo: "media", livre: "follower_tier", filtros: {} } },
 ];
 function applySuggestion(i) {
@@ -93,7 +93,7 @@ const CH = {};
 const metric = () => S.modo === "chance" && HIT_METRIC[S.base] ? HIT_METRIC[S.base] : S.base;
 const isPct = m => m === "eng_rate" || m.startsWith("top5");
 const fmtMetric = (m, v) => isPct(m) ? pct(v, m.startsWith("top5") ? 1 : 2) : nf(v, m === "views" ? 0 : 1);
-const metricName = m => m.startsWith("top5") ? `chance de bombar em ${BASE_METRICS[S.base].toLowerCase()}` : BASE_METRICS[m].toLowerCase();
+const metricName = m => m.startsWith("top5") ? `chance de top 5% em ${BASE_METRICS[S.base].toLowerCase()}` : BASE_METRICS[m].toLowerCase();
 
 async function boot() {
   OPT = await (await fetch("/api/options")).json();
@@ -152,7 +152,7 @@ function drawControls() {
   $("metric-tabs").innerHTML = Object.entries(BASE_METRICS).map(([k, t]) => `<button type="button" data-m="${k}" aria-pressed="${S.base === k}">${t}</button>`).join("");
   $("metric-tabs").onclick = e => { const b = e.target.closest("button"); if (b) { S.base = b.dataset.m; if (S.base === "eng_rate") S.modo = "media"; load(); } };
   const noHit = !HIT_METRIC[S.base];
-  $("mode-tabs").innerHTML = [["media", "Média"], ["chance", "Chance de bombar"]].map(([k, t]) =>
+  $("mode-tabs").innerHTML = [["media", "Média"], ["chance", "Chance de top 5%"]].map(([k, t]) =>
     `<button type="button" data-k="${k}" aria-pressed="${S.modo === k}"${k === "chance" && noHit ? " disabled title='Disponível para views, likes e comentários'" : ""}>${t}</button>`).join("");
   $("mode-tabs").onclick = e => { const b = e.target.closest("button"); if (b && !b.disabled) { S.modo = b.dataset.k; load(); } };
   $("quick-filters").innerHTML = QUICK.map(f => `<div class="chip-group"><span class="chip-label">${label(f)}</span>${OPT.filtros[f].map(v =>
@@ -183,7 +183,7 @@ function draw() {
   lineChart(R.serie, m, R.media_geral);
   drawMatrix(R.matriz); drawTop(R.top);
   drawCaveats();
-  $("legend").innerHTML = `Cada barra mostra quanto o grupo está <b>acima ou abaixo da média</b> em ${esc(metricName(m))}. <span class="sw gold"></span> acima de verdade · <span class="sw red"></span> abaixo de verdade · <span class="sw gray"></span> variação normal. Clique numa barra para filtrar.`;
+  $("legend").innerHTML = `Cada barra mostra quanto o grupo está <b>acima ou abaixo da média</b> em ${esc(metricName(m))}. <span class="sw gold"></span> acima (significativo) · <span class="sw red"></span> abaixo (significativo) · <span class="sw gray"></span> variação normal. Clique numa barra para filtrar.`;
 }
 /* Show the timezone / length-unit caveats only while a time or length field is grouped or filtered. */
 const CAVEAT_FIELDS = { fuso: ["hour", "daypart", "weekday"], duracao: ["length_bin", "content_length"] };

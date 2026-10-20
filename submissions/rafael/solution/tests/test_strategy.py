@@ -36,8 +36,8 @@ def test_frequency_detects_saturation(posts):
 
 
 def test_sponsorship_policy_yes_only_with_effect(posts):
-    assert "NÃO" in strategy.sponsorship_policy(posts).verdict
-    assert "SIM" in strategy.sponsorship_policy(_boost_likes(posts, posts.is_sponsored, 1.10)).verdict
+    assert "desempenho: não." in strategy.sponsorship_policy(posts).verdict
+    assert "desempenho: sim," in strategy.sponsorship_policy(_boost_likes(posts, posts.is_sponsored, 1.10)).verdict
 
 
 def test_quick_wins_has_owner_and_effort(posts):

@@ -9,9 +9,9 @@
 {% block body %}
 <main class="wrap">
   <section class="page-head">
-    <span class="eyebrow">Além do óbvio</span>
-    <h1>Onde o resultado <em>foge do normal</em></h1>
-    <p class="lede">Grupos de posts que chegam ao top 5% (os que "bombam") com mais ou menos frequência do que o normal.</p>
+    <span class="eyebrow">Padrões por grupo</span>
+    <h1>Grupos com resultado <em>fora da média</em></h1>
+    <p class="lede">Grupos de posts que chegam ao top 5% com mais ou menos frequência do que o normal.</p>
     <details class="more"><summary>Como ler os selos</summary><div class="more-body">
       <div class="tabs"><span class="chip confirmado">confirmado</span><span class="muted">passou na correção de todos os testes: primeiro da fila de testes A/B</span></div>
       <div class="tabs"><span class="chip repetiu">se repetiu nos 2 anos</span><span class="muted">apareceu no 1º ano e de novo no 2º: candidato a teste A/B</span></div>
@@ -24,7 +24,7 @@
     <div class="highlight">
       <div style="display:grid;gap:10px;align-content:start">
         <span class="chip confirmado" style="justify-self:start">confirmado</span>
-        <h2>{{ hl.plataforma }}: {{ hl_vals[0] | val }} em {{ hl_vals[1] | val }} dobra a chance de um post bombar em {{ hl.metrica | val }}</h2>
+        <h2>{{ hl.plataforma }}: {{ hl_vals[0] | val }} em {{ hl_vals[1] | val }} tem {{ hl.lift | num(1) }}x a taxa normal de posts no top 5% de {{ hl.metrica | val }}</h2>
         <p>{{ hl.taxa | num(1) }}% desses {{ hl.posts | num }} posts ficaram entre os 5% com mais {{ hl.metrica | val }} do {{ hl.plataforma }}; nos outros, ~5%. O padrão apareceu nos dois anos ({{ hl.lift_1 | num(1) }}x e {{ hl.lift_2 | num(1) }}x) e é o único entre {{ hl.testes | num }} verificações que passou em todas as checagens.</p>
         <p><b>O que fazer:</b> testar antes de mudar o mix. Teste A/B no {{ hl.plataforma }}: o mesmo conteúdo de {{ hl_vals[0] | val }} em {{ hl_vals[1] | val }} e em inglês, com ~{{ t_pocket['posts por grupo'] | num }} posts em cada versão (o necessário para confirmar ao menos metade da diferença).</p>
         <details class="more"><summary>Detalhe</summary><div class="more-body"><p>A média de {{ hl.metrica | val }} quase não muda; o que muda é a chance de o post virar destaque.</p></div></details>
@@ -50,17 +50,17 @@
   <section id="creators">
     <span class="chip nada" style="justify-self:start">sem diferença real</span>
     <h2>Quem posta <em>não muda</em> as views</h2>
-    <p class="answer">Os creators "campeões" são sorte. As médias de views variam entre creators <b>exatamente o que o sorteio produziria</b> ({{ cr.dispersao.observado | num(1) }} views contra {{ cr.dispersao.acaso | num(1) }}), e só {{ cr.persistencia['% que continuou'] | num(1) }}% dos 10% melhores do 1º ano continuaram entre os melhores no 2º (o acaso daria 10%).</p>
+    <p class="answer">A diferença entre creators é a esperada pelo acaso. As médias de views variam entre creators <b>tanto quanto numa redistribuição aleatória dos posts</b> ({{ cr.dispersao.observado | num(1) }} views contra {{ cr.dispersao.acaso | num(1) }}), e só {{ cr.persistencia['% que continuou'] | num(1) }}% dos 10% melhores do 1º ano continuaram entre os melhores no 2º (o acaso daria 10%).</p>
     <div class="means"><span class="tag">Na prática</span><p>Não pague a mais por um creator por causa do desempenho passado. Contrate por preço e por resultado.</p></div>
     <details class="more"><summary>Ver gráfico e ranking</summary><div class="more-body">
       <div class="grid-2">
         <div class="panel"><h3>Média de views por creator: real × sorteio</h3><div class="chart"><canvas id="ch-creators"></canvas></div>
           <p class="caption">As barras mostram os creators reais; a linha mostra o que aconteceria redistribuindo os mesmos posts ao acaso entre eles. Quase não há diferença.</p></div>
-        <div class="panel"><h3>Top 10 creators: média bruta × descontada a sorte</h3>
-          <div class="table-wrap"><table><thead><tr><th>Creator</th><th>Posts</th><th>Média bruta</th><th>Descontada a sorte</th></tr></thead><tbody>
+        <div class="panel"><h3>Top 10 creators: média bruta × ajustada ao acaso</h3>
+          <div class="table-wrap"><table><thead><tr><th>Creator</th><th>Posts</th><th>Média bruta</th><th>Ajustada ao acaso</th></tr></thead><tbody>
           {% for c in cr.ranking %}<tr><td>{{ c.creator }}</td><td class="n">{{ c.posts }}</td><td class="n">{{ c['média bruta'] | num }}</td><td class="n">{{ c['média ajustada'] | num }}</td></tr>{% endfor %}
           </tbody></table></div>
-          <p class="caption">Com ~10 posts cada, a vantagem dos "campeões" desaparece quando se desconta a sorte: todos voltam à média geral ({{ cr.media_geral | num }}). Parte da variação de views ligada ao creator: {{ icc['ICC (% da variação ligada ao creator)'] | num(1) }}%.</p></div>
+          <p class="caption">Com ~10 posts cada, a vantagem dos creators com maior média desaparece quando se desconta o acaso: todos voltam à média geral ({{ cr.media_geral | num }}). Parte da variação de views ligada ao creator: {{ icc['ICC (% da variação ligada ao creator)'] | num(1) }}%.</p></div>
       </div>
     </div></details>
   </section>

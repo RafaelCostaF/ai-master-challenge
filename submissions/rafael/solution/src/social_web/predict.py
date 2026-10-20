@@ -189,7 +189,7 @@ class PredictionService:
             elif c["historico_max"] < c["base"]:
                 lines.append(f"Posts parecidos com este ficaram abaixo do normal em {name} ({_ratio(ratio)}). Considere outro formato ou idioma.")
         if not lines:
-            lines.append("Para este perfil de post, o histórico não mostra vantagem nem desvantagem: a chance de bombar fica na média (~5%).")
+            lines.append("Para este perfil de post, o histórico não mostra vantagem nem desvantagem: a chance de top 5% fica na média (~5%).")
         strong = [p for p in matched if not p["evidencia"].startswith("explor")]
         if strong:
             lines.append(f"{len(strong)} padrão(ões) que se repetiram nos dois anos se aplicam a este post. Veja abaixo.")

@@ -250,8 +250,8 @@ def what_does_not_work(df: pd.DataFrame) -> Answer:
     weak_sig = weak[weak["significativo"]]
     weak_text = ("Segmentos significativamente piores: " + "; ".join(weak_sig["plataforma"] + " → " + weak_sig["pior segmento (aparente)"])
                  if len(weak_sig) else "Nenhum segmento é significativamente pior em nenhuma plataforma")
-    verdict = (f"{len(failed)} de {len(beliefs)} crenças comuns NÃO se sustentam: " + "; ".join(failed) + f". {weak_text}. "
-               "Investir para mudar um atributo que não altera o resultado (ex.: pagar mais por seguidores, otimizar horário) é desperdício.")
+    verdict = (f"{len(failed)} de {len(beliefs)} crenças comuns não se sustentam nesta base: " + "; ".join(failed) + f". {weak_text}. "
+               "Investir para mudar um atributo que não altera o resultado (ex.: pagar mais por seguidores, otimizar horário) não traz retorno nesta base.")
     return Answer("4. O que NÃO funciona?", verdict, beliefs, {"Pior segmento por plataforma": weak})
 
 

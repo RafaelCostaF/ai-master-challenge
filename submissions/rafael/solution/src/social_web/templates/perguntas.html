@@ -21,7 +21,7 @@
     <h2>O que gera <em>engajamento</em>?</h2>
     <p class="answer">
       {% if q1sig %}{{ q1sig | map(attribute='dimensão') | map('label') | join(', ') }} fazem diferença.
-      {% else %}<b>Nada do que testamos.</b> Plataforma, formato, tema e tamanho do creator dão o mesmo engajamento (~20%). A maior diferença entre grupos é de {{ q1max | num(2) }}%.{% endif %}</p>
+      {% else %}<b>Nenhum fator testado.</b> Plataforma, formato, tema e tamanho do creator dão o mesmo engajamento (~20%). A maior diferença entre grupos é de {{ q1max | num(2) }}%.{% endif %}</p>
     <div class="means"><span class="tag">Na prática</span><p>Não troque de formato ou tema esperando mais interação. Nem as {{ r.q1.segmentos_testados }} combinações testadas (ex.: vídeo de tech no TikTok com creator pequeno) se destacaram.</p></div>
     <details class="more"><summary>Ver gráfico e dados</summary><div class="more-body">
       <div class="grid-2" id="q1-charts"></div>
@@ -45,7 +45,7 @@
           <div class="table-wrap"><table><thead><tr><th>Condição</th><th>Ganho</th><th>Real?</th></tr></thead><tbody>
           {% for c in r.q2.condicoes[:8] %}<tr><td>{{ c['condição'].split(' = ')[0] | label }}: {{ c['condição'].split(' = ')[1] | val }}</td><td class="n">{{ c['uplift engajamento (%)'] | num(2) }}%</td><td>{% if c.significativo %}<span class="yes">sim</span>{% else %}<span class="no">não</span>{% endif %}</td></tr>{% endfor %}
           </tbody></table></div>
-          <p class="caption">As 8 condições com maior ganho aparente. Nenhuma é diferente de verdade.</p></div>
+          <p class="caption">As 8 condições com maior ganho aparente. Nenhuma é significativa após a correção para múltiplos testes.</p></div>
       </div>
       <details class="tech"><summary>Detalhes técnicos</summary><p>{{ r.q2.veredito | pt }}</p></details>
     </div></details>

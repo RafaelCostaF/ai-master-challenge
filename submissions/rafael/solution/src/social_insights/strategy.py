@@ -216,7 +216,7 @@ def sponsorship_policy(df: pd.DataFrame, cost_per_follower: float = COST_PER_FOL
     sensitivity = threshold_sensitivity(df)
     group_size = mean_sample_size(df, ENGAGEMENT)
     decision = (
-        ("Patrocinar para ganhar desempenho: SIM, " if lift else "Patrocinar para ganhar desempenho: NÃO. O patrocínio não muda engajamento nem alcance. ")
+        ("Patrocinar para ganhar desempenho: sim, " if lift else "Patrocinar para ganhar desempenho: não. O patrocínio não muda engajamento nem alcance. ")
         + ("nas condições com efeito: " + ", ".join(good_conditions["condição"]) + ". " if len(good_conditions) else "Nenhuma condição tem efeito. ")
         + f"Regra que vale com qualquer preço: como as views não crescem com os seguidores, um cachê proporcional aos seguidores deixa o "
           f"creator {profile.index[-1]} ~{ratio:,.0f}x mais caro por mil views que o {profile.index[0]}. Por isso, pagar por resultado, não por post. "

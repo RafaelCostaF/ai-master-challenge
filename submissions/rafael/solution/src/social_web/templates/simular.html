@@ -9,7 +9,7 @@
   <section class="page-head sim-head">
     <span class="eyebrow">Ferramenta</span>
     <h1 style="font-size:2.4rem">Simule seu post <em>antes de publicar</em></h1>
-    <p class="lede">Monte o post com alguns cliques e veja, com base em posts parecidos do histórico, a chance de ele <b>bombar</b> (ficar entre os 5% com mais views, likes ou comentários do formato) e o que mudar para melhorar.</p>
+    <p class="lede">Monte o post com alguns cliques e veja, com base em posts parecidos do histórico, a chance de ele <b>chegar ao top 5%</b> (ficar entre os 5% com mais views, likes ou comentários do formato) e o que mudar para melhorar.</p>
     <div class="suggest"><span class="chip-label">Experimente</span><div class="suggest-list" id="examples"></div></div>
   </section>
 
@@ -125,15 +125,15 @@ const STATUS = { acima: ["Acima do normal", "good"], normal: ["Na média", "neut
 function verdict(r) {
   const by = s => r.status.filter(x => x.status === s).map(x => METRIC_NAME[x.metrica]);
   const up = by("acima"), down = by("abaixo");
-  if (up.length) return ["good", `Boa aposta para ${up.join(" e ")}`, "Posts parecidos com este viraram destaque com mais frequência que o normal."];
+  if (up.length) return ["good", `Acima do normal em ${up.join(" e ")}`, "Posts parecidos com este viraram destaque com mais frequência que o normal."];
   if (down.length) return ["low", `Atenção: abaixo do normal em ${down.join(" e ")}`, "Posts parecidos com este viraram destaque com menos frequência. Veja como melhorar."];
-  return ["neutral", "Na média", "Nada no histórico indica vantagem ou desvantagem para este post: a chance de bombar fica perto de 5%."];
+  return ["neutral", "Na média", "Nada no histórico indica vantagem ou desvantagem para este post: a chance de top 5% fica perto de 5%."];
 }
 function card(c, st) {
   const [txt, cls] = STATUS[st], scale = v => Math.min(100, v / 15 * 100), ratio = c.historico / c.base;
   return `<div class="meter ${cls}"><div class="meter-top"><span class="eyebrow">${METRIC_NAME[c.metrica]}</span><span class="status ${cls}">${txt}</span></div>
     <span class="pct">${pct(c.historico)}</span>
-    <span class="caption">chance de bombar · ${nf(ratio, 1)}x o normal (${pct(c.base)})</span>
+    <span class="caption">chance de top 5% · ${nf(ratio, 1)}x o normal (${pct(c.base)})</span>
     <div class="bar" role="img" aria-label="faixa provável de ${pct(c.historico_min)} a ${pct(c.historico_max)}"><span class="range" style="left:${scale(c.historico_min)}%;width:${scale(c.historico_max) - scale(c.historico_min)}%"></span>
       <span class="base" style="left:${scale(c.base)}%"></span><span class="dot" style="left:${scale(c.historico)}%"></span></div>
     <span class="caption">Faixa provável ${pct(c.historico_min)}–${pct(c.historico_max)} · ${nf(c.posts_parecidos)} posts parecidos. O traço escuro é o normal.</span></div>`;
@@ -149,7 +149,7 @@ function suggestionCard(r) {
   return `<div class="suggestion"><div class="suggestion-head"><span class="eyebrow">Sugestão para o seu post</span>${goals}</div>
     <div class="suggestion-body">
       <div><p class="suggestion-title">Mesmo post, mas com ${changes}</p>
-        <p class="caption">Chance de bombar em ${METRIC_NAME[sg.metrica]}: ${pct(sg.de)} → <b>${pct(sg.para)}</b> (${nf(sg.para / sg.base, 1)}x o normal; faixa provável ${pct(sg.para_min)}–${pct(sg.para_max)})</p>
+        <p class="caption">Chance de top 5% em ${METRIC_NAME[sg.metrica]}: ${pct(sg.de)} → <b>${pct(sg.para)}</b> (${nf(sg.para / sg.base, 1)}x o normal; faixa provável ${pct(sg.para_min)}–${pct(sg.para_max)})</p>
         ${chip(sg.evidencia)} ${sg.evidencia === "pista" ? '<span class="caption">confirme com um teste antes de mudar a operação</span>' : ""}</div>
       <button type="button" class="btn primary" data-apply-all='${esc(JSON.stringify(sg.mudancas))}'>Aplicar sugestão</button>
     </div></div>`;
@@ -173,7 +173,7 @@ function render(r) {
   const fieldName = f => ({ content_type: "formato", platform: "plataforma", content_category: "tema", language: "idioma" }[f] || label(f).toLowerCase());
   const sameAsSuggestion = m => r.sugestao && Object.keys(r.sugestao.mudancas).length === 1 && r.sugestao.mudancas[m.campo] === m.valor;
   const improvements = r.melhorias.filter(m => !sameAsSuggestion(m)).map(m => `<div class="improve"><div><b>Trocar ${fieldName(m.campo)} para ${esc(val(m.valor))}</b>
-      <span class="caption">${METRIC_NAME[m.metrica]}: ${pct(m.de)} → <b>${pct(m.para)}</b> de chance de bombar</span></div>
+      <span class="caption">${METRIC_NAME[m.metrica]}: ${pct(m.de)} → <b>${pct(m.para)}</b> de chance de top 5%</span></div>
       <button type="button" class="btn" data-apply-field="${m.campo}" data-apply-value="${esc(m.valor)}">Aplicar</button></div>`).join("");
   const pocket = p => `<div class="card">${chip(p.evidencia)}<span><b>${nf(p.lift, 1)}x</b> ${p.lift >= 1 ? "mais" : "menos"} chance de top 5% em ${METRIC_NAME[p.metrica]} ${p.plataforma === "todas" ? "(geral)" : "no " + p.plataforma}</span>
     <span class="caption">${describeConditions(p.condicoes)} · ${nf(p.posts)} posts</span></div>`;
@@ -192,7 +192,7 @@ function render(r) {
     <details class="more panel"><summary>Comparar com outros formatos</summary><div class="more-body">
       <div class="table-wrap"><table><thead><tr><th>Formato</th>${Object.values(METRIC_NAME).map(n => `<th>${n}</th>`).join("")}</tr></thead><tbody>
       ${formats.map(f => `<tr${f === r.post.content_type ? ' style="font-weight:700"' : ""}><td>${val(f)}</td>${Object.keys(METRIC_NAME).map(m => cell(f, m)).join("")}</tr>`).join("")}
-      </tbody></table></div><p class="caption">Chance de bombar de posts parecidos. ▲ acima do normal com segurança · ▼ abaixo · sem seta = na média.</p></div></details>
+      </tbody></table></div><p class="caption">Chance de top 5% de posts parecidos. ▲ acima do normal com segurança · ▼ abaixo · sem seta = na média.</p></div></details>
     <details class="more panel"><summary>Descobertas que se aplicam a este post (${r.descobertas_total})</summary><div class="more-body">
       <div class="cards">${r.descobertas.map(pocket).join("") || '<p class="muted">Nenhuma descoberta se aplica.</p>'}</div></div></details>
     <details class="more panel"><summary>Como o cálculo é feito</summary><div class="more-body">

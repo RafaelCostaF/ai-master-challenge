@@ -130,7 +130,7 @@
 
 ## 4. O que NÃO funciona?
 
-**Resposta:** 11 de 11 crenças comuns NÃO se sustentam: Mais seguidores → mais alcance; Mais seguidores → mais engajamento; Mais hashtags → mais alcance; Vídeo engaja mais que imagem/texto; Conteúdo curto (<60) engaja mais; Postar à noite (18–24h) dá mais alcance; Fim de semana dá mais alcance; Patrocínio aumenta alcance; Disclosure explícito derruba engajamento; Legenda longa engaja mais; Mais views → mais likes. Nenhum segmento é significativamente pior em nenhuma plataforma. Investir para mudar um atributo que não altera o resultado (ex.: pagar mais por seguidores, otimizar horário) é desperdício.
+**Resposta:** 11 de 11 crenças comuns não se sustentam nesta base: Mais seguidores → mais alcance; Mais seguidores → mais engajamento; Mais hashtags → mais alcance; Vídeo engaja mais que imagem/texto; Conteúdo curto (<60) engaja mais; Postar à noite (18–24h) dá mais alcance; Fim de semana dá mais alcance; Patrocínio aumenta alcance; Disclosure explícito derruba engajamento; Legenda longa engaja mais; Mais views → mais likes. Nenhum segmento é significativamente pior em nenhuma plataforma. Investir para mudar um atributo que não altera o resultado (ex.: pagar mais por seguidores, otimizar horário) não traz retorno nesta base.
 
 |    | crença de mercado                        | métrica        |     efeito | unidade        |   p_value |   q_value | se sustenta?   |
 |---:|:-----------------------------------------|:---------------|-----------:|:---------------|----------:|----------:|:---------------|
@@ -205,7 +205,7 @@
 
 ## 2. Política de patrocínio
 
-**Decisão:** Patrocinar para ganhar desempenho: NÃO. O patrocínio não muda engajamento nem alcance. Nenhuma condição tem efeito. Regra que vale com qualquer preço: como as views não crescem com os seguidores, um cachê proporcional aos seguidores deixa o creator mega (500K+) ~134x mais caro por mil views que o nano (<10K). Por isso, pagar por resultado, não por post. Com as premissas atuais (US$ 10 por mil seguidores, até US$ 10 por mil views e US$ 0.05 por interação), o post de preço fixo se paga até ~10,050 seguidores; com outros preços o teto vai de 1,000 a 40,400 (tabela de sensibilidade). O desempenho histórico do creator não serve de critério, porque não diferencia creators.
+**Decisão:** Patrocinar para ganhar desempenho: não. O patrocínio não muda engajamento nem alcance. Nenhuma condição tem efeito. Regra que vale com qualquer preço: como as views não crescem com os seguidores, um cachê proporcional aos seguidores deixa o creator mega (500K+) ~134x mais caro por mil views que o nano (<10K). Por isso, pagar por resultado, não por post. Com as premissas atuais (US$ 10 por mil seguidores, até US$ 10 por mil views e US$ 0.05 por interação), o post de preço fixo se paga até ~10,050 seguidores; com outros preços o teto vai de 1,000 a 40,400 (tabela de sensibilidade). O desempenho histórico do creator não serve de critério, porque não diferencia creators.
 
 |                                |   diferença |   IC95 inf |   IC95 sup |   diferença (%) |   p_value |   estratos |   q_value |
 |:-------------------------------|------------:|-----------:|-----------:|----------------:|----------:|-----------:|----------:|
