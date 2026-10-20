@@ -21,8 +21,8 @@
 <div class="hero">
   <div class="wrap">
     <span class="eyebrow">Resumo para o time de marketing · {{ d.meta.posts | num }} posts · {{ d.meta.plataformas | length }} plataformas</span>
-    <h1>Nesta base, tema, formato e tamanho do creator não mostraram efeito no resultado. <em>O que varia é o custo.</em></h1>
-    <p class="lede">O que {{ d.meta.posts | num }} posts publicados entre {{ d.meta.inicio[:7] }} e {{ d.meta.fim[:7] }} dizem sobre onde investir, o que parar e o que testar.</p>
+    <h1>Desempenho de conteúdo <em>em redes sociais</em></h1>
+    <p class="lede">Análise aprofundada dos dados de {{ d.meta.posts | num }} posts em {{ d.meta.plataformas | length }} plataformas, publicados entre {{ d.meta.inicio[:7] }} e {{ d.meta.fim[:7] }}: o que gera engajamento, se vale patrocinar, qual público responde melhor e onde investir.</p>
     <details class="more data-note"><summary>Sobre os dados</summary><div class="more-body">
       <p>Os dados do desafio são simulados: os números de cada post foram gerados quase ao acaso. Por isso a maioria das respostas é "não faz diferença". Os métodos usados encontram diferenças reais quando elas existem (testamos isso de propósito). Com os dados da empresa, o site é recalculado e mostra o que os dados da empresa indicam.</p>
       <p>{% if pv.posts_com_zero == 0 %}Nenhum post tem zero views, likes, compartilhamentos ou comentários (mínimo de {{ pv.min_likes | num }} likes; views de {{ pv.views_min | num }} a {{ pv.views_max | num }}): a base não mostra posts que fracassaram.{% else %}{{ pv.posts_com_zero | num }} registros com zero em alguma métrica.{% endif %}
