@@ -84,7 +84,7 @@ Estrutura pensada para virar seções de site: cada pergunta tem **manchete**, *
 ### Relatório completo (linha de comando)
 ```bash
 cd submissions/rafael
-.venv/bin/python solution/answer_questions.py --out docs/respostas.md   # ou sem --out para imprimir
+.venv/bin/python solution/cli/answer_questions.py --out docs/respostas.md   # ou sem --out para imprimir
 ```
 
 ### Em Python (notebook, API ou backend do site)

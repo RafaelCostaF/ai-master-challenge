@@ -1,12 +1,12 @@
 """CLI: answers the four Challenge 004 questions + the four strategy decisions + the test queue and writes a Markdown report.
 
-Usage (from submissions/rafael): .venv/bin/python solution/answer_questions.py [--out docs/respostas.md]
+Usage (from submissions/rafael): .venv/bin/python solution/cli/answer_questions.py [--out docs/respostas.md]
 """
 import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 
 from social_insights import data, questions, strategy  # noqa: E402
 

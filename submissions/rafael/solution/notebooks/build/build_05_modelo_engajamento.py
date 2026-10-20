@@ -146,7 +146,7 @@ nb.md("""
 **Leitura:** nos dados originais, o previsor adota a **média** (19,9%, intervalo de 90%: 19,1%–20,7%) e avisa que a estimativa é igual para qualquer post. Prometer mais seria vender ruído.
 Com sinal plantado, ele troca sozinho para um modelo real, e o post TikTok × vídeo × tech passa a ter previsão maior que os demais.
 
-Para usar: `.venv/bin/python solution/predict_engagement.py --platform TikTok --content_type video --content_category tech --follower_count 25000`
+Para usar: `.venv/bin/python solution/cli/predict_engagement.py --platform TikTok --content_type video --content_category tech --follower_count 25000`
 
 ## 6. Conclusões
 1. **14 abordagens supervisionadas** (lineares, vizinhos, rede neural, árvores, boosting) e uma formulação de classificação: **nenhuma prevê engajamento melhor que a média**.

@@ -95,7 +95,7 @@ Das ~14,7 mil variações testadas por plataforma, só estas merecem teste. O re
 ### Relatório (diagnóstico + estratégia)
 ```bash
 cd submissions/rafael
-.venv/bin/python solution/answer_questions.py --out docs/respostas.md
+.venv/bin/python solution/cli/answer_questions.py --out docs/respostas.md
 ```
 
 ### Em Python

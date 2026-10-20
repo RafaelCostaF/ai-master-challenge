@@ -129,10 +129,15 @@ def main() -> None:
     parser.add_argument("--rebuild", action="store_true", help="retreina os modelos e recalcula o conteúdo")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--build-only", action="store_true", help="só treina e grava modelos e conteúdo em solution/models (sem subir o site)")
     args = parser.parse_args()
     import uvicorn
     print("Carregando dados e modelos (a 1ª execução treina tudo e leva alguns minutos)…", flush=True)
-    app = create_app(load_state(rebuild=args.rebuild))
+    state = load_state(rebuild=args.rebuild)
+    if args.build_only:
+        print("Modelos e conteúdo gravados em solution/models.", flush=True)
+        return
+    app = create_app(state)
     print(f"Pronto: http://{args.host}:{args.port}  ·  API: http://{args.host}:{args.port}/docs", flush=True)
     uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
 

@@ -1,8 +1,8 @@
 """CLI: estimate the engagement of a planned post (trains and caches the predictor on first use).
 
 Usage (from submissions/rafael):
-  .venv/bin/python solution/predict_engagement.py --platform TikTok --content_type video --content_category tech --follower_count 25000
-  .venv/bin/python solution/predict_engagement.py --retrain
+  .venv/bin/python solution/cli/predict_engagement.py --platform TikTok --content_type video --content_category tech --follower_count 25000
+  .venv/bin/python solution/cli/predict_engagement.py --retrain
 """
 import argparse
 import sys
@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 
 from social_insights import data, engagement_model as em  # noqa: E402
 

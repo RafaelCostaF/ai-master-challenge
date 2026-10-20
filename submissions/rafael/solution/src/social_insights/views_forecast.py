@@ -102,7 +102,7 @@ def _model(name: str, cats: list[str]):
     if name == "LightGBM":
         return LGBMRegressor(n_estimators=400, learning_rate=0.03, num_leaves=31, min_child_samples=50, subsample=0.8,
                              subsample_freq=1, colsample_bytree=0.8, verbose=-1, random_state=SEED)
-    return CatBoostRegressor(iterations=400, depth=6, learning_rate=0.05, random_seed=SEED, verbose=0, cat_features=cats)
+    return CatBoostRegressor(iterations=400, depth=6, learning_rate=0.05, random_seed=SEED, verbose=0, allow_writing_files=False, cat_features=cats)
 
 
 def _fit_predict(name: str, X_tr, y_tr, X_te, cats):

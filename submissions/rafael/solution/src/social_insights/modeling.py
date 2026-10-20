@@ -42,7 +42,7 @@ def make_model(name: str, cats: list[str]):
         return XGBRegressor(n_estimators=300, max_depth=4, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8,
                             enable_categorical=True, tree_method="hist", random_state=SEED, n_jobs=-1)
     if name == "CatBoost":
-        return CatBoostRegressor(iterations=300, depth=6, learning_rate=0.05, cat_features=cats, random_seed=SEED, verbose=0)
+        return CatBoostRegressor(iterations=300, depth=6, learning_rate=0.05, cat_features=cats, random_seed=SEED, verbose=0, allow_writing_files=False)
     raise ValueError(name)
 
 

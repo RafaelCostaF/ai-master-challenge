@@ -1,8 +1,8 @@
 """CLI: forecast the views of a planned post using only what is known before posting.
 
 Usage (from submissions/rafael):
-  .venv/bin/python solution/predict_views.py --creator_id creator_586 --platform TikTok --content_type video --content_category tech --content_length 45 --is_sponsored False
-  .venv/bin/python solution/predict_views.py --retrain
+  .venv/bin/python solution/cli/predict_views.py --creator_id creator_586 --platform TikTok --content_type video --content_category tech --content_length 45 --is_sponsored False
+  .venv/bin/python solution/cli/predict_views.py --retrain
 """
 import argparse
 import sys
@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 
 from social_insights import data, views_forecast as vf  # noqa: E402
 

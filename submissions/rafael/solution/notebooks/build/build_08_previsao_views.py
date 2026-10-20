@@ -130,7 +130,7 @@ display(Markdown(f"Com efeito plantado: **{planted_forecaster.model_name}**"))
 planted_forecaster.predict(planned_planted)
 """)
 nb.md("""
-**Uso:** `.venv/bin/python solution/predict_views.py --creator_id creator_586 --platform TikTok --content_type video --content_category tech --content_length 45`
+**Uso:** `.venv/bin/python solution/cli/predict_views.py --creator_id creator_586 --platform TikTok --content_type video --content_category tech --content_length 45`
 
 ## 7. Conclusões
 1. **Dá para saber antes de postar:** plataforma, formato, categoria, idioma, duração, legenda/hashtags (como contagem), creator (via histórico), seguidores, patrocínio/disclosure, horário e audiência do creator. O resto (views, likes, shares, comentários) é resultado.

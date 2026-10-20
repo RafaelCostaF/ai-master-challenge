@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-Analisei os 52.214 posts com um protocolo que só aceita uma diferença como real depois de corrigir para os milhares de testes feitos e de provar, com efeitos plantados, que o método a detectaria. O resultado central: **nada do que o time controla (plataforma, formato, tema, porte do creator, horário, hashtags, patrocínio) muda engajamento ou alcance nesta base**, que o próprio Kaggle descreve como simulada. A recomendação principal é **contratar creators por resultado, não por post**: como as views não crescem com os seguidores, o creator mega paga ~134x mais por mil views que o nano, qualquer que seja o cachê. Entreguei também um **site para o time de marketing** (resumo, painel, simulador de post e auditorias) que recalcula todos os textos e números com os dados reais da empresa.
+Analisei os 52.214 posts com um protocolo que só aceita uma diferença como real depois de corrigir para os milhares de testes feitos e de provar, com efeitos plantados, que o método a detectaria. O resultado central: **nenhum dos fatores que o time controla (plataforma, formato, tema, porte do creator, horário, hashtags, patrocínio) mostrou efeito no engajamento ou no alcance nesta base**, que o próprio Kaggle descreve como simulada. A recomendação principal é **contratar creators por resultado, não por post**: como as views não crescem com os seguidores, o creator mega paga ~134x mais por mil views que o nano, qualquer que seja o cachê. Entreguei também um **site para o time de marketing** (resumo, painel, simulador de post e auditorias) que recalcula todos os textos e números com os dados reais da empresa.
 
 **Leitura de 5 minutos:** [`docs/resumo-executivo.md`](docs/resumo-executivo.md)
 
@@ -36,12 +36,12 @@ Analisei os 52.214 posts com um protocolo que só aceita uma diferença como rea
 
 | Pergunta | Resposta | Evidência |
 |---|---|---|
-| O que gera engajamento? | Nada do que foi testado | 450 combinações (até plataforma × formato × tema × porte): 22 com p < 0,05, exatamente o esperado por acaso; 0 após correção |
-| Patrocínio funciona? | Não para desempenho; só quando o preço é justo | +0,008% de engajamento e +0,004% de views em 269 estratos comparáveis; 0 de 17 condições com efeito |
+| O que gera engajamento? | Nenhum fator testado | 450 combinações (até plataforma × formato × tema × porte): 22 com p < 0,05, o esperado por acaso; 0 após correção |
+| Patrocínio funciona? | Não para desempenho; depende do custo por resultado | +0,008% de engajamento e +0,004% de views em 269 estratos comparáveis; 0 de 17 condições com efeito |
 | Que público engaja mais? | Nenhum | 36 contextos (plataforma, formato, tema) × gênero, idade e país: 0 efeitos |
 | O que não funciona? | 11 de 11 crenças de mercado | ex.: seguidores × views ρ = 0,005; vídeo vs. imagem/texto −0,03% |
 | Modelos de previsão | Nenhum bate a média, e a ferramenta avisa | 14 abordagens de engajamento, previsão de views com validação temporal, chance de top 5% (0 de 12 combinações adotadas); com efeito plantado, o mesmo protocolo adota o modelo certo |
-| Quem posta importa? | Não: os "campeões" são sorte | 8,8% dos top 10% do 1º ano continuam no top no 2º (acaso: 10%) |
+| Quem posta importa? | Não: o desempenho passado não se repete além do acaso | 8,8% dos top 10% do 1º ano continuam no top no 2º (acaso: 10%) |
 | Único padrão robusto | TikTok · beauty · espanhol: 2x mais chance de top 5% em likes | 10,0% vs. 4,9%, nos dois anos; q global = 0,035 entre ~14,7 mil testes. Vai para teste, não para regra |
 | Auditorias de carteira | Lacunas que valem mesmo sem efeito no engajamento | 47% dos patrocínios com disclosure implícito; só 2,3% com #ad no texto; 60% fora do nicho do creator; só 22% dos posts no idioma do mercado |
 
@@ -53,7 +53,7 @@ Detalhe completo, gerado por código: [`docs/respostas.md`](docs/respostas.md) �
 1. Contratar creators **por resultado** (CPM/CPE), não por post: a diferença de ~134x por mil views entre mega e nano independe do valor do cachê.
 2. **Rótulo de publicidade verificável no texto** (#publi/#ad): reduz o risco regulatório (47% em risco alto) sem custo de engajamento.
 3. **Grupo de comparação orgânico em todo patrocínio**, para medir o ganho real.
-4. **Não pagar a mais por creator "campeão"** e tirar "melhor horário" e "hashtags ideais" do checklist.
+4. **Não pagar a mais pelo histórico de desempenho do creator** e tirar "melhor horário" e "hashtags ideais" do checklist.
 
 **Recalcular com os preços reais antes de aplicar:**
 
@@ -77,27 +77,53 @@ Detalhe completo, gerado por código: [`docs/respostas.md`](docs/respostas.md) �
 
 ### Como rodar
 
-Requer Python 3.14 (as versões fixadas em `requirements.txt` foram resolvidas nele) e uma credencial do Kaggle em `~/.kaggle/kaggle.json`.
+**Com Docker (recomendado):** um comando monta e sobe tudo. A imagem fixa o Python (3.14.3) e todos os pacotes na versão exata do ambiente testado (`requirements.lock`), confere o sha256 do CSV, treina os modelos no build e **falha o build se qualquer número ou texto do site, ou a resposta do simulador para 4 posts de teste, divergir da referência** (`solution/reproducibility/reference.json`).
 
 ```bash
 cd submissions/rafael
-python3.14 -m venv .venv && .venv/bin/pip install -r requirements.txt && .venv/bin/pip install -e .
-bash scripts/get_data.sh                              # baixa o CSV e confere o sha256
-.venv/bin/python -m pytest -q                         # 116 testes (~2 min)
-.venv/bin/python solution/answer_questions.py --out docs/respostas.md   # relatório das 4 perguntas + estratégia
-.venv/bin/social-web                                  # site em http://127.0.0.1:8000 (1ª vez treina tudo, ~5 min)
+docker build -t g4-social . && docker run --rm -p 8000:8000 g4-social   # site em http://127.0.0.1:8000 (build ~10 min)
 ```
-Também via `make setup data test report notebooks site` ([`Makefile`](Makefile)).
+- Sem o CSV em `data/raw/`, passe a credencial do Kaggle no build: `docker build --secret id=kaggle,src=$HOME/.kaggle/kaggle.json -t g4-social .` (o token não fica gravado na imagem).
+- Checagem completa (retreina do zero e roda os testes dentro do container): `docker run --rm g4-social python solution/reproducibility/verify.py --retrain --tests`.
+- O container roda sem root e tem healthcheck em `/api/health`. Também funciona com `podman`.
 
-| Pasta | Conteúdo |
-|---|---|
-| `solution/src/social_insights/` | análises, modelos, estratégia e auditorias (pacote Python) |
-| `solution/src/social_web/` | site FastAPI: Início, Explorar, Simular post, Perguntas, Estratégia, Descobertas, Auditorias, Método; API em `/docs` |
-| `solution/notebooks/` | 14 notebooks executados (gerados por `notebooks/build/`) |
-| `solution/tests/` | testes com efeitos plantados (o método precisa achar o que existe e ficar quieto no ruído) |
-| `solution/*.py` | CLIs: relatório, previsão de engajamento, views e chance de top 5% |
-| `docs/` | resumo executivo, relatório completo e figuras |
-| `knowledge/` · `review/` | achados por tema · revisão crítica da entrega |
+**Sem Docker** (Python 3.14 e credencial do Kaggle em `~/.kaggle/kaggle.json`):
+
+```bash
+cd submissions/rafael
+python3.14 -m venv .venv && .venv/bin/pip install -r requirements.lock && .venv/bin/pip install -e .
+bash solution/scripts/get_data.sh                                          # baixa o CSV e confere o sha256
+.venv/bin/python -m pytest -q                                              # testes (~2 min)
+.venv/bin/python solution/reproducibility/verify.py                        # versões, dados, modelos e resultados = referência
+.venv/bin/python solution/cli/answer_questions.py --out docs/respostas.md  # relatório das 4 perguntas + estratégia
+.venv/bin/social-web                                                       # site em http://127.0.0.1:8000 (1ª vez treina tudo, ~5 min)
+```
+Atalhos no [`Makefile`](Makefile): `setup data test verify verify-full report notebooks site docker-build docker-run docker-verify`.
+
+### Organização
+
+```
+submissions/rafael/
+├── README.md · DEVELOPMENT_PROCESS.md     visão geral · decisões e alternativas descartadas
+├── Dockerfile · Makefile                  ambiente encapsulado · atalhos
+├── pyproject.toml                         pacote Python (social_insights, social_web)
+├── requirements.txt · requirements.lock   dependências diretas · todas as versões exatas (inclui as indiretas)
+├── solution/                              tudo que é código (detalhes em solution/README.md)
+│   ├── src/social_insights/               análises, modelos, estratégia e auditorias
+│   ├── src/social_web/                    site FastAPI (páginas, painel, simulador, API em /docs)
+│   ├── cli/                               relatório e previsões pela linha de comando
+│   ├── scripts/                           download do dataset com checagem de sha256
+│   ├── reproducibility/                   verificador + resultados de referência
+│   ├── notebooks/                         14 notebooks executados (gerados por notebooks/build/)
+│   ├── tests/                             testes com efeitos plantados
+│   └── models/                            modelos treinados (gerados, fora do git)
+├── data/raw/                              CSV do Kaggle (baixado, fora do git)
+├── docs/                                  resumo executivo, relatório completo e figuras
+├── knowledge/                             achados por tema e notas de ambiente
+├── process-log/                           uso de IA: narrativa, prompts, sessões e sondas
+├── review/                                revisão crítica da entrega
+└── instructions/                          regras seguidas na entrega
+```
 
 ---
 

@@ -2,9 +2,9 @@
 
 Shows the same post as video / image / text / mixed so formats can be compared before posting.
 Usage (from submissions/rafael):
-  .venv/bin/python solution/predict_hit.py --platform TikTok --content_category beauty --language Spanish --hour 19
-  .venv/bin/python solution/predict_hit.py --content_type video --platform YouTube --content_category tech
-  .venv/bin/python solution/predict_hit.py --retrain
+  .venv/bin/python solution/cli/predict_hit.py --platform TikTok --content_category beauty --language Spanish --hour 19
+  .venv/bin/python solution/cli/predict_hit.py --content_type video --platform YouTube --content_category tech
+  .venv/bin/python solution/cli/predict_hit.py --retrain
 """
 import argparse
 import sys
@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 
 from social_insights import data, hit_probability as hp  # noqa: E402
 from social_insights.views_forecast import add_creator_history  # noqa: E402

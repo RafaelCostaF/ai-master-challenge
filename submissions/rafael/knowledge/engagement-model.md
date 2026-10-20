@@ -1,6 +1,6 @@
 # Modelo preditivo de engajamento — achados e como usar
 
-Fonte: `solution/src/social_insights/engagement_model.py` · notebook: `solution/notebooks/05_modelo_engajamento.ipynb` · CLI: `solution/predict_engagement.py` · gerado em 2026-10-18 sobre 52.214 posts.
+Fonte: `solution/src/social_insights/engagement_model.py` · notebook: `solution/notebooks/05_modelo_engajamento.ipynb` · CLI: `solution/cli/predict_engagement.py` · gerado em 2026-10-18 sobre 52.214 posts.
 Mesmo formato dos outros arquivos para o site: manchete, números-chave, gráficos sugeridos, uso.
 
 ## Problema
@@ -63,10 +63,10 @@ Mesmo formato dos outros arquivos para o site: manchete, números-chave, gráfic
 ### Linha de comando (estimar um post planejado)
 ```bash
 cd submissions/rafael
-.venv/bin/python solution/predict_engagement.py --platform TikTok --content_type video --content_category tech --follower_count 25000
+.venv/bin/python solution/cli/predict_engagement.py --platform TikTok --content_type video --content_category tech --follower_count 25000
 # Modelo: Média (baseline) (R² validação -0.0001; supera baseline: não)
 # Engajamento estimado: 19.91%  (intervalo 90%: 19.11% – 20.71%)
-.venv/bin/python solution/predict_engagement.py --retrain     # refaz a comparação (~75 s) e salva em solution/models/
+.venv/bin/python solution/cli/predict_engagement.py --retrain     # refaz a comparação (~75 s) e salva em solution/models/
 ```
 Campos não informados assumem o post típico (moda/mediana). Aceita qualquer coluna de entrada como `--<coluna>`.
 

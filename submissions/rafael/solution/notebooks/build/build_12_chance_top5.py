@@ -104,9 +104,9 @@ nb.md("""
 
 ## 4. Como usar
 ```bash
-.venv/bin/python solution/predict_hit.py --platform TikTok --content_category beauty --language Spanish --hour 19
-.venv/bin/python solution/predict_hit.py --content_type video --platform YouTube --content_category tech --follower_count 50000
-.venv/bin/python solution/predict_hit.py --retrain      # após atualizar os dados
+.venv/bin/python solution/cli/predict_hit.py --platform TikTok --content_category beauty --language Spanish --hour 19
+.venv/bin/python solution/cli/predict_hit.py --content_type video --platform YouTube --content_category tech --follower_count 50000
+.venv/bin/python solution/cli/predict_hit.py --retrain      # após atualizar os dados
 ```
 A saída traz 3 tabelas (formato × métrica): **chance oficial (%)**, **sinal do segmento (%)** e **intervalo de 90%** do sinal.
 

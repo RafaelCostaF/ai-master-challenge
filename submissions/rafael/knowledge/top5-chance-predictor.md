@@ -1,6 +1,6 @@
 # Chance de cair no top 5% antes de postar — achados e como usar
 
-Fonte: `solution/src/social_insights/hit_probability.py` · notebook: `solution/notebooks/12_chance_top5.ipynb` · CLI: `solution/predict_hit.py` · 2026-10-19.
+Fonte: `solution/src/social_insights/hit_probability.py` · notebook: `solution/notebooks/12_chance_top5.ipynb` · CLI: `solution/cli/predict_hit.py` · 2026-10-19.
 
 ## O que a ferramenta responde
 "Se eu postar **isto**, qual a % de chance de ficar entre os **5% melhores do formato** (vídeo, imagem, texto, misto) em **views**, **likes** e **comentários**?"
@@ -42,9 +42,9 @@ Ela mostra o mesmo post nos 4 formatos para comparar.
 ## Como utilizar
 ```bash
 cd submissions/rafael
-.venv/bin/python solution/predict_hit.py --platform TikTok --content_category beauty --language Spanish --hour 19
-.venv/bin/python solution/predict_hit.py --content_type video --platform YouTube --content_category tech --follower_count 50000
-.venv/bin/python solution/predict_hit.py --retrain       # ~25 s; salva em solution/models/hit_predictor.joblib
+.venv/bin/python solution/cli/predict_hit.py --platform TikTok --content_category beauty --language Spanish --hour 19
+.venv/bin/python solution/cli/predict_hit.py --content_type video --platform YouTube --content_category tech --follower_count 50000
+.venv/bin/python solution/cli/predict_hit.py --retrain       # ~25 s; salva em solution/models/hit_predictor.joblib
 ```
 A saída traz 3 tabelas (formato × métrica): chance oficial (%), sinal do segmento (%) e IC90 do sinal. Campos omitidos assumem o post típico.
 

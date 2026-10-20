@@ -88,7 +88,7 @@ def candidate_models() -> dict:
                                                    colsample_bytree=0.8, n_jobs=-1, random_state=SEED))),
         "LightGBM": ("boosting", trees(LGBMRegressor(n_estimators=300, learning_rate=0.05, num_leaves=31, subsample=0.8,
                                                      subsample_freq=1, verbose=-1, random_state=SEED))),
-        "CatBoost": ("boosting", CatBoostWrapper(iterations=300, depth=6, learning_rate=0.05, random_seed=SEED)),
+        "CatBoost": ("boosting", CatBoostWrapper(iterations=300, depth=6, learning_rate=0.05, random_seed=SEED, allow_writing_files=False)),
     }
 
 

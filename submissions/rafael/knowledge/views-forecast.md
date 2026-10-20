@@ -1,6 +1,6 @@
 # Prever views antes de postar — achados e como usar
 
-Fonte: `solution/src/social_insights/views_forecast.py` · notebook: `solution/notebooks/08_previsao_views.ipynb` · CLI: `solution/predict_views.py` · gerado em 2026-10-19 sobre 52.214 posts.
+Fonte: `solution/src/social_insights/views_forecast.py` · notebook: `solution/notebooks/08_previsao_views.ipynb` · CLI: `solution/cli/predict_views.py` · gerado em 2026-10-19 sobre 52.214 posts.
 
 ## Manchete
 **Nada do que se sabe antes de postar prevê as views** melhor que a média histórica (10.100 views, intervalo de 90%: 9.935–10.267). Nem conteúdo, nem quem posta, nem patrocínio, horário ou audiência, testados com validação temporal (treino no passado, teste nos posts mais recentes).
@@ -53,11 +53,11 @@ Com um nível persistente por creator (±3%) + efeito de conteúdo (+3% em TikTo
 ## Como utilizar
 ```bash
 cd submissions/rafael
-.venv/bin/python solution/predict_views.py --creator_id creator_586 --platform TikTok --content_type video \
+.venv/bin/python solution/cli/predict_views.py --creator_id creator_586 --platform TikTok --content_type video \
     --content_category tech --content_length 45 --is_sponsored True --hour 19 --weekday Friday
 # Modelo: média histórica (supera a média histórica: não)
 # Views previstas: 10,100  (intervalo 90%: 9,935 – 10,267)
-.venv/bin/python solution/predict_views.py --retrain   # refaz a avaliação (~25 s) e salva em solution/models/
+.venv/bin/python solution/cli/predict_views.py --retrain   # refaz a avaliação (~25 s) e salva em solution/models/
 ```
 `--creator_id` puxa o histórico do creator. Campos omitidos assumem o post típico (moda/mediana).
 
