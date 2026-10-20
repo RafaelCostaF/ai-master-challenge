@@ -18,13 +18,19 @@ Estruturei o projeto em etapas, organizando o repositório, preparando o dataset
 
 ### Abordagem
 
-1. **Organização.** Baixei o dataset e criei instruções para cada tipo de tarefa ([`instructions/`](instructions/)), uma pasta de achados ([`knowledge/`](knowledge/)) e um registro de decisões ([`DEVELOPMENT_PROCESS.md`](DEVELOPMENT_PROCESS.md)).
-2. **Entender os dados antes de concluir.** A EDA mostrou que a base é sintética. O foco passou a ser separar sinal de ruído.
-3. **Revisores independentes.** Agentes separados, sem o contexto da análise, conferiram os achados contra a descrição do dataset e a entrega contra os requisitos.
-4. **Rigor estatístico.** Correção para muitos testes, comparação de posts parecidos, efeito mínimo detectável, validação temporal e efeitos plantados que o método precisa encontrar.
-5. **Produto.** Site com a identidade G4, organizado por perguntas de negócio.
-6. **Simplificação.** Cortei textos e métricas em excesso e deixei só o que o time de marketing usa.
-7. **Revisão final** contra os requisitos do desafio.
+1. **Preparação e organização do projeto.** O trabalho começou pelo download do dataset, configuração do ambiente e criação das instruções gerais do projeto, incluindo padrões de código, critérios de entrega e regras de reprodutibilidade. Também foi criada uma pasta de `knowledge` para centralizar os achados ao longo da análise e um registro específico para decisões tomadas em pontos críticos, evitando que mudanças de direção ficassem apenas implícitas no histórico de desenvolvimento.
+
+2. **Análise orientada por evidência.** Antes de buscar conclusões, a EDA foi usada para entender a natureza dos dados. Como o dataset se mostrou sintético e com métricas de desempenho praticamente independentes das características dos posts, a abordagem passou a priorizar a separação entre sinal e ruído, evitando transformar pequenas variações aleatórias em recomendações de negócio.
+
+3. **Revisões independentes e agentes não contaminados.** Parte importante do processo foi manter agentes separados do desenvolvimento principal para revisar a documentação, verificar os achados sobre os dados e confrontar as conclusões com a descrição original do dataset e com os requisitos do desafio. Esses agentes recebiam apenas o material necessário para a revisão, reduzindo o risco de simplesmente reproduzir as interpretações já formadas durante a análise.
+
+4. **Rigor estatístico e validação.** As conclusões foram submetidas a múltiplas verificações: correção para muitos testes, análises estratificadas, efeito mínimo detectável, validação temporal e controles positivos com sinais sintéticos conhecidos. Com isso, cada recomendação precisava estar ligada a um resultado reproduzível e suficientemente sustentado pelos dados.
+
+5. **Transformação da análise em produto.** Depois da etapa analítica, os resultados foram organizados em uma aplicação web, com identidade visual inspirada na G4 Company e estrutura voltada à navegação por perguntas de negócio, recomendações, descobertas e painéis de análise.
+
+6. **Simplificação da experiência.** A primeira versão da aplicação ainda refletia o volume de informações produzido durante a análise. Por isso, o site passou por uma nova rodada de revisão visual e de conteúdo, com remoção de textos e métricas excessivas, reorganização dos painéis de BI e priorização das informações realmente úteis para o time de marketing. O objetivo foi transformar uma análise tecnicamente extensa em uma ferramenta simples, direta e acionável, evitando o excesso de conteúdo normalmente gerado por IA.
+
+7. **Revisão final e entrega.** A última etapa foi uma revisão completa da solução, cobrindo consistência entre dados, análises e recomendações, qualidade da documentação, organização da aplicação e aderência aos requisitos do desafio, antes da preparação da entrega final.
 
 ### Resultados / Findings
 
