@@ -151,12 +151,11 @@ O processo ficou registrado em **33 prompts**, **3 sessões principais** e **39 
 
 ### Onde a IA errou e como corrigi
 
-- **Apontou clusters que não existiam.** A estatística de Hopkins deu 0,88–0,94 ("há grupos"). *Como percebi:* o teste com efeito plantado mostrou que ela dá o mesmo valor em dados sem grupos. *Correção:* comparação com dados embaralhados.
-- **Ranking de SHAP lido como "fatores de engajamento"** (pedido no plano da outra IA). *Como percebi:* o R² caiu de 0,09 no treino para ~0 na validação, e o modelo com alvo embaralhado teve as mesmas importâncias. *Correção:* toda importância aparece ao lado desse controle.
-- **Disse que disclosure explícito era compliance sem risco.** *Como percebi:* pedi, numa sessão separada, que a descrição do Kaggle fosse confrontada com as conclusões. Os posts marcados "disclosure em hashtags" têm #ad só em 0,23% dos casos, quase o mesmo que os orgânicos (0,21%). *Correção:* auditoria de disclosure.
-- **Misturou segundos e palavras em `content_length`** ("conteúdo curto engaja mais"). *Como percebi:* na mesma sessão; a descrição diz que o campo é em segundos para vídeo e em palavras para texto. *Correção:* análise só por formato.
-- **Recomendou horários fixos ("10h", "YouTube antes do meio-dia").** *Como percebi:* na mesma sessão; `post_date` não tem fuso e o público está em 8 países. *Correção:* decidi assumir um relógio único e mostrar um aviso no site.
-- **Contradisse a própria tese.** Dizia que os dados eram ruído, mas mandava "priorizar beauty em espanhol no TikTok". Também apresentava o teto de 10.050 seguidores e "US$ 109 mi" como achados, quando saíam das premissas de custo. *Como percebi:* pedi uma revisão crítica contra os requisitos, também em sessão separada. *Correção:* esses casos viraram testes com tamanho de amostra ou cálculos dependentes de preço, com tabela de sensibilidade.
+- **Conclusões que a descrição do dataset não sustentava.** *Como percebi:* abri uma sessão separada, passei a descrição oficial do Kaggle e pedi para checar resultados enganosos. *Correção:* mandei corrigir os textos errados: "disclosure explícito = compliance" virou exigência de #ad/#publi verificável no texto, e "conteúdo curto (<60) engaja mais" ganhou o aviso de que `content_length` mistura segundos e palavras.
+- **Horários tratados como se tivessem fuso.** *Como percebi:* na mesma checagem. *Correção:* decidi assumir a data como normalizada, sem converter fuso, e manter só um aviso no site.
+- **Entrega contraditória.** *Como percebi:* pedi, em outra sessão, uma crítica da entrega contra os requisitos. *Correção:* "corrija as contradições [...] porém verdadeiros, baseados nos dados".
+- **Site difícil de usar.** *Como percebi:* ao navegar, tudo exigia abrir página a página e rolar todo o conteúdo. *Correção:* pedi as informações principais primeiro e os detalhes só sob demanda.
+- **Painel de BI ruim e nome "Prever um post" pouco claro.** *Como percebi:* ao usar o site. *Correção:* pedi um painel mais interativo e simples e um nome mais claro (virou "Simular post").
 
 ### Minha contribuição no processo
 
